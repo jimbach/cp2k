@@ -303,6 +303,8 @@ CONTAINS
 
       qmmm = calc_nfree_qm(md_env, md_ener) > 0
       is_mixed = (force_env%in_use == use_mixed_force)
+      !JB check if adqmmx - output needs to be added below
+      adqmmmx = (force_env%in_use == use_adqmmmx)
 
       CALL cp_subsys_get(subsys, particles=particles, virial=virial)
       nat = particles%n_els

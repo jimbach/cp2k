@@ -1344,4 +1344,173 @@ CONTAINS
 
    END SUBROUTINE create_print_qmmm_section
 
+! **************************************************************************************************
+!> \brief Input section to create adaptive QM/MM sections
+!> \param section ...
+!> \author JB DELETED KEYWORDS Momentum conservation entries, R_BUF, DELTA_CHARGE 
+!> \author JB ADDED KEYWORDS SWITCH_T
+!> \author JB DELETED SUBSECTIONS BUFFER_NON_ADAPTIVE, BUFFER_LINKS
+! **************************************************************************************************
+   SUBROUTINE create_qmmm_adaptive_section(section)
+      TYPE(section_type), POINTER                        :: section
+
+      CHARACTER(len=*), PARAMETER :: routineN = 'create_qmmm_adaptive_section', &
+         routineP = moduleN//':'//routineN
+
+      TYPE(keyword_type), POINTER                        :: keyword
+      TYPE(section_type), POINTER                        :: link_subsection, print_key, &
+                                                            qm_kinds_subsection, subsection
+
+      NULLIFY (keyword)
+      CPASSERT(.NOT. ASSOCIATED(section))
+      CALL section_create(section, __LOCATION__, name="ADAPTIVE_QMMM", &
+                          description="This section enables and defines parameters for an adaptive QM/MM method.,"// &
+                          n_keywords=7, n_subsections=3, repeats=.FALSE.)
+
+      CALL keyword_create(keyword, __LOCATION__, name="_SECTION_PARAMETERS_", &
+                          description="Enables adaptive QM/MM", &
+                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="R_CORE", &
+                          description="Specify the inner and outer radii of core QM region. "// &
+                          " All molecules with any atoms within this distance (hysteretically) of any atoms "// &
+                          " specified as QM in enclosing QM/MM section  will be core QM atoms in the force-mixing calculation.", &
+                          usage="R_CORE <real> <real>", n_var=2, type_of_var=real_t, &
+                          default_r_vals=(/cp_unit_to_cp2k(0.0_dp, "angstrom"), &
+                                           cp_unit_to_cp2k(0.0_dp, "angstrom")/), &
+                          unit_str="angstrom")
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="R_QM", &
+                          description="Specify the inner and outer radii of QM dynamics region. "// &
+                          " All molecules with atoms within this distance (hysteretically) of any atoms in "// &
+                          " core will adaptively transition into a QM representation.", &
+                          usage="R_QM <real> <real>", n_var=2, type_of_var=real_t, &
+                          default_r_vals=(/cp_unit_to_cp2k(0.5_dp, "angstrom"), &
+                                           cp_unit_to_cp2k(1.0_dp, "angstrom")/), &
+                          unit_str="angstrom")
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword,__LOCATION__, name="SWITCH_T", &
+                          description="Specify the transition process time. It is directly connected to the ficticious mass "// &
+                          " of lambda.", &
+                          usage="SWITCH_T <real>", n_var=1, type_of_var=real_t, &
+                          default_r_vals=(/cp_unit_to_cp2k(10.0_dp, "ps")/), &
+                          unit_str="ps")
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="QM_EXTENDED_SEED_IS_ONLY_CORE_LIST", &
+                          description="Makes the extended QM zone be defined hysterestically "// &
+                          " by distance from QM core list (i.e. atoms specified explicitly by "// &
+                          " user) instead of from full QM core region (specified by user + hysteretic "// &
+                          " selection + unbreakable bonds)", &
+                          usage="QM_EXTENDED_SEED_IS_ONLY_CORE_LIST <logical>", n_var=1, type_of_var=logical_t, &
+                          default_l_val=.FALSE., repeats=.FALSE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+
+      CALL keyword_create(keyword, __LOCATION__, name="QM_KIND_ELEMENT_MAPPING", &
+                          description="Mapping from elements to QM_KINDs for adaptively included atoms.", &
+                          usage="QM_KIND_ELEMENT_MAPPING {El} {QM_KIND}", &
+                          n_var=2, type_of_var=char_t, repeats=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="MAX_N_QM", &
+                          description="Maximum number of QM atoms.", &
+                          usage="MAX_N_QM int", default_i_val=500, &
+                          n_var=1, type_of_var=integer_t, repeats=.FALSE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="ADAPTIVE_EXCLUDE_MOLECULES", &
+                          description="List of molecule names to exclude from adaptive regions (e.g. big things like proteins)", &
+                          usage="ADAPTIVE_EXCLUDE_MOLECULES molec1 molec2 ...", &
+                          n_var=-1, type_of_var=char_t, repeats=.FALSE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+
+      ! QM_NON_ADAPTIVE subsection
+      NULLIFY (subsection)
+      CALL section_create(subsection, __LOCATION__, name="QM_NON_ADAPTIVE", &
+                          description="List of atoms always in QM region, non-adaptively", &
+                          n_keywords=0, n_subsections=1, repeats=.TRUE.)
+
+      NULLIFY (qm_kinds_subsection)
+      CALL create_qmmm_qm_kinds(qm_kinds_subsection)
+      CALL section_add_subsection(subsection, qm_kinds_subsection)
+      CALL section_release(qm_kinds_subsection)
+
+      CALL section_add_subsection(section, subsection)
+      CALL section_release(subsection)
+
+      ! RESTART_INFO subsection
+      NULLIFY (subsection)
+      CALL section_create(subsection, __LOCATION__, name="RESTART_INFO", &
+                          description="This section provides information about old adaptive QM/MM indices and labels "// &
+                          "for restarts.", &
+                          n_keywords=2, n_subsections=0, repeats=.FALSE.)
+
+      CALL keyword_create(keyword, __LOCATION__, name="INDICES", &
+                          description="Indices of atoms in previous step QM regions.", &
+                          usage="INDICES 1 2 ...", &
+                          n_var=-1, type_of_var=integer_t, repeats=.TRUE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="LABELS", &
+                          description="Labels of atoms in previous step QM regions.", &
+                          usage="LABELS 1 1 ...", &
+                          n_var=-1, type_of_var=integer_t, repeats=.TRUE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL section_add_subsection(section, subsection)
+      CALL section_release(subsection)
+
+      ! PRINT subsection, with keys for neighbor list
+      CALL section_create(subsection, __LOCATION__, name="print", &
+                          description="Section of possible print options in adaptive QM/MM.", &
+                          n_keywords=0, n_subsections=4, repeats=.FALSE.)
+      NULLIFY (print_key)
+      CALL cp_print_key_section_create(print_key, __LOCATION__, "SUBCELL", &
+                                       description="Activates the printing of the subcells used for the"// &
+                                       "generation of neighbor lists.", unit_str="angstrom", &
+                                       print_level=high_print_level, filename="__STD_OUT__")
+      CALL section_add_subsection(subsection, print_key)
+      CALL section_release(print_key)
+
+      CALL cp_print_key_section_create(print_key, __LOCATION__, "LAMBDA", &
+                                       description="Activates the printing of values of lambda  used for the"// &
+                                       "fictious particle for adaptive QM/MM.", unit_str="angstrom", &
+                                       print_level=high_print_level, filename="__STD_OUT__")
+      CALL section_add_subsection(subsection, print_key)
+      CALL section_release(print_key)
+
+      CALL cp_print_key_section_create(print_key, __LOCATION__, "LAMBDA_MASS", &
+                                       description="Activates the printing of values of the mass of lambda  used for the"// &
+                                       "fictious particle for adaptive QM/MM.", unit_str="angstrom", &
+                                       print_level=high_print_level, filename="__STD_OUT__")
+      CALL section_add_subsection(subsection, print_key)
+      CALL section_release(print_key)
+
+      CALL cp_print_key_section_create(print_key, __LOCATION__, "NEIGHBOR_LISTS", &
+                                       description="Activates the printing of the neighbor lists used"// &
+                                       " for the hysteretic region calculations.", &
+                                       print_level=high_print_level, filename="", unit_str="angstrom")
+      CALL section_add_subsection(subsection, print_key)
+      CALL section_release(print_key)
+
+      CALL section_add_subsection(section, subsection)
+      CALL section_release(subsection)
+
+   END SUBROUTINE create_qmmm_adaptive_section
+
 END MODULE input_cp2k_qmmm

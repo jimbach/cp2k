@@ -147,6 +147,7 @@ CONTAINS
       CALL md_env_create(md_env, md_section, para_env, force_env=force_env)
       CALL set_md_env(md_env, averages=averages)
       IF (PRESENT(hmc_e_initial) .AND. PRESENT(hmc_e_final)) THEN
+         ! JB here the proper ext and core need to be set up
          CALL qs_mol_dyn_low(md_env, md_section, motion_section, force_env, globenv, &
                              hmc_e_initial=hmc_e_initial, hmc_e_final=hmc_e_final)
       ELSE
@@ -369,6 +370,7 @@ CONTAINS
             ![NB] Lets let all methods, even ones without consistent energies, succeed here.
             !     They'll fail in actual integrator if needed
             ! consistent_energies=.FALSE. by default
+            ! JB make sure we get the proper forces of ext in the 0 MD step!
             CALL force_env_calc_energy_force(force_env, calc_force=.TRUE.)
          END IF
 

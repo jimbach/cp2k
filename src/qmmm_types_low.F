@@ -50,7 +50,15 @@ MODULE qmmm_types_low
                                  force_mixing_label_QM_dynamics = 7, &
                                  force_mixing_label_buffer_list = 6, &
                                  force_mixing_label_buffer = 5, &
-                                 force_mixing_label_termination = 4
+                                 force_mixing_label_termination = 4, &
+                                 adqmmmx_label_none = -2, &
+                                 adqmmmx_label_QM_core_list = 20, &
+                                 adqmmmx_label_QM_core = 19, &
+                                 adqmmmx_label_QM_dynamics_list = 18, &
+                                 adqmmmx_label_QM_dynamics = 17, &
+                                 adqmmmx_label_buffer_list = 16, &
+                                 adqmmmx_label_buffer = 15, &
+                                 adqmmmx_label_termination = 14   
 
    PUBLIC :: qmmm_env_qm_type, qmmm_pot_type, qmmm_pot_p_type
    PUBLIC :: qmmm_env_qm_release, qmmm_env_qm_create

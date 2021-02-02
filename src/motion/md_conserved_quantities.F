@@ -47,6 +47,7 @@ MODULE md_conserved_quantities
    USE simpar_types,                    ONLY: simpar_type
    USE thermostat_types,                ONLY: thermostat_type
    USE thermostat_utils,                ONLY: get_thermostat_energies
+   USE adqmmmx_util,                    ONLY: g_of_lambda
 #include "../base/base_uses.f90"
 
    IMPLICIT NONE
@@ -312,14 +313,26 @@ CONTAINS
       TYPE(force_env_type), POINTER                      :: force_env
       TYPE(thermostat_type), POINTER                     :: thermostat_coeff, thermostat_part, &
                                                             thermostat_shell
+      REAL(KIND=dp)                                      :: epot1, epot2, lambda
 
       NULLIFY (force_env, thermostat_part, thermostat_coeff, thermostat_shell)
       CALL get_md_env(md_env, force_env=force_env, thermostat_part=thermostat_part, &
                       thermostat_coeff=thermostat_coeff, thermostat_shell=thermostat_shell)
       CALL get_thermostat_energies(thermostat_part, md_ener%thermostat_part_pot, &
                                    md_ener%thermostat_part_kin, para_env)
-      md_ener%constant = md_ener%ekin + md_ener%epot + md_ener%ekin_shell + &
-                         md_ener%thermostat_part_kin + md_ener%thermostat_part_pot
+      !JB adaptive mods, compute the mix of the energies to get the conserved quantity
+      IF(force_env%in_use == use_qmmmx) THEN
+          CALL qmmm_env_get(force_env%adqmmmx_env%core, subsys=subsys_qmmm_core, potential_energy=epot1)
+          CALL qmmm_env_get(force_env%adqmmmx_env%ext, subsys=subsys_qmmm_extended, potential_energy=epot2)
+          lambda = force_env%adqmmmx_env%lambda_adqmmmx
+          md_ener%constant = md_ener%ekin + md_ener%ekin_shell + &
+          md_ener%thermostat_part_kin + md_ener%thermostat_part_pot + &
+          force_env%adqmmmx_env%elambda + g_of_lambda(lambda)*epot1 + &
+          (1.d0 - g_of_lambda(lambda))*epot2
+       ELSE
+          md_ener%constant = md_ener%ekin + md_ener%epot + md_ener%ekin_shell + &
+                             md_ener%thermostat_part_kin + md_ener%thermostat_part_pot
+       END IF
 
       CALL get_thermostat_energies(thermostat_shell, md_ener%thermostat_shell_pot, &
                                    md_ener%thermostat_shell_kin, para_env)

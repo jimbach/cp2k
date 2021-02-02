@@ -66,6 +66,10 @@ MODULE force_env_types
    USE qmmmx_types,                     ONLY: qmmmx_env_get,&
                                               qmmmx_env_release,&
                                               qmmmx_env_type
+   !JB Added adqmmmx environment
+   USE adqmmmx_types,                   ONLY: adqmmmx_env_get,&
+                                              adqmmmx_env_release,&
+                                              adqmmmx_env_type
    USE qs_energy_types,                 ONLY: qs_energy_type
    USE qs_environment_types,            ONLY: get_qs_env,&
                                               qs_env_release,&

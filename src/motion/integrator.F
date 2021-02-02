@@ -82,6 +82,9 @@ MODULE integrator
                                               femtoseconds
    USE qmmm_util,                       ONLY: apply_qmmm_walls_reflective
    USE qmmmx_update,                    ONLY: qmmmx_update_force_env
+   !JB adaptive mods
+   USE adqmmmx_util,                    ONLY: g_of_lambda
+   USE adqmmmx_update,                  ONLY: adqmmmx_update_force_env
    USE qs_environment_types,            ONLY: get_qs_env
    USE reftraj_types,                   ONLY: reftraj_type
    USE reftraj_util,                    ONLY: compute_msd_reftraj
@@ -924,9 +927,11 @@ CONTAINS
 
       INTEGER                                            :: ivar, nparticle, nparticle_kind, nshell
       INTEGER, POINTER                                   :: itimes
+      !JB adaptive mods
       LOGICAL                                            :: shell_adiabatic, shell_check_distance, &
-                                                            shell_present
+                                                            shell_present, labels_changed
       REAL(KIND=dp)                                      :: dt
+      REAL(KIND=dp)                                      :: epot1, epot2
       REAL(KIND=dp), DIMENSION(:), POINTER               :: rand
       TYPE(atomic_kind_list_type), POINTER               :: atomic_kinds
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
@@ -1034,6 +1039,68 @@ CONTAINS
       ENDIF
 
       ! Velocity Verlet (first part)
+      !JB first VV for lambda
+      SELECT CASE (force_env%in_use)
+      CASE(use_adqmmmx)
+      !JB Switching complete? If yes, store old values:
+      IF (force_env%adqmmmx_env%lambda_adqmmmx > 1.d0) THEN
+         force_env%adqmmmx_env%switch_active=0
+         !here we need to store the constant lambda terms
+         !store the sum over elambda
+         force_env%adqmmmx_env%elambda_sum = force_env%adqmmmx_env%elambda_sum + force_env%adqmmmx_env%elambda
+         !get V1 and V2
+         CALL qmmm_env_get(adqmmmx_env%core, &
+           epot1=potential_energy, &
+           subsys=subsys)
+         CALL qmmm_env_get(adqmmmx_env%ext, &
+           epot2=potential_energy, &
+           subsys=subsys)
+         force_env%adqmmmx_env%elambda_not_one = force_env%adqmmmx_env%elambda_not_one &
+         + g_of_lambda(force_env%adqmmmx_env%lambda_adqmmmx)*epot1   &
+         - g_of_lambda(force_env%adqmmmx_env%lambda_adqmmmx)*epot2
+         force_env%adqmmmx_env%elambda = 0.d0
+         force_env%adqmmmx_env%lambda_adqmmmx = 0.d0
+         force_env%adqmmmx_env%lambda_velocity = 0.d0
+         !maybe it's possible to print the step here?
+         CPWARN("Lambda switch finished at step:")
+       END IF
+       !JB recompute subsys if no switch is active or else perform lambda integration
+       IF (force_env%adqmmmx_env%switch_active==0) THEN
+          CALL adqmmmx_update_force_env(force_env, force_env%root_section, labels_changed)
+          !JB check if the partitioning changed, if so - compute mu and start switching!
+          IF (labels_changed)
+             !JB maybe it's possible to print the step here?
+             CPWARN("Lambda switch initialized at step:")
+             !JB get the epot1 and epot2 for computation of mu, carefull
+             !maybe epot1 and epot2 are not set here but are set later for the first time
+             !that is why we call force calc energy force again, but this is redundant with the below calculated force
+             CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
+             !JB get the epot1 and epot2 for computation of mu, carefull, maybe epot1 and epot2 are not set here but are set later for the first time
+             CALL qmmm_env_get(adqmmmx_env%core, &
+                        epot1=potential_energy, &
+                        subsys=subsys)
+             CALL qmmm_env_get(adqmmmx_env%ext, &
+                        epot2=potential_energy, &
+                        subsys=subsys)
+             !JB convert omega into a switching time
+             force_env%adqmmmx_env%lambda_mass = 2.d0 * DABS(epot1-epot2) * (force_env%adqmmmx_env%switch_t)**2 &
+              /(2.d0*3.141592653589793238)**2
+             CPWARN("Lambda mass set to:", force_env%adqmmmx_env%lambda_mass)
+             force_env%adqmmmx_env%switch_active=1
+          END IF
+          ELSE
+             force_env%adqmmmx_env%lambda_velocity = force_env%adqmmmx_env%lambda_velocity &
+                                                 + 0.5d0 * force_env%adqmmmx_env%lambda_force &
+                                                 * dt/force_env%adqmmmx_env%lambda_mass
+             force_env%adqmmmx_env%lambda_adqmmmx = force_env%adqmmmx_env%lambda_adqmmmx &
+                                                + force_env%adqmmmx_env%lambda_velocity*dt
+                                                + force_env%adqmmmx_env%lambda_velocity*dt				
+          END IF
+          !JB added a case here, as adqmmmx only needs to do this if switch starts
+          CASE(use_adqmmmx)
+             CALL qmmmx_update_force_env(force_env, force_env%root_section)
+      END SELECT
+
       CALL vv_first(tmp, atomic_kind_set, local_particles, particle_set, &
                     core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt)
 
@@ -1108,6 +1175,17 @@ CONTAINS
       ! Velocity Verlet (second part)
       CALL vv_second(tmp, atomic_kind_set, local_particles, particle_set, &
                      core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt)
+
+
+         !second verlet for lamnda
+         SELECT CASE (force_env%in_use)
+         CASE(use_adqmmmx)
+               IF (force_env%adqmmmx_env%switch_active==1) THEN
+                     force_env%adqmmmx_env%lambda_velocity = force_env%adqmmmx_env%lambda_velocity &
+                                                 + 0.5d0 * force_env%adqmmmx_env%lambda_force &
+                                                 * dt/force_env%adqmmmx_env%lambda_mass
+               END IF
+         END SELECT
 
       IF (simpar%constraint) CALL rattle_control(gci, local_molecules, molecule_set, &
                                                  molecule_kind_set, particle_set, tmp%vel, dt, simpar%shake_tol, &

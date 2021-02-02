@@ -154,6 +154,10 @@ MODULE force_env_methods
    USE qmmmx_force,                     ONLY: qmmmx_calc_energy_force
    USE qmmmx_types,                     ONLY: qmmmx_env_retain,&
                                               qmmmx_env_type
+   !JB added the import for the adqmmx forces
+   USE adqmmmx_force,                   ONLY: adqmmmx_calc_energy_force
+   USE adqmmmx_types,                   ONLY: adqmmmx_env_retain,&
+                                              adqmmmx_env_type
    USE qs_energy_types,                 ONLY: qs_energy_type
    USE qs_environment_types,            ONLY: get_qs_env,&
                                               qs_env_retain,&
@@ -288,6 +292,11 @@ CONTAINS
             CALL qmmmx_calc_energy_force(force_env%qmmmx_env, &
                                          calculate_forces, energy_consistency, linres=linres_run, &
                                          require_consistent_energy_force=require_consistent_energy_force)
+         !JB adaptive qmmm force evaluation added
+         !here the forces and evironments (core,ext) for the 0 MD step need to be set up already! this is still missing.
+         CASE (use_adqmmmx)
+            CALL adqmmmx_calc_energy_force(force_env%adqmmmx_env, &
+                                         calculate_forces, energy_consistency, linres=linres_run)
          CASE (use_mixed_force)
             CALL mixed_energy_forces(force_env, calculate_forces)
          CASE (use_nnp_force)
@@ -321,7 +330,8 @@ CONTAINS
       CALL m_memory()
 
       ! Some additional tasks..
-      IF (.NOT. my_skip) THEN
+      IF (.NOT. my_skip) THEN         !JB mod
+         WRITE(*,*) "my_skip was false, this should not be the case for adqmmmx"
          ! Flexible Partitioning
          IF (ASSOCIATED(force_env%fp_env)) THEN
             IF (force_env%fp_env%use_fp) THEN
