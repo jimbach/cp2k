@@ -1344,4 +1344,269 @@ CONTAINS
 
    END SUBROUTINE create_print_qmmm_section
 
+! **************************************************************************************************
+!> \brief Input section to create adaptive QM/MM sections
+!> \param section ...
+!> \author MN DELETED KEYWORDS Momentum conservation entries, R_BUF, DELTA_CHARGE 
+!> \author MN ADDED KEYWORDS SWITCH_T
+!> \author MN DELETED SUBSECTIONS BUFFER_NON_ADAPTIVE, BUFFER_LINKS
+! **************************************************************************************************
+   SUBROUTINE create_qmmm_adaptive_section(section)
+      TYPE(section_type), POINTER                        :: section
+
+      CHARACTER(len=*), PARAMETER :: routineN = 'create_qmmm_adaptive_section', &
+         routineP = moduleN//':'//routineN
+
+      TYPE(keyword_type), POINTER                        :: keyword
+      TYPE(section_type), POINTER                        :: print_key, &
+                                                            subsection!,qm_kinds_subsection
+
+      NULLIFY (keyword)
+      CPASSERT(.NOT. ASSOCIATED(section))
+      CALL section_create(section, __LOCATION__, name="ADAPTIVE_QMMM", &
+                          description="This section enables and defines parameters for an adaptive QM/MM method.", &
+                          !n_keywords=7, n_subsections=3, repeats=.FALSE.) !MN Maybe just try default values (keywords=10, subsections=0? Nikos might know what could be the right value
+                           repeats=.FALSE.)
+
+      CALL keyword_create(keyword, __LOCATION__, name="_SECTION_PARAMETERS_", &
+                          description="Enables adaptive QM/MM", &
+                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="DISCRETE_INTEGRATION", &
+                          description="Enables adaptive QM/MM", &
+                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+!MN I think we only need one radius
+      CALL keyword_create(keyword, __LOCATION__, name="R_CORE", &
+                          description="Specify the inner and outer radii of core QM region. "// &
+                          " All molecules with any atoms within this distance (hysteretically) of any atoms "// &
+                          " specified as QM in enclosing QM/MM section  will be core QM atoms in the force-mixing calculation.", &
+                          usage="R_CORE <real> <real>", n_var=2, type_of_var=real_t, &
+                          default_r_vals=(/cp_unit_to_cp2k(0.0_dp, "angstrom"), &
+                                           cp_unit_to_cp2k(0.0_dp, "angstrom")/), &
+                          unit_str="angstrom")
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="R_QM", &
+                          description="Specify the inner and outer radii of QM dynamics region. "// &
+                          " All molecules with atoms within this distance (hysteretically) of any atoms in "// &
+                          " core will adaptively transition into a QM representation.", &
+                          usage="R_QM <real> <real>", n_var=2, type_of_var=real_t, &
+                          default_r_vals=(/cp_unit_to_cp2k(0.5_dp, "angstrom"), &
+                                           cp_unit_to_cp2k(1.0_dp, "angstrom")/), &
+                          unit_str="angstrom")
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword,__LOCATION__, name="SWITCH_T", &
+                          description="Specify the transition process time. It is directly connected to the ficticious mass "// &
+                          " of lambda.", &
+                          usage="SWITCH_T <real>", n_var=1, type_of_var=real_t, &
+                          default_r_vals=(/cp_unit_to_cp2k(100.0_dp, "fs")/), &
+                          unit_str="fs")
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      !MN I dont think I need this
+!      CALL keyword_create(keyword, __LOCATION__, name="QM_EXTENDED_SEED_IS_ONLY_CORE_LIST", &
+!                          description="Makes the extended QM zone be defined hysterestically "// &
+!                          " by distance from QM core list (i.e. atoms specified explicitly by "// &
+!                          " user) instead of from full QM core region (specified by user + hysteretic "// &
+!                          " selection + unbreakable bonds)", &
+!                          usage="QM_EXTENDED_SEED_IS_ONLY_CORE_LIST <logical>", n_var=1, type_of_var=logical_t, &
+!                          default_l_val=.FALSE., repeats=.FALSE.)
+!      CALL section_add_keyword(section, keyword)
+!      CALL keyword_release(keyword)
+
+
+      CALL keyword_create(keyword, __LOCATION__, name="QM_KIND_ELEMENT_MAPPING", &
+                          description="Mapping from elements to QM_KINDs for adaptively included atoms.", &
+                          usage="QM_KIND_ELEMENT_MAPPING {El} {QM_KIND}", &
+                          n_var=2, type_of_var=char_t, repeats=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="MAX_N_QM", &
+                          description="Maximum number of QM atoms.", &
+                          usage="MAX_N_QM int", default_i_val=500, &
+                          n_var=1, type_of_var=integer_t, repeats=.FALSE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="MAX_N_SWITCH", &
+                          description="Maximum number of switching procedures.", &
+                          usage="MAX_N_SWITCH int", default_i_val=-1, &
+                          n_var=1, type_of_var=integer_t, repeats=.FALSE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      !MN Currently not used
+      CALL keyword_create(keyword, __LOCATION__, name="ADAPTIVE_EXCLUDE_MOLECULES", &
+                          description="List of molecule names to exclude from adaptive regions (e.g. big things like proteins)", &
+                          usage="ADAPTIVE_EXCLUDE_MOLECULES molec1 molec2 ...", &
+                          n_var=-1, type_of_var=char_t, repeats=.FALSE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      ! QM_CORE Keyword
+      CALL keyword_create(keyword, __LOCATION__, name="QM_CORE", &
+                          description="List of atoms always in QM region, non-adaptively.", &
+                          usage="QM_CORE atom1 atom2 ...", &
+                          n_var=-1, type_of_var=integer_t, repeats=.FALSE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      ! RESTART_INFO subsection
+      NULLIFY (subsection)
+      CALL section_create(subsection, __LOCATION__, name="RESTART_INFO", &
+                          description="This section provides information about old adaptive QM/MM indices and labels "// &
+                          "for restarts.", &
+                          n_keywords=13, n_subsections=0, repeats=.FALSE.)
+
+                          CALL keyword_create(keyword, __LOCATION__, name="INDICES", &
+                          description="Indices of atoms in previous step QM regions.", &
+                          usage="INDICES 1 2 ...", &
+                          n_var=-1, type_of_var=integer_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="LABELS", &
+                          description="Old Indices of atoms in previous step QM regions.", &
+                          usage="LABELS 9 7 7 7 ...", &
+                          n_var=-1, type_of_var=integer_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="OLD_INDICES", &
+                          description="Old Indices of atoms in previous step QM regions.", &
+                          usage="INDICES 1 2 ...", &
+                          n_var=-1, type_of_var=integer_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="OLD_LABELS", &
+                          description="Old Indices of atoms in previous step QM regions.", &
+                          usage="LABELS 9 7 7 7 ...", &
+                          n_var=-1, type_of_var=integer_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="LAMBDA", &
+              description="Last value of switching DOF.", &
+                          usage="LAMBDA 0.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="VLAMBDA", &
+              description="Last velocity value of switching DOF.", &
+                          usage="VLAMBDA 0.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="PROP_TIME", &
+              description="Total propagation time of switching procedures.", &
+                          usage="PROP_TIME XXX.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="LMASS", &
+              description="Mass of lambda particle.", &
+                          usage="LMASS XXX.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="OMEGA", &
+              description="Current switching frequency of lambda.", &
+                          usage="OMEGA XXX.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="DPOT", &
+              description="Potential difference between system 1 and 2 of last step.", &
+                          usage="DPOT XXX.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="LFORCE", &
+              description="Force acting on lambda.", &
+                          usage="LFORCE XXX.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="ELAMBDA", &
+              description="Energy of lambda at last step.", &
+                          usage="ELAMBDA XXX.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="ECORR", &
+              description="Energy correction of lambda at last step.", &
+                          usage="ELAMBDA XXX.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="DPOT_SGN", &
+              description="DeltaV sign at last step.", &
+                          usage="ELAMBDA XXX.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="TOTELAMBDA", &
+              description="Energy of all past lambda particles.", &
+                          usage="TOTELAMBDA XXX.XXX", &
+                          n_var=1, type_of_var=real_t, repeats=.FALSE.)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
+      CALL section_add_subsection(section, subsection)
+      CALL section_release(subsection)
+
+! PRINT subsection, with keys for neighbor list
+      CALL section_create(subsection, __LOCATION__, name="print", &
+                         description="Section of possible print options inFORCE_MIXING.", &
+                          n_keywords=0, n_subsections=2, repeats=.FALSE.)
+      NULLIFY (print_key)
+      CALL cp_print_key_section_create(print_key, __LOCATION__, "SUBCELL", &
+                                       description="Activates the printing ofthe subcells used for the"// &
+                                       "generation of neighbor lists.",unit_str="angstrom", &
+                                       print_level=high_print_level,filename="__STD_OUT__")
+      CALL section_add_subsection(subsection, print_key)
+      CALL section_release(print_key)
+
+      CALL cp_print_key_section_create(print_key, __LOCATION__, "NEIGHBOR_LISTS", &
+                                       description="Activates the printing of the neighbor lists used"// &
+                                       " for the hysteretic region calculations.", &
+                                       print_level=high_print_level, filename="", unit_str="angstrom")
+      CALL section_add_subsection(subsection, print_key)
+      CALL section_release(print_key)
+
+      CALL cp_print_key_section_create(print_key, __LOCATION__, name="STAT_FILE_NAME", &
+              description="Name of the output file.", &
+               print_level=high_print_level,filename="ADQMMMX_STAT")
+
+      CALL section_add_subsection(subsection, print_key)
+      CALL section_release(print_key)
+
+      CALL section_add_subsection(section, subsection)
+      CALL section_release(subsection)
+
+
+
+   END SUBROUTINE create_qmmm_adaptive_section
+
 END MODULE input_cp2k_qmmm

@@ -160,6 +160,8 @@ CONTAINS
             detected_link = .FALSE.
             DO i = first_atom, last_atom
                IF (.NOT. ANY(qm_atom_index == i)) detected_link = .TRUE.
+               !JB Added to check if everything works fine
+               IF (detected_link) WRITE (output_unit,*) "WARNING: THIS INDEX IS NO QM", i
             END DO
             IF (detected_link) THEN
                IF (iw > 0) WRITE (iw, fmt='(A)', ADVANCE="NO") " QM/MM link detected..."

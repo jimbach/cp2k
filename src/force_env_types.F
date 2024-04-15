@@ -13,6 +13,7 @@
 !>      fawzi, APR-12-2003: introduced force_env
 !>      cjm, FEB-27-2006: no more box_change
 !>      MK, Nov. 2010: new interfaces added and others were updated
+!>      JB, MN, 2024: new types for adqmmm
 !> \author CJM & JGH
 ! **************************************************************************************************
 MODULE force_env_types
@@ -68,6 +69,10 @@ MODULE force_env_types
    USE qs_environment_types,            ONLY: get_qs_env,&
                                               qs_env_release,&
                                               qs_environment_type
+   !MN Added adqmmmx_env to routine assembly
+   USE adqmmmx_types,                   ONLY: adqmmmx_env_get,&
+                                              adqmmmx_env_release,&
+                                              adqmmmx_env_type
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -85,8 +90,9 @@ MODULE force_env_types
                                  use_embed = 507, &
                                  use_pwdft_force = 508, &
                                  use_nnp_force = 509
+                                 use_adqmmmx = 510 !MN Added arbitrary value
 
-   CHARACTER(LEN=10), DIMENSION(501:509), PARAMETER, PUBLIC :: &
+   CHARACTER(LEN=10), DIMENSION(501:510), PARAMETER, PUBLIC :: & !JB changed from 509 to 510
       use_prog_name = (/ &
       "FIST  ", &
       "QS    ", &
@@ -96,7 +102,8 @@ MODULE force_env_types
       "MIXED ", &
       "EMBED ", &
       "SIRIUS", &
-      "NNP   "/)
+      "NNP   ", &
+      "ADQMMM"/)              !JB Added prog_name
 
    PUBLIC :: force_env_type, &
              force_env_p_type
@@ -150,6 +157,8 @@ MODULE force_env_types
       TYPE(force_env_p_type), DIMENSION(:), POINTER    :: sub_force_env => NULL()
       TYPE(qmmm_env_type), POINTER                     :: qmmm_env => NULL()
       TYPE(qmmmx_env_type), POINTER                    :: qmmmx_env => NULL()
+      !MN Added adqmmmx environemnt to force environment
+      TYPE(adqmmmx_env_type), POINTER                  :: adqmmmx_env
       TYPE(mixed_environment_type), POINTER            :: mixed_env => NULL()
       TYPE(nnp_type), POINTER                          :: nnp_env => NULL()
       TYPE(embed_env_type), POINTER                    :: embed_env => NULL()
@@ -280,6 +289,10 @@ CONTAINS
                CALL qmmmx_env_release(force_env%qmmmx_env)
                DEALLOCATE (force_env%qmmmx_env)
             END IF
+            IF (ASSOCIATED(force_env%adqmmmx_env)) THEN
+               CALL adqmmmx_env_release(force_env%adqmmmx_env) !JB Added adqmmmx
+               DEALLOCATE (force_env%adqmmmx_env)
+            END IF
             CALL section_vals_release(force_env%force_env_section)
             CALL section_vals_release(force_env%root_section)
             DEALLOCATE (force_env)
@@ -342,6 +355,7 @@ CONTAINS
          POINTER                                         :: sub_force_env
       TYPE(qmmm_env_type), OPTIONAL, POINTER             :: qmmm_env
       TYPE(qmmmx_env_type), OPTIONAL, POINTER            :: qmmmx_env
+      TYPE(adqmmmx_env_type), OPTIONAL, POINTER          :: adqmmmx_env  !JB Added adqmmmx_env variable 
       TYPE(eip_environment_type), OPTIONAL, POINTER      :: eip_env
       TYPE(pwdft_environment_type), OPTIONAL, POINTER    :: pwdft_env
       TYPE(global_environment_type), OPTIONAL, POINTER   :: globenv
@@ -413,6 +427,11 @@ CONTAINS
                            kinetic_energy=kinetic_energy)
       CASE (use_qmmmx)
          CALL qmmmx_env_get(force_env%qmmmx_env, &
+                            subsys=subsys, &
+                            potential_energy=potential_energy, &
+                            kinetic_energy=kinetic_energy)
+      CASE (use_adqmmmx) !JB Added full env_get-routine
+         CALL adqmmmx_env_get(force_env%adqmmmx_env, &
                             subsys=subsys, &
                             potential_energy=potential_energy, &
                             kinetic_energy=kinetic_energy)
@@ -493,6 +512,7 @@ CONTAINS
       IF (PRESENT(sub_force_env)) sub_force_env => force_env%sub_force_env
       IF (PRESENT(qmmm_env)) qmmm_env => force_env%qmmm_env
       IF (PRESENT(qmmmx_env)) qmmmx_env => force_env%qmmmx_env
+      IF (PRESENT(adqmmmx_env)) adqmmmx_env => force_env%adqmmmx_env !MN Adjusted
       IF (PRESENT(mixed_env)) mixed_env => force_env%mixed_env
       IF (PRESENT(embed_env)) embed_env => force_env%embed_env
       IF (PRESENT(globenv)) globenv => force_env%globenv
