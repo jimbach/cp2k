@@ -21,6 +21,10 @@ MODULE rpa_gw_sigma_x
                                               cp_cfm_release,&
                                               cp_cfm_type
    USE cp_control_types,                ONLY: dft_control_type
+   USE cp_dbcsr_api,                    ONLY: &
+        dbcsr_add, dbcsr_copy, dbcsr_create, dbcsr_desymmetrize, dbcsr_get_diag, dbcsr_multiply, &
+        dbcsr_p_type, dbcsr_release, dbcsr_release_p, dbcsr_set, dbcsr_type, &
+        dbcsr_type_antisymmetric, dbcsr_type_symmetric
    USE cp_dbcsr_cp2k_link,              ONLY: cp_dbcsr_alloc_block_from_nbl
    USE cp_dbcsr_operations,             ONLY: copy_dbcsr_to_fm,&
                                               copy_fm_to_dbcsr,&
@@ -33,10 +37,6 @@ MODULE rpa_gw_sigma_x
                                               cp_fm_get_info,&
                                               cp_fm_release,&
                                               cp_fm_type
-   USE dbcsr_api,                       ONLY: &
-        dbcsr_add, dbcsr_copy, dbcsr_create, dbcsr_desymmetrize, dbcsr_get_diag, dbcsr_multiply, &
-        dbcsr_p_type, dbcsr_release, dbcsr_release_p, dbcsr_set, dbcsr_type, &
-        dbcsr_type_antisymmetric, dbcsr_type_symmetric
    USE hfx_energy_potential,            ONLY: integrate_four_center
    USE hfx_exx,                         ONLY: calc_exx_admm_xc_contributions,&
                                               exx_post_hfx,&
@@ -63,7 +63,7 @@ MODULE rpa_gw_sigma_x
                                               z_zero
    USE message_passing,                 ONLY: mp_para_env_type
    USE mp2_integrals,                   ONLY: compute_kpoints
-   USE mp2_ri_2c,                       ONLY: setup_trunc_coulomb_pot_for_exchange_self_energy
+   USE mp2_ri_2c,                       ONLY: trunc_coulomb_for_exchange
    USE mp2_types,                       ONLY: mp2_type
    USE parallel_gemm_api,               ONLY: parallel_gemm
    USE physcon,                         ONLY: evolt
@@ -616,7 +616,7 @@ CONTAINS
             CALL get_qs_env(qs_env=qs_env, &
                             kpoints=kpoints)
 
-            CALL setup_trunc_coulomb_pot_for_exchange_self_energy(qs_env)
+            CALL trunc_coulomb_for_exchange(qs_env)
 
             CALL compute_kpoints(qs_env, kpoints, unit_nr)
 

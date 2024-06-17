@@ -14,7 +14,7 @@
 MODULE input_cp2k_mp2
    USE bibliography, ONLY: &
       Bates2013, DelBen2012, DelBen2013, DelBen2015, DelBen2015b, Rybkin2016, Wilhelm2016a, &
-      Wilhelm2016b, Wilhelm2017, Wilhelm2018
+      Wilhelm2016b, Wilhelm2017, Wilhelm2018, Stein2022, Stein2024, Bussy2023
    USE cp_eri_mme_interface, ONLY: create_eri_mme_section
    USE cp_output_handling, ONLY: add_last_numeric, &
                                  cp_print_key_section_create, &
@@ -37,7 +37,7 @@ MODULE input_cp2k_mp2
       ot_precond_s_inverse, ri_default, ri_rpa_g0w0_crossing_bisection, &
       ri_rpa_g0w0_crossing_newton, ri_rpa_g0w0_crossing_z_shot, soc_lda, soc_none, soc_pbe, &
       wfc_mm_style_gemm, wfc_mm_style_syrk, z_solver_cg, z_solver_pople, z_solver_richardson, &
-      z_solver_sd
+      z_solver_sd, rpa_exchange_none, rpa_exchange_axk, rpa_exchange_sosex
    USE input_cp2k_hfx, ONLY: create_hfx_section
    USE input_cp2k_kpoints, ONLY: create_kpoint_set_section
    USE input_keyword_types, ONLY: keyword_create, &
@@ -81,7 +81,8 @@ CONTAINS
                           "RI-MP2, RI-SOS-MP2, RI-RPA and GW (inside RI-RPA). ", &
                           n_keywords=4, n_subsections=7, repeats=.TRUE., &
                           citations=(/DelBen2012, DelBen2013, DelBen2015, DelBen2015b, Rybkin2016, &
-                                      Wilhelm2016a, Wilhelm2016b, Wilhelm2017, Wilhelm2018/))
+                                      Wilhelm2016a, Wilhelm2016b, Wilhelm2017, Wilhelm2018, Stein2022, &
+                                      Stein2024, Bussy2023/))
 
       NULLIFY (keyword, subsection)
 
@@ -442,7 +443,8 @@ CONTAINS
       CALL section_create(section, __LOCATION__, name="CANONICAL_GRADIENTS", &
                           description="Parameters influencing gradient calculations of canonical RI methods. "// &
                           "Ignored if the IM_TIME section is set.", &
-                          n_keywords=3, n_subsections=1, repeats=.FALSE.)
+                          n_keywords=3, n_subsections=1, repeats=.FALSE., &
+                          citations=(/DelBen2015b, Rybkin2016, Stein2022, Stein2024/))
 
       NULLIFY (subsection, keyword)
       CALL create_cphf(subsection)
@@ -462,21 +464,10 @@ CONTAINS
          keyword, __LOCATION__, &
          name="FREE_HFX_BUFFER", &
          description="Free the buffer containing the 4 center integrals used in the Hartree-Fock exchange calculation. "// &
-         "This will be effective only for gradients calculations, since for the energy only "// &
-         "case, the buffers are released by default. (Right now debugging only).", &
+         "Ignored for energy-only calculations. May fail.", &
          usage="FREE_HFX_BUFFER", &
-         default_l_val=.TRUE., &
+         default_l_val=.FALSE., &
          lone_keyword_l_val=.TRUE.)
-      CALL section_add_keyword(section, keyword)
-      CALL keyword_release(keyword)
-
-      CALL keyword_create( &
-         keyword, __LOCATION__, &
-         name="USE_OLD_GRADIENT_CODE", &
-         description="Use the original RI-MP2 gradient code.", &
-         usage="USE_OLD_GRADIENT_CODE  T", &
-         lone_keyword_l_val=.TRUE., &
-         default_l_val=.TRUE.)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
@@ -572,21 +563,10 @@ CONTAINS
 
       CALL keyword_create( &
          keyword, __LOCATION__, &
-         name="RI_AXK", &
-         variants=(/"AXK"/), &
-         description="Decide whether to perform an RPA-AXK calculation.", &
-         usage="RI_AXK", &
-         default_l_val=.FALSE., &
-         lone_keyword_l_val=.TRUE.)
-      CALL section_add_keyword(section, keyword)
-      CALL keyword_release(keyword)
-
-      CALL keyword_create( &
-         keyword, __LOCATION__, &
          name="RSE", &
          variants=(/"SE"/), &
          description="Decide whether to add singles correction.", &
-         usage="RI_AXK", &
+         usage="RSE", &
          default_l_val=.FALSE., &
          lone_keyword_l_val=.TRUE.)
       CALL section_add_keyword(section, keyword)
@@ -609,7 +589,7 @@ CONTAINS
       CALL keyword_create( &
          keyword, __LOCATION__, &
          name="SCALE_RPA", &
-         description="Scales RPA energy contributions (RPA, AXK).", &
+         description="Scales RPA energy contributions (RPA, exchange correction).", &
          usage="SCALE_RPA 1.0", &
          default_r_val=1.0_dp)
       CALL section_add_keyword(section, keyword)
@@ -634,8 +614,8 @@ CONTAINS
       CALL section_add_subsection(section, subsection)
       CALL section_release(subsection)
 
-      ! here we generate a RI_AXK subsection
-      CALL create_ri_axk(subsection)
+      ! here we the RPA exchange section
+      CALL create_rpa_exchange(subsection)
       CALL section_add_subsection(section, subsection)
       CALL section_release(subsection)
 
@@ -645,20 +625,50 @@ CONTAINS
 !> \brief ...
 !> \param section ...
 ! **************************************************************************************************
-   SUBROUTINE create_ri_axk(section)
+   SUBROUTINE create_rpa_exchange(section)
       TYPE(section_type), POINTER                        :: section
 
-      !TYPE(section_type), POINTER                        :: subsection
+      TYPE(keyword_type), POINTER                        :: keyword
 
       CPASSERT(.NOT. ASSOCIATED(section))
-      CALL section_create(section, __LOCATION__, name="RI_AXK", &
-                          description="Parameters influencing the RI-RPA-AXK method", &
-                          n_keywords=0, n_subsections=0, repeats=.FALSE., &
-                          citations=(/Bates2013/))
+      CALL section_create(section, __LOCATION__, name="EXCHANGE_CORRECTION", &
+                          description="Parameters influencing exchange corrections to RPA. No gradients available.", &
+                          n_keywords=3, n_subsections=1, repeats=.FALSE.)
 
-      !NULLIFY (keyword, subsection)
+      NULLIFY (keyword)
+      CALL keyword_create(keyword, __LOCATION__, name="_SECTION_PARAMETERS_", &
+                          description="Choose the kind of exchange correction.", &
+                          usage="&EXCHANGE_CORRECTION AXK", &
+                          enum_c_vals=s2a("NONE", "AXK", "SOSEX"), &
+                          enum_i_vals=(/rpa_exchange_none, rpa_exchange_axk, rpa_exchange_sosex/), &
+                          enum_desc=s2a("Apply no exchange correction.", &
+                                        "Apply Approximate eXchange Kernel (AXK) correction.", &
+                                        "Apply Second Order Screened eXchange (SOSEX) correction."), &
+                          default_i_val=rpa_exchange_none)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
 
-   END SUBROUTINE create_ri_axk
+      CALL keyword_create( &
+         keyword, __LOCATION__, &
+         name="BLOCK_SIZE", &
+         description="Choose the block size of the contraction step. Larger block sizes improve performance but "// &
+         "require more memory (quadratically!, number of stored elements: $o^2\cdot N_B^2$). "// &
+         "Nonpositive numbers turn off blocking.", &
+         usage="BLOCK_SIZE 1", &
+         default_i_val=1)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create( &
+         keyword, __LOCATION__, &
+         name="USE_HFX_IMPLEMENTATION", &
+         description="Use a HF-based implementation with RI_RPA%HF section. Recommended for large systems.", &
+         usage="USE_HFX_IMPLEMENTATION T", &
+         default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+   END SUBROUTINE create_rpa_exchange
 
 ! **************************************************************************************************
 !> \brief ...
@@ -1064,6 +1074,20 @@ CONTAINS
       CALL section_add_keyword(gw_dos_section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="MIN_LEVEL_SPECTRAL", &
+                          description="Lowest energy level to print the self energy to files.", &
+                          usage="MIN_LEVEL_SELF_ENERGY 3", &
+                          default_i_val=1)
+      CALL section_add_keyword(gw_dos_section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="MAX_LEVEL_SPECTRAL", &
+                          description="Highest energy level to print the self energy to files.", &
+                          usage="MAX_LEVEL_SELF_ENERGY 6", &
+                          default_i_val=0)
+      CALL section_add_keyword(gw_dos_section, keyword)
+      CALL keyword_release(keyword)
+
       CALL keyword_create(keyword, __LOCATION__, name="MIN_LEVEL_SELF_ENERGY", &
                           description="Lowest energy level to print the self energy to files.", &
                           usage="MIN_LEVEL_SELF_ENERGY 3", &
@@ -1462,7 +1486,8 @@ CONTAINS
          description="Cubic scaling RI-RPA, GW and Laplace-SOS-MP2 method using the imaginary time formalism. "// &
          "EPS_GRID in WFC_GPW section controls accuracy / req. memory for 3-center integrals. "// &
          "SORT_BASIS EXP should be specified in DFT section.", &
-         n_keywords=12, n_subsections=2, repeats=.FALSE.)
+         n_keywords=12, n_subsections=2, repeats=.FALSE., &
+         citations=(/Wilhelm2016b, Wilhelm2018, Bussy2023/))
 
       NULLIFY (keyword)
       CALL keyword_create(keyword, __LOCATION__, name="_SECTION_PARAMETERS_", &

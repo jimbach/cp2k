@@ -1,21 +1,9 @@
 &GLOBAL
   PROJECT water
-  RUN_TYPE MD
+  RUN_TYPE ENERGY_FORCE
+  &PRINT DEBUG
+  &END PRINT
 &END GLOBAL
-
-&MOTION
-  &MD
-    ENSEMBLE NVT
-    STEPS 0
-    TEMPERATURE 300
-    TIMESTEP 0.5
-    &THERMOSTAT
-      &CSVR
-        TIMECON 10
-      &END CSVR
-    &END THERMOSTAT
-  &END MD
-&END MOTION
 
 &FORCE_EVAL
   METHOD FIST
@@ -24,7 +12,7 @@
       &NONBONDED
         &NEQUIP
           ATOMS H O
-          PARM_FILE_NAME NequIP/water-double.pth
+          PARM_FILE_NAME NequIP/water-deployed-neq060sp.pth
           UNIT_COORDS angstrom
           UNIT_ENERGY eV
           UNIT_FORCES eV*angstrom^-1
@@ -43,14 +31,17 @@
   &END PRINT
   &SUBSYS
     &CELL
-      ABC 9.8528 9.8528 9.8528
+      ABC 9.85 9.85 9.85
       #      MULTIPLE_UNIT_CELL 4 4 4
     &END CELL
+    #     coordinates must be ordered by atomic number
+    &COORD
+      H     42.886169670000001   -0.055681660000000001      38.329161120000002
+      H     34.202588720000001              -0.6185484      37.365568080000003
+      O     43.209908720000001   -0.062845650000000003             47.25931559
+    &END COORD
     &TOPOLOGY
-      COORD_FILE_FORMAT XYZ
       #   MULTIPLE_UNIT_CELL 4 4 4
-      #     coordinates must be ordered by atomic number
-      COORD_FILE_NAME ./H2O-32.xyz
     &END TOPOLOGY
   &END SUBSYS
 &END FORCE_EVAL

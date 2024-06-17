@@ -50,10 +50,10 @@ MODULE qs_collocate_density
    USE cp_fm_types, ONLY: cp_fm_get_element, &
                           cp_fm_get_info, &
                           cp_fm_type
-   USE dbcsr_api, ONLY: dbcsr_copy, &
-                        dbcsr_get_block_p, &
-                        dbcsr_p_type, &
-                        dbcsr_type
+   USE cp_dbcsr_api, ONLY: dbcsr_copy, &
+                           dbcsr_get_block_p, &
+                           dbcsr_p_type, &
+                           dbcsr_type
    USE external_potential_types, ONLY: get_potential, &
                                        gth_potential_type
    USE gaussian_gridlevels, ONLY: gaussian_gridlevel, &
@@ -592,8 +592,8 @@ CONTAINS
 
       ALLOCATE (pab(maxco, 1))
       offset = 0
-      my_pos = mgrid_rspace(1)%pw_grid%para%my_pos
-      group_size = mgrid_rspace(1)%pw_grid%para%group_size
+      my_pos = mgrid_rspace(1)%pw_grid%para%group%mepos
+      group_size = mgrid_rspace(1)%pw_grid%para%group%num_pe
 
       DO ikind = 1, SIZE(atomic_kind_set)
 
@@ -2500,8 +2500,8 @@ CONTAINS
 
       offset = 0
       group = mgrid_rspace(1)%pw_grid%para%group
-      my_pos = mgrid_rspace(1)%pw_grid%para%my_pos
-      group_size = mgrid_rspace(1)%pw_grid%para%group_size
+      my_pos = mgrid_rspace(1)%pw_grid%para%group%mepos
+      group_size = mgrid_rspace(1)%pw_grid%para%group%num_pe
       ALLOCATE (where_is_the_point(0:group_size - 1))
 
       DO iatom = 1, natom
@@ -2706,8 +2706,8 @@ CONTAINS
 
       offset = 0
       group = mgrid_rspace(1)%pw_grid%para%group
-      my_pos = mgrid_rspace(1)%pw_grid%para%my_pos
-      group_size = mgrid_rspace(1)%pw_grid%para%group_size
+      my_pos = mgrid_rspace(1)%pw_grid%para%group%mepos
+      group_size = mgrid_rspace(1)%pw_grid%para%group%num_pe
       ALLOCATE (where_is_the_point(0:group_size - 1))
 
       DO iatom = 1, natom

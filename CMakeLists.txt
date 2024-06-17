@@ -32,20 +32,13 @@ if(POLICY CMP0144)
   cmake_policy(SET CMP0144 NEW)
 endif()
 
-set(VERSION_MAJOR 23)
-# anything above 12 is to indicate that it is devel-branch. The git hash commit
-# is the only important information to give. It is retrieved few lines below.
-set(VERSION_MINOR 1)
-set(VERSION_PATCH 00)
-
+# !!! Keep version in sync with cp2k_info.F !!!
 project(
   cp2k
   DESCRIPTION "CP2K"
   HOMEPAGE_URL "https://www.cp2k.org"
-  VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
+  VERSION "2024.1"
   LANGUAGES Fortran C CXX)
-
-set(cp2k_APIVERSION ${cp2k_VERSION_MAJOR}.${cp2k_VERSION_MINOR})
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 
@@ -250,7 +243,14 @@ endif()
 # ##############################################################################
 
 set(CP2K_SUPPORTED_ACCELERATION_TARGETS CUDA HIP NONE)
-set(CP2K_SUPPORTED_CUDA_ARCHITECTURES K20X K40 K80 P100 V100 A100)
+set(CP2K_SUPPORTED_CUDA_ARCHITECTURES
+    K20X
+    K40
+    K80
+    P100
+    V100
+    A100
+    A40)
 set(CP2K_SUPPORTED_HIP_ARCHITECTURES
     Mi50
     Mi100
@@ -262,7 +262,8 @@ set(CP2K_SUPPORTED_HIP_ARCHITECTURES
     K80
     P100
     V100
-    A100)
+    A100
+    A40)
 
 set(CP2K_WITH_GPU
     "P100"
@@ -512,6 +513,7 @@ if((CP2K_USE_ACCEL MATCHES CUDA) OR (CP2K_USE_ACCEL MATCHES HIP))
   set(CP2K_GPU_ARCH_NUMBER_P100 60)
   set(CP2K_GPU_ARCH_NUMBER_V100 70)
   set(CP2K_GPU_ARCH_NUMBER_A100 80)
+  set(CP2K_GPU_ARCH_NUMBER_A40 86)
   set(CP2K_GPU_ARCH_NUMBER_Mi50 gfx906)
   set(CP2K_GPU_ARCH_NUMBER_Mi100 gfx908)
   set(CP2K_GPU_ARCH_NUMBER_Mi200 gfx90a)
@@ -639,7 +641,7 @@ if(CP2K_USE_VORI)
 endif()
 
 if(CP2K_USE_DLAF)
-  find_package(DLAF REQUIRED)
+  find_package(DLAFFortran REQUIRED)
 endif()
 
 # FFTW3
@@ -917,15 +919,6 @@ endif()
 if(CP2K_USE_ELPA)
   message(" - ELPA\n" "   - include directories : ${CP2K_ELPA_INCLUDE_DIRS}\n"
           "   - libraries           :  ${CP2K_ELPA_LINK_LIBRARIES}\n\n")
-endif()
-
-if(CP2K_USE_DLAF)
-  get_target_property(CP2K_DLAF_INCLUDE_DIRS DLAF::DLAF
-                      INTERFACE_INCLUDE_DIRECTORIES)
-  get_target_property(CP2K_DLAF_LINK_LIBRARIES DLAF::DLAF
-                      INTERFACE_LINK_LIBRARIES)
-  message(" - DLAF\n" "   - include directories : ${CP2K_DLAF_INCLUDE_DIRS}\n"
-          "   - libraries           :  ${CP2K_DLAF_LINK_LIBRARIES}\n\n")
 endif()
 
 if(CP2K_USE_SUPERLU)

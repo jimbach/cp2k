@@ -13,12 +13,12 @@
 ! **************************************************************************************************
 MODULE qs_active_space_types
 
+   USE cp_dbcsr_api,                    ONLY: dbcsr_csr_destroy,&
+                                              dbcsr_csr_p_type,&
+                                              dbcsr_p_type
    USE cp_dbcsr_operations,             ONLY: dbcsr_deallocate_matrix_set
    USE cp_fm_types,                     ONLY: cp_fm_release,&
                                               cp_fm_type
-   USE dbcsr_api,                       ONLY: dbcsr_csr_destroy,&
-                                              dbcsr_csr_p_type,&
-                                              dbcsr_p_type
    USE input_constants,                 ONLY: eri_method_gpw_ht
    USE kinds,                           ONLY: default_path_length,&
                                               dp
@@ -40,7 +40,7 @@ MODULE qs_active_space_types
 !> \brief Quantities needed for AS determination
 !> \author JGH
 ! **************************************************************************************************
-   TYPE eri_gpw_r3d_rs_type
+   TYPE eri_gpw_type
       LOGICAL                       :: redo_poisson = .FALSE.
       LOGICAL                       :: store_wfn = .FALSE.
       REAL(KIND=dp)                 :: cutoff = 0.0_dp
@@ -49,7 +49,7 @@ MODULE qs_active_space_types
       REAL(KIND=dp)                 :: eps_filter = 0.0_dp
       INTEGER                       :: print_level = 0
       INTEGER                       :: group_size = 0
-   END TYPE eri_gpw_r3d_rs_type
+   END TYPE eri_gpw_type
 
    TYPE eri_type
       INTEGER                       :: method = 0
@@ -58,7 +58,7 @@ MODULE qs_active_space_types
       INTEGER, DIMENSION(3)         :: periodicity = 0
       REAL(KIND=dp)                 :: cutoff_radius = 0.0_dp
       REAL(KIND=dp)                 :: eps_integral = 0.0_dp
-      TYPE(eri_gpw_r3d_rs_type)            :: eri_gpw = eri_gpw_r3d_rs_type()
+      TYPE(eri_gpw_type)            :: eri_gpw = eri_gpw_type()
       TYPE(dbcsr_csr_p_type), &
          DIMENSION(:), POINTER      :: eri => NULL()
       INTEGER                       :: norb = 0

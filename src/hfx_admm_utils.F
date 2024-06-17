@@ -33,6 +33,14 @@ MODULE hfx_admm_utils
    USE cp_blacs_env,                    ONLY: cp_blacs_env_type
    USE cp_control_types,                ONLY: admm_control_type,&
                                               dft_control_type
+   USE cp_dbcsr_api,                    ONLY: dbcsr_add,&
+                                              dbcsr_copy,&
+                                              dbcsr_create,&
+                                              dbcsr_init_p,&
+                                              dbcsr_p_type,&
+                                              dbcsr_set,&
+                                              dbcsr_type,&
+                                              dbcsr_type_no_symmetry
    USE cp_dbcsr_cp2k_link,              ONLY: cp_dbcsr_alloc_block_from_nbl
    USE cp_dbcsr_operations,             ONLY: cp_dbcsr_m_by_n_from_row_template,&
                                               dbcsr_allocate_matrix_set
@@ -47,14 +55,6 @@ MODULE hfx_admm_utils
                                               cp_logger_get_default_io_unit,&
                                               cp_logger_type,&
                                               cp_to_string
-   USE dbcsr_api,                       ONLY: dbcsr_add,&
-                                              dbcsr_copy,&
-                                              dbcsr_create,&
-                                              dbcsr_init_p,&
-                                              dbcsr_p_type,&
-                                              dbcsr_set,&
-                                              dbcsr_type,&
-                                              dbcsr_type_no_symmetry
    USE distribution_1d_types,           ONLY: distribution_1d_type
    USE distribution_2d_types,           ONLY: distribution_2d_type
    USE external_potential_types,        ONLY: copy_potential
@@ -530,7 +530,7 @@ CONTAINS
          admm_kind_set(ikind)%natom = qs_kind_set(ikind)%natom
          admm_kind_set(ikind)%hard_radius = qs_kind_set(ikind)%hard_radius
          admm_kind_set(ikind)%max_rad_local = qs_kind_set(ikind)%max_rad_local
-         admm_kind_set(ikind)%gpw_r3d_rs_type_forced = qs_kind_set(ikind)%gpw_r3d_rs_type_forced
+         admm_kind_set(ikind)%gpw_type_forced = qs_kind_set(ikind)%gpw_type_forced
          admm_kind_set(ikind)%ngrid_rad = qs_kind_set(ikind)%ngrid_rad
          admm_kind_set(ikind)%ngrid_ang = qs_kind_set(ikind)%ngrid_ang
 
@@ -2469,17 +2469,19 @@ CONTAINS
 !> \param recalc_integrals whether to recalculate integrals (default: value of HF%TREAT_LSD_IN_CORE)
 !> \param external_hfx_sections ...
 !> \param external_x_data ...
+!> \param external_para_env ...
 !> \note
 !>     Simplified version of subroutine hfx_ks_matrix()
 ! **************************************************************************************************
    SUBROUTINE tddft_hfx_matrix(matrix_ks, rho_ao, qs_env, update_energy, recalc_integrals, &
-                               external_hfx_sections, external_x_data)
+                               external_hfx_sections, external_x_data, external_para_env)
       TYPE(dbcsr_p_type), DIMENSION(:), INTENT(INOUT), &
          TARGET                                          :: matrix_ks, rho_ao
       TYPE(qs_environment_type), POINTER                 :: qs_env
       LOGICAL, INTENT(IN), OPTIONAL                      :: update_energy, recalc_integrals
       TYPE(section_vals_type), OPTIONAL, POINTER         :: external_hfx_sections
       TYPE(hfx_type), DIMENSION(:, :), OPTIONAL, TARGET  :: external_x_data
+      TYPE(mp_para_env_type), OPTIONAL, POINTER          :: external_para_env
 
       CHARACTER(LEN=*), PARAMETER                        :: routineN = 'tddft_hfx_matrix'
 
@@ -2513,6 +2515,7 @@ CONTAINS
 
       IF (PRESENT(external_hfx_sections)) hfx_sections => external_hfx_sections
       IF (PRESENT(external_x_data)) x_data => external_x_data
+      IF (PRESENT(external_para_env)) para_env => external_para_env
 
       my_update_energy = .TRUE.
       IF (PRESENT(update_energy)) my_update_energy = update_energy

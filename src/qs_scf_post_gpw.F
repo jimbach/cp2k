@@ -26,6 +26,9 @@ MODULE qs_scf_post_gpw
    USE cp_array_utils,                  ONLY: cp_1d_r_p_type
    USE cp_blacs_env,                    ONLY: cp_blacs_env_type
    USE cp_control_types,                ONLY: dft_control_type
+   USE cp_dbcsr_api,                    ONLY: dbcsr_add,&
+                                              dbcsr_p_type,&
+                                              dbcsr_type
    USE cp_dbcsr_operations,             ONLY: copy_dbcsr_to_fm,&
                                               dbcsr_deallocate_matrix_set
    USE cp_dbcsr_output,                 ONLY: cp_dbcsr_write_sparse_matrix
@@ -49,9 +52,6 @@ MODULE qs_scf_post_gpw
                                               cp_print_key_should_output,&
                                               cp_print_key_unit_nr
    USE cp_realspace_grid_cube,          ONLY: cp_pw_to_cube
-   USE dbcsr_api,                       ONLY: dbcsr_add,&
-                                              dbcsr_p_type,&
-                                              dbcsr_type
    USE dct,                             ONLY: pw_shrink
    USE ed_analysis,                     ONLY: edmf_analysis
    USE et_coupling_types,               ONLY: set_et_coupling_type
@@ -454,10 +454,15 @@ CONTAINS
          CALL auxbas_pw_pool%create_pw(wf_g)
       END IF
 
+      IF (dft_control%restricted) THEN
+         !For ROKS usefull only first term
+         nspins = 1
+      ELSE
+         nspins = dft_control%nspins
+      END IF
       !Some info about ROKS
       IF (dft_control%restricted .AND. (do_mo_cubes .OR. p_loc_homo)) THEN
-         CALL cp_warn(__LOCATION__, "Unclear how we define MOs / localization in the restricted case ... "// &
-                      "Experimental feature. ")
+         CALL cp_abort(__LOCATION__, "Unclear how we define MOs / localization in the restricted case ... ")
          ! It is possible to obtain Wannier centers for ROKS without rotations for SINGLE OCCUPIED ORBITALS
       END IF
       ! Makes the MOs eigenstates, computes eigenvalues, write cubes
@@ -470,14 +475,12 @@ CONTAINS
                          mos=mos, &
                          matrix_ks=ks_rmpv)
          IF ((do_mo_cubes .AND. nhomo /= 0) .OR. do_stm .OR. dft_control%do_tddfpt_calculation) THEN
-            IF (.NOT. dft_control%restricted) THEN
-               CALL get_qs_env(qs_env, mo_derivs=mo_derivs)
-               IF (dft_control%do_admm) THEN
-                  CALL get_qs_env(qs_env, admm_env=admm_env)
-                  CALL make_mo_eig(mos, dft_control%nspins, ks_rmpv, scf_control, mo_derivs, admm_env=admm_env)
-               ELSE
-                  CALL make_mo_eig(mos, dft_control%nspins, ks_rmpv, scf_control, mo_derivs)
-               END IF
+            CALL get_qs_env(qs_env, mo_derivs=mo_derivs)
+            IF (dft_control%do_admm) THEN
+               CALL get_qs_env(qs_env, admm_env=admm_env)
+               CALL make_mo_eig(mos, nspins, ks_rmpv, scf_control, mo_derivs, admm_env=admm_env)
+            ELSE
+               CALL make_mo_eig(mos, nspins, ks_rmpv, scf_control, mo_derivs)
             END IF
             DO ispin = 1, dft_control%nspins
                CALL get_mo_set(mo_set=mos(ispin), eigenvalues=mo_eigenvalues, homo=homo)
@@ -486,12 +489,6 @@ CONTAINS
             has_homo = .TRUE.
          END IF
          IF (do_mo_cubes .AND. nhomo /= 0) THEN
-            IF (dft_control%restricted) THEN
-               !For ROKS usefull only first term
-               nspins = 1
-            ELSE
-               nspins = dft_control%nspins
-            END IF
             DO ispin = 1, nspins
                ! Prints the cube files of OCCUPIED ORBITALS
                CALL get_mo_set(mo_set=mos(ispin), mo_coeff=mo_coeff, &

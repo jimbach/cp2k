@@ -91,7 +91,8 @@ MODULE bibliography
                             Rycroft2009, Thomas2015, Brehm2018, Brehm2020, Shigeta2001, Heinecke2016, &
                             Brehm2021, Bussy2021a, Bussy2021b, Ditler2021, Ditler2022, Mattiat2019, &
                             Mattiat2022, Belleflamme2023, Knizia2013, Musaelian2023, Eriksen2020, &
-                            Bussy2023, Wang2018, Zeng2023, Graml2024
+                            Bussy2023, Wang2018, Zeng2023, Graml2024, Solca2024, Freeman1977, Gruneis2009, &
+                            Stein2022, Stein2024
 
 CONTAINS
 
@@ -4901,6 +4902,9 @@ CONTAINS
                          "   dichalcogenide heterobilayers", &
                          "SO Journal of Chemical Theory and Computation", &
                          "PY 2024", &
+                         "VL 20", &
+                         "BP 2202", &
+                         "EP 2208", &
                          "ER"), &
                          DOI="10.1021/acs.jctc.3c01230")
 
@@ -4983,6 +4987,107 @@ CONTAINS
                          "DI 10.1063/5.0155600", &
                          "ER"), &
                          DOI="10.1063/5.0155600")
+
+      CALL add_reference(key=Solca2024, ISI_record=s2a( &
+                         "TY CONF", &
+                         "AU Solcà, Raffaele", &
+                         "   Simberg, Mikael", &
+                         "   Meli, Rocco", &
+                         "   Invernizzi, Alberto", &
+                         "   Reverdell, Auriane", &
+                         "   Biddiscombe, John", &
+                         "PY 2024", &
+                         "TI DLA-Future: A Task-Based Linear Algebra Library", &
+                         "   Which Provides a GPU-Enabled Distributed Eigensolver", &
+                         "SO Asynchronous Many-Task Systems and Applications (WAMTA2024)", &
+                         "JF Asynchronous Many-Task Systems and Applications (WAMTA2024)", &
+                         "JO Asynchronous Many-Task Systems and Applications (WAMTA2024)", &
+                         "SP 135", &
+                         "EP 141", &
+                         "PB Springer Nature Switzerland", &
+                         "CY Cham", &
+                         "SN 978-3-031-61763-8", &
+                         "DI 10.1007/978-3-031-61763-8_13", &
+                         "ER"), &
+                         DOI="10.1007/978-3-031-61763-8_13")
+
+      CALL add_reference(key=Freeman1977, ISI_record=s2a( &
+                         "TY JOUR", &
+                         "PB American Physical Society", &
+                         "ID 10.1103/PhysRevB.15.5512", &
+                         "DO 10.1103/PhysRevB.15.5512", &
+                         "TI Coupled-cluster expansion applied to the electron gas: Inclusion of ring and exchange effects", &
+                         "PY 1977", &
+                         "UR https://link.aps.org/doi/10.1103/PhysRevB.15.5512", &
+                         "JF Physical Review B", &
+                         "JA Phys. Rev. B", &
+                         "J1 PRB", &
+                         "VL 15", &
+                         "IS 12", &
+                         "SP 5512", &
+                         "EP 5521", &
+                         "AU Freeman, David L.", &
+                         "ER"), &
+                         DOI="10.1103/PhysRevB.15.5512")
+
+      CALL add_reference(key=Gruneis2009, ISI_record=s2a( &
+                         "TY JOUR", &
+                         "AU Grueneis, Andreas", &
+                         "   Marsman, Martijn", &
+                         "   Harl, Judith", &
+                         "   Schimka, Laurids", &
+                         "   Kresse, Georg", &
+                         "TI Making the random phase approximation to electronic correlation accurate", &
+                         "PY 2009", &
+                         "Y1 2009/10/21", &
+                         "JO The Journal of Chemical Physics", &
+                         "JA J. Chem. Phys.", &
+                         "VL 131", &
+                         "IS 15", &
+                         "SP 154115", &
+                         "SN 0021-9606", &
+                         "Y2 5/1/2024", &
+                         "UR https://doi.org/10.1063/1.3250347", &
+                         "ER"), &
+                         DOI="10.1063/1.3250347")
+
+      CALL add_reference(key=Stein2022, ISI_record=s2a( &
+                         "TY JOUR", &
+                         "AU Stein, Frederick", &
+                         "AU Hutter, Juerg", &
+                         "TI Double-hybrid density functionals for the condensed phase: ", &
+                         "   Gradients, stress tensor, and auxiliary-density matrix method acceleration", &
+                         "PY 2022", &
+                         "Y1 2022/02/17", &
+                         "JO The Journal of Chemical Physics", &
+                         "JA J. Chem. Phys.", &
+                         "VL 156", &
+                         "IS 7", &
+                         "SP 074107", &
+                         "SN 0021-9606", &
+                         "Y2 6/13/2024", &
+                         "UR https://doi.org/10.1063/5.0082327", &
+                         "ER"), &
+                         DOI="10.1063/5.0082327")
+
+      CALL add_reference(key=Stein2024, ISI_record=s2a( &
+                         "TY JOUR", &
+                         "AU Stein, Frederick", &
+                         "AU Hutter, Juerg", &
+                         "TI Massively parallel implementation of gradients within the random ", &
+                         "   phase approximation: Application to the polymorphs of benzene", &
+                         "PY 2024", &
+                         "Y1 2024/01/12", &
+                         "JO The Journal of Chemical Physics", &
+                         "JA J. Chem. Phys.", &
+                         "VL 160", &
+                         "IS 2", &
+                         "SP 024120", &
+                         "SN 0021-9606", &
+                         "Y2 6/13/2024", &
+                         "UR https://doi.org/10.1063/5.0180704", &
+                         "ER"), &
+                         DOI="10.1063/5.0180704")
 
    END SUBROUTINE add_all_references
 

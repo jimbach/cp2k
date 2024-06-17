@@ -13,6 +13,12 @@
 MODULE rt_propagation_output
    USE atomic_kind_types,               ONLY: atomic_kind_type
    USE cp_control_types,                ONLY: dft_control_type
+   USE cp_dbcsr_api,                    ONLY: &
+        dbcsr_add, dbcsr_binary_write, dbcsr_checksum, dbcsr_copy, dbcsr_create, &
+        dbcsr_deallocate_matrix, dbcsr_desymmetrize, dbcsr_filter, dbcsr_get_info, &
+        dbcsr_get_occupation, dbcsr_init_p, dbcsr_iterator_blocks_left, dbcsr_iterator_next_block, &
+        dbcsr_iterator_start, dbcsr_iterator_stop, dbcsr_iterator_type, dbcsr_p_type, dbcsr_scale, &
+        dbcsr_set, dbcsr_type
    USE cp_dbcsr_operations,             ONLY: cp_dbcsr_sm_fm_multiply,&
                                               dbcsr_allocate_matrix_set,&
                                               dbcsr_deallocate_matrix_set
@@ -36,12 +42,6 @@ MODULE rt_propagation_output
                                               cp_print_key_should_output,&
                                               cp_print_key_unit_nr
    USE cp_realspace_grid_cube,          ONLY: cp_pw_to_cube
-   USE dbcsr_api,                       ONLY: &
-        dbcsr_add, dbcsr_binary_write, dbcsr_checksum, dbcsr_copy, dbcsr_create, &
-        dbcsr_deallocate_matrix, dbcsr_desymmetrize, dbcsr_filter, dbcsr_get_info, &
-        dbcsr_get_occupation, dbcsr_init_p, dbcsr_iterator_blocks_left, dbcsr_iterator_next_block, &
-        dbcsr_iterator_start, dbcsr_iterator_stop, dbcsr_iterator_type, dbcsr_p_type, dbcsr_scale, &
-        dbcsr_set, dbcsr_type
    USE efield_utils,                    ONLY: make_field
    USE input_constants,                 ONLY: ehrenfest,&
                                               real_time_propagation
@@ -860,18 +860,23 @@ CONTAINS
 
          IF (new_file) THEN
             IF (dft_control%apply_efield_field) THEN
-               WRITE (UNIT=unit_nr, FMT='("#",5X,A,8X,A,3(6X,A))') "Step Nr.", "Time[fs]", " Field X", " Field Y", " Field Z"
+               WRITE (UNIT=unit_nr, FMT='("#",5X,A,8X,A,3(6X,A))') "Step Nr.", "Time[fs]", " Field X", "   Field Y", "   Field Z"
             ELSE IF (dft_control%apply_vector_potential) THEN
-               WRITE (UNIT=unit_nr, FMT='("#",5X,A,8X,A,6(6X,A))') "Step Nr.", "Time[fs]", " Field X", " Field Y", " Field Z", &
-                  "Vec. Pot. X", "Vec. Pot. Y", "Vec. Pot. Z"
+               WRITE (UNIT=unit_nr, FMT='("#",5X,A,8X,A,6(6X,A))') "Step Nr.", "Time[fs]", " Field X", "   Field Y", "   Field Z", &
+                  "  Vec. Pot. X", "  Vec. Pot. Y", "    Vec. Pot. Z"
             END IF
          END IF
 
+         field = 0.0_dp
          IF (dft_control%apply_efield_field) THEN
             CALL make_field(dft_control, field, qs_env%sim_step, qs_env%sim_time)
-            WRITE (UNIT=unit_nr, FMT="(I10,F20.6,3(E16.8,1X))") i_step, i_step*rtp%dt*femtoseconds, field(1), field(2), field(3)
+            WRITE (UNIT=unit_nr, FMT="(I10,F16.6,3(F16.8,1X))") qs_env%sim_step, qs_env%sim_time*femtoseconds, &
+               field(1), field(2), field(3)
+!            DO i=1,3
+!               IF (ABS(field(i))< 10E-10) field(i) = 0.0_dp
+!            END IF
          ELSE IF (dft_control%apply_vector_potential) THEN
-            WRITE (UNIT=unit_nr, FMT="(I10,F20.6,6(E16.8,1X))") i_step, i_step*rtp%dt*femtoseconds, &
+            WRITE (UNIT=unit_nr, FMT="(I10,F16.6,6(F16.8,1X))") qs_env%sim_step, qs_env%sim_time*femtoseconds, &
                dft_control%rtp_control%field(1), dft_control%rtp_control%field(2), dft_control%rtp_control%field(3), &
                dft_control%rtp_control%vec_pot(1), dft_control%rtp_control%vec_pot(2), dft_control%rtp_control%vec_pot(3)
          END IF
@@ -933,7 +938,8 @@ CONTAINS
 
          END IF
          WRITE (UNIT=unit_nr, FMT="(I10,F20.6,10(F20.9))") &
-            i_step, i_step*rtp%dt*femtoseconds, energy%total, energy%core, energy%core_overlap, energy%hartree, energy%exc, &
+            qs_env%sim_step, qs_env%sim_time*femtoseconds, &
+            energy%total, energy%core, energy%core_overlap, energy%hartree, energy%exc, &
             energy%hartree_1c, energy%exc1, energy%exc_aux_fit, energy%exc1_aux_fit, energy%efield_core
 
       END IF

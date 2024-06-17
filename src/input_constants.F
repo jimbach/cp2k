@@ -1053,6 +1053,10 @@ MODULE input_constants
                                                wfc_mm_style_gemm = 11, &
                                                wfc_mm_style_syrk = 12
 
+   ! RPA exchange corrections
+   INTEGER, PARAMETER, PUBLIC               :: rpa_exchange_none = 0, &
+                                               rpa_exchange_axk = 1, rpa_exchange_sosex = 2
+
    ! solvers of the z-vector equations
    INTEGER, PARAMETER, PUBLIC               :: z_solver_pople = 1, &
                                                z_solver_cg = 2, &
@@ -1080,7 +1084,9 @@ MODULE input_constants
                                                int_ldos_x = 19, &
                                                int_ldos_y = 20, &
                                                int_ldos_z = 21, &
-                                               int_ldos_none = 22
+                                               int_ldos_none = 22, &
+                                               small_cell_full_kp = 31, &
+                                               large_cell_Gamma = 32
 
    ! periodic RESP parameters
    INTEGER, PARAMETER, PUBLIC               :: do_resp_x_dir = 0, &

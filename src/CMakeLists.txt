@@ -209,10 +209,14 @@ list(
   grrm_utils.F
   gapw_1c_basis_set.F
   gw_communication.F
-  gw_methods.F
+  gw_main.F
+  gw_large_cell_gamma.F
+  gw_small_cell_full_kp.F
   post_scf_bandstructure_types.F
   post_scf_bandstructure_utils.F
   gw_utils.F
+  gw_integrals.F
+  gw_kp_to_real_space_and_back.F
   hartree_local_methods.F
   hartree_local_types.F
   header.F
@@ -620,6 +624,7 @@ list(
   qs_neighbor_lists.F
   qs_neighbor_list_types.F
   qs_nl_hash_table_types.F
+  qs_nonscf.F
   qs_o3c_methods.F
   qs_o3c_types.F
   qs_oce_methods.F
@@ -705,7 +710,7 @@ list(
   restraint.F
   ri_environment_methods.F
   rmsd.F
-  rpa_axk.F
+  rpa_exchange.F
   rpa_communication.F
   rpa_grad.F
   rpa_gw.F
@@ -947,6 +952,8 @@ list(
   dbt/tas/dbt_tas_test.F
   dbt/tas/dbt_tas_types.F
   dbt/tas/dbt_tas_util.F)
+
+list(APPEND CP2K_SRCS_F dbx/cp_dbcsr_api.F)
 
 list(
   APPEND
@@ -1514,8 +1521,7 @@ set_target_properties(
   PROPERTIES IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
              Fortran_MODULE_DIRECTORY mod_files
              POSITION_INDEPENDENT_CODE ON
-             VERSION ${cp2k_VERSION}
-             SOVERSION ${cp2k_APIVERSION})
+             VERSION ${cp2k_VERSION})
 
 if(CP2K_USE_ACCEL MATCHES "CUDA")
   set_property(TARGET cp2k PROPERTY CUDA_ARCHITECTURES
@@ -1569,7 +1575,7 @@ target_link_libraries(
     $<$<BOOL:${CP2K_USE_TORCH}>:${TORCH_LIBRARIES}>
     $<$<BOOL:${CP2K_USE_COSMA}>:cosma::cosma_prefixed_pxgemm>
     $<$<BOOL:${CP2K_USE_COSMA}>:cosma::cosma>
-    $<$<BOOL:${CP2K_USE_DLAF}>:DLAF::DLAF>
+    $<$<BOOL:${CP2K_USE_DLAF}>:DLAF::Fortran>
     DBCSR::dbcsr
     $<$<BOOL:${CP2K_USE_MPI}>:cp2k::SCALAPACK::scalapack>
     cp2k_linalg_libs

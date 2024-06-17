@@ -12,7 +12,7 @@
 #if defined(__LIBXSMM)
 #include <libxsmm.h>
 #if !defined(DBM_LIBXSMM_PREFETCH)
-//#define DBM_LIBXSMM_PREFETCH LIBXSMM_GEMM_PREFETCH_AL2_AHEAD
+// #define DBM_LIBXSMM_PREFETCH LIBXSMM_GEMM_PREFETCH_AL2_AHEAD
 #define DBM_LIBXSMM_PREFETCH LIBXSMM_GEMM_PREFETCH_NONE
 #endif
 #if LIBXSMM_VERSION4(1, 17, 0, 3710) > LIBXSMM_VERSION_NUMBER
@@ -120,7 +120,7 @@ void dbm_multiply_cpu_process_batch(const int ntasks, dbm_task_t batch[ntasks],
     if (task.m != kernel_m || task.n != kernel_n || task.k != kernel_k) {
 #if LIBXSMM_VERSION2(1, 17) < LIBXSMM_VERSION_NUMBER
       const libxsmm_gemm_shape shape = libxsmm_create_gemm_shape(
-          task.m, task.n, task.k, task.m /*lda*/, task.n /*ldb/transb*/,
+          task.m, task.n, task.k, task.m /*lda*/, task.k /*ldb*/,
           task.m /*ldc*/, LIBXSMM_DATATYPE_F64 /*aprec*/,
           LIBXSMM_DATATYPE_F64 /*bprec*/, LIBXSMM_DATATYPE_F64 /*cprec*/,
           LIBXSMM_DATATYPE_F64 /*calcp*/);

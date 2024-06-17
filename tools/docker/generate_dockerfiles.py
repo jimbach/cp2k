@@ -16,7 +16,12 @@ def main() -> None:
 
     for version in "sdbg", "ssmp", "pdbg", "psmp":
         with OutputFile(f"Dockerfile.test_{version}", args.check) as f:
-            f.write(toolchain_full() + regtest(version))
+            if version == "ssmp":
+                # Use ssmp as guinea pig
+                f.write(toolchain_full(with_dbcsr=True))
+                f.write(regtest_cmake("toolchain", version))
+            else:
+                f.write(toolchain_full() + regtest(version))
 
         with OutputFile(f"Dockerfile.test_generic_{version}", args.check) as f:
             f.write(toolchain_full(target_cpu="generic") + regtest(version))
@@ -36,10 +41,10 @@ def main() -> None:
         f.write(toolchain_nvhpc())
 
     with OutputFile(f"Dockerfile.test_minimal", args.check) as f:
-        f.write(toolchain_full() + regtest("sdbg", "minimal"))
+        f.write(toolchain_ubuntu_nompi() + regtest_cmake("minimal", "ssmp"))
 
     with OutputFile(f"Dockerfile.test_cmake", args.check) as f:
-        f.write(spack_env_toolchain() + regtest_cmake())
+        f.write(spack_env_toolchain() + regtest_cmake("spack", "psmp"))
 
     for version in "ssmp", "psmp":
         with OutputFile(f"Dockerfile.test_asan-{version}", args.check) as f:
@@ -49,30 +54,28 @@ def main() -> None:
         with OutputFile(f"Dockerfile.test_coverage-{version}", args.check) as f:
             f.write(toolchain_full() + coverage(version))
 
-    for gcc_version in 8, 9, 10, 11, 12:
+    for gcc_version in 8, 9, 10, 11, 12, 13:
         with OutputFile(f"Dockerfile.test_gcc{gcc_version}", args.check) as f:
             if gcc_version > 8:
                 f.write(toolchain_ubuntu_nompi(gcc_version=gcc_version))
+                f.write(regtest_cmake("ubuntu", "ssmp"))
             else:
-                f.write(
-                    toolchain_ubuntu_nompi(
-                        base_image="ubuntu:20.04",
-                        gcc_version=gcc_version,
-                        libgrpp=False,
-                        spglib=False,
-                    )
-                )
-            # Skip some tests because of bug in LDA_C_PMGB06 functional in libxc <5.2.0.
-            f.write(regtest("ssmp", testopts="--skipdir=QS/regtest-rs-dhft"))
+                f.write(toolchain_ubuntu2004_nompi(gcc_version=gcc_version))
+                # Skip some tests due to bug in LDA_C_PMGB06 functional in libxc <5.2.0.
+                f.write(regtest("ssmp", testopts="--skipdir=QS/regtest-rs-dhft"))
 
     with OutputFile("Dockerfile.test_i386", args.check) as f:
-        f.write(toolchain_ubuntu_nompi(base_image="i386/debian:12", libvori=False))
-        f.write(regtest("ssmp"))
+        f.write(
+            toolchain_ubuntu_nompi(
+                base_image="i386/debian:12.5", gcc_version=12, with_libxsmm=False
+            )
+        )
+        f.write(regtest_cmake("ubuntu_i386", "ssmp"))
 
     with OutputFile("Dockerfile.test_arm64-psmp", args.check) as f:
         f.write(
             toolchain_full(
-                base_image="arm64v8/ubuntu:22.04",
+                base_image="arm64v8/ubuntu:24.04",
                 with_libxsmm="no",
                 with_libtorch="no",
                 with_deepmd="no",
@@ -114,7 +117,7 @@ def main() -> None:
 
     for name in "aiida", "ase", "gromacs", "i-pi":
         with OutputFile(f"Dockerfile.test_{name}", args.check) as f:
-            f.write(toolchain_full() + test_3rd_party(name))
+            f.write(toolchain_ubuntu_nompi() + test_3rd_party(name))
 
     for name in "misc", "doxygen":
         with OutputFile(f"Dockerfile.test_{name}", args.check) as f:
@@ -141,7 +144,7 @@ RUN /bin/bash -o pipefail -c " \
 
 
 # ======================================================================================
-def regtest_cmake(testopts: str = "") -> str:
+def regtest_cmake(profile: str, version: str, testopts: str = "") -> str:
     return (
         rf"""
 # Install CP2K sources.
@@ -155,10 +158,10 @@ COPY ./CMakeLists.txt .
 
 # Build CP2K with CMake and run regression tests.
 ARG TESTOPTS="{testopts}"
-COPY ./tools/docker/scripts/test_regtest_cmake.sh ./
+COPY ./tools/docker/scripts/build_cp2k_cmake.sh ./tools/docker/scripts/test_regtest_cmake.sh ./
 RUN /bin/bash -o pipefail -c " \
     TESTOPTS='${{TESTOPTS}}' \
-    ./test_regtest_cmake.sh |& tee report.log && \
+    ./test_regtest_cmake.sh {profile} {version} |& tee report.log && \
     rm -rf regtesting"
 """
         + print_cached_report()
@@ -265,7 +268,7 @@ RUN ./test_manual.sh "${{ADD_EDIT_LINKS}}" 2>&1 | tee report.log
 def precommit() -> str:
     return (
         rf"""
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Install dependencies.
 WORKDIR /opt/cp2k-precommit
@@ -287,10 +290,18 @@ RUN ./tools/docker/scripts/test_precommit.sh 2>&1 | tee report.log
 # ======================================================================================
 def test_3rd_party(name: str) -> str:
     return (
-        install_cp2k(version="sdbg", arch="local")
-        + rf"""
+        rf"""
+# Install CP2K sources.
+WORKDIR /opt/cp2k
+COPY ./src ./src
+COPY ./data ./data
+COPY ./tests ./tests
+COPY ./tools/build_utils ./tools/build_utils
+COPY ./cmake ./cmake
+COPY ./CMakeLists.txt .
+
 # Run test for {name}.
-COPY ./tools/docker/scripts/test_{name}.sh .
+COPY ./tools/docker/scripts/build_cp2k_cmake.sh ./tools/docker/scripts/test_{name}.sh ./
 RUN ./test_{name}.sh 2>&1 | tee report.log
 """
         + print_cached_report()
@@ -301,12 +312,13 @@ RUN ./test_{name}.sh 2>&1 | tee report.log
 def test_without_build(name: str) -> str:
     return (
         rf"""
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Install dependencies.
 WORKDIR /opt/cp2k
 COPY ./tools/docker/scripts/install_{name}.sh .
 RUN ./install_{name}.sh
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Install sources.
 ARG GIT_COMMIT_SHA
@@ -387,23 +399,70 @@ COPY ./tools/regtesting ./tools/regtesting
 
 # ======================================================================================
 def toolchain_full(
-    base_image: str = "ubuntu:22.04", with_gcc: str = "system", **kwargs: str
+    base_image: str = "ubuntu:24.04",
+    with_gcc: str = "system",
+    with_dbcsr: bool = False,
+    **kwargs: str,
 ) -> str:
-    return f"\nFROM {base_image}\n\n" + install_toolchain(
+    output = f"\nFROM {base_image}\n\n"
+    output += install_toolchain(
         base_image=base_image, install_all="", with_gcc=with_gcc, **kwargs
     )
+    if with_dbcsr:
+        output += r"""
+# Install DBCSR
+COPY ./tools/docker/scripts/install_dbcsr.sh ./
+RUN /bin/bash -o pipefail -c "source /opt/cp2k-toolchain/install/setup; ./install_dbcsr.sh"
+"""
+    return output
 
 
 # ======================================================================================
 def toolchain_ubuntu_nompi(
-    base_image: str = "ubuntu:22.04",
-    gcc_version: int = 12,
-    libgrpp: bool = True,
-    libvori: bool = True,
-    spglib: bool = True,
+    base_image: str = "ubuntu:24.04", gcc_version: int = 13, with_libxsmm: bool = True
 ) -> str:
+    assert gcc_version > 8
     output = rf"""
 FROM {base_image}
+
+# Install Ubuntu packages.
+RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
+    apt-get update -qq && apt-get install -qq --no-install-recommends \
+    cmake \
+    less \
+    nano \
+    make \
+    ninja-build \
+    wget \
+    python3 \
+    ca-certificates \
+    gcc-{gcc_version} \
+    g++-{gcc_version} \
+    gfortran-{gcc_version} \
+    libfftw3-dev \
+    libopenblas-dev \
+    libint2-dev \
+    libxc-dev \
+    {"libxsmm-dev" if with_libxsmm else ""} \
+    libspglib-f08-dev \
+   && rm -rf /var/lib/apt/lists/*
+
+# Create links in /usr/local/bin to overrule links in /usr/bin.
+RUN ln -sf /usr/bin/gcc-{gcc_version}      /usr/local/bin/gcc  && \
+    ln -sf /usr/bin/g++-{gcc_version}      /usr/local/bin/g++  && \
+    ln -sf /usr/bin/gfortran-{gcc_version} /usr/local/bin/gfortran
+
+# Install DBCSR
+COPY ./tools/docker/scripts/install_dbcsr.sh ./
+RUN  ./install_dbcsr.sh
+"""
+    return output
+
+
+# ======================================================================================
+def toolchain_ubuntu2004_nompi(gcc_version: int = 8) -> str:
+    output = rf"""
+FROM ubuntu:20.04
 
 # Install Ubuntu packages.
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
@@ -416,12 +475,7 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
     libopenblas-dev \
     libgsl-dev \
     libhdf5-dev \
-"""
-    if gcc_version > 8:
-        output += "    libint2-dev \\\n"
-        output += "    libxc-dev \\\n"
-
-    output += rf"""   && rm -rf /var/lib/apt/lists/*
+   && rm -rf /var/lib/apt/lists/*
 
 # Create links in /usr/local/bin to overrule links in /usr/bin.
 RUN ln -sf /usr/bin/gcc-{gcc_version}      /usr/local/bin/gcc  && \
@@ -438,12 +492,12 @@ RUN ln -sf /usr/bin/gcc-{gcc_version}      /usr/local/bin/gcc  && \
         with_openblas="system",
         with_gsl="system",
         with_hdf5="system",
-        with_libgrpp=("install" if libgrpp else "no"),
-        with_libint=("system" if gcc_version > 8 else "install"),
-        with_libxc=("system" if gcc_version > 8 else "install"),
+        with_libgrpp="no",
+        with_libint="install",
+        with_libxc="install",
         with_libxsmm="install",
-        with_libvori=("install" if libvori else "no"),
-        with_spglib=("install" if spglib else "no"),
+        with_libvori="install",
+        with_spglib="no",
     )
     return output
 
@@ -451,10 +505,7 @@ RUN ln -sf /usr/bin/gcc-{gcc_version}      /usr/local/bin/gcc  && \
 # ======================================================================================
 def toolchain_intel() -> str:
     return rf"""
-FROM intel/oneapi-hpckit:2023.2.1-devel-ubuntu22.04
-
-# Workaround expired key.
-RUN curl -sS https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor > /usr/share/keyrings/intel-oneapi-archive-keyring.gpg
+FROM intel/hpckit:2024.1.1-devel-ubuntu22.04
 
 """ + install_toolchain(
         base_image="ubuntu",
@@ -741,7 +792,7 @@ RUN ./scripts/generate_arch_files.sh && rm -rf ./build
 # ======================================================================================
 def spack_env_toolchain() -> str:
     return rf"""
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Install common dependencies as pre-built Ubuntu packages.
 RUN apt-get update -qq && apt-get install -qq --no-install-recommends \
@@ -782,7 +833,7 @@ RUN apt-get update -qq && apt-get install -qq --no-install-recommends \
 WORKDIR /opt/spack
 RUN git init --quiet && \
     git remote add origin https://github.com/spack/spack.git && \
-    git fetch --quiet --depth 1 origin tag develop-2024-03-24 --no-tags && \
+    git fetch --quiet --depth 1 origin tag develop-2024-05-26 --no-tags && \
     git checkout --quiet FETCH_HEAD
 ENV PATH="/opt/spack/bin:${{PATH}}"
 

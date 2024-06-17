@@ -20,13 +20,13 @@ MODULE pexsi_types
    USE bibliography,                    ONLY: Lin2009,&
                                               Lin2013,&
                                               cite_reference
-   USE cp_log_handling,                 ONLY: cp_get_default_logger,&
-                                              cp_logger_get_default_unit_nr,&
-                                              cp_logger_type
-   USE dbcsr_api,                       ONLY: dbcsr_csr_type,&
+   USE cp_dbcsr_api,                    ONLY: dbcsr_csr_type,&
                                               dbcsr_p_type,&
                                               dbcsr_scale,&
                                               dbcsr_type
+   USE cp_log_handling,                 ONLY: cp_get_default_logger,&
+                                              cp_logger_get_default_unit_nr,&
+                                              cp_logger_type
    USE kinds,                           ONLY: dp
    USE message_passing,                 ONLY: mp_comm_type,&
                                               mp_dims_create
@@ -93,17 +93,17 @@ MODULE pexsi_types
       REAL(KIND=dp), DIMENSION(:), POINTER     :: kTS => NULL()
       TYPE(dbcsr_p_type), DIMENSION(:), &
          POINTER                               :: matrix_w => NULL()
-      INTEGER(KIND=C_INTPTR_T)                 :: plan
-      INTEGER                                  :: nspin, num_ranks_per_pole
-      TYPE(mp_comm_type) :: mp_group
+      INTEGER(KIND=C_INTPTR_T)                 :: plan = 0_C_INTPTR_T
+      INTEGER                                  :: nspin = -1, num_ranks_per_pole = -1
+      TYPE(mp_comm_type) :: mp_group = mp_comm_type()
       TYPE(dbcsr_type), DIMENSION(:), &
-         POINTER                               :: max_ev_vector
+         POINTER                               :: max_ev_vector => NULL()
       TYPE(dbcsr_type)                         :: csr_sparsity
-      INTEGER, DIMENSION(2)                    :: mp_dims
+      INTEGER, DIMENSION(2)                    :: mp_dims = -1
 
-      LOGICAL                                  :: csr_screening, do_adaptive_tol_nel
-      REAL(KIND=dp)                            :: adaptive_nel_alpha, adaptive_nel_beta, &
-                                                  tol_nel_initial, tol_nel_target
+      LOGICAL                                  :: csr_screening = .FALSE., do_adaptive_tol_nel = .FALSE.
+      REAL(KIND=dp)                            :: adaptive_nel_alpha = -1.0_dp, adaptive_nel_beta = -1.0_dp, &
+                                                  tol_nel_initial = -1.0_dp, tol_nel_target = -1.0_dp
    END TYPE lib_pexsi_env
 
 CONTAINS

@@ -16,12 +16,12 @@ MODULE efield_utils
                                               pbc
    USE cp_control_types,                ONLY: dft_control_type,&
                                               efield_type
-   USE cp_dbcsr_operations,             ONLY: dbcsr_allocate_matrix_set,&
-                                              dbcsr_deallocate_matrix_set
-   USE dbcsr_api,                       ONLY: dbcsr_add,&
+   USE cp_dbcsr_api,                    ONLY: dbcsr_add,&
                                               dbcsr_copy,&
                                               dbcsr_p_type,&
                                               dbcsr_set
+   USE cp_dbcsr_operations,             ONLY: dbcsr_allocate_matrix_set,&
+                                              dbcsr_deallocate_matrix_set
    USE input_constants,                 ONLY: constant_env,&
                                               custom_env,&
                                               gaussian_env,&
@@ -127,10 +127,11 @@ CONTAINS
 
       c = 137.03599962875_dp
       field = 0._dp
+      nu = 0.0_dp
       nfield = SIZE(dft_control%efield_fields)
       DO i = 1, nfield
          efield => dft_control%efield_fields(i)%efield
-         IF (.NOT. efield%envelop_id == custom_env) nu = c/(efield%wavelength) !in case of a custom efield we do not need nu
+         IF (.NOT. efield%envelop_id == custom_env .AND. efield%wavelength > EPSILON(0.0_dp)) nu = c/(efield%wavelength) !in case of a custom efield we do not need nu
          strength = SQRT(efield%strength/(3.50944_dp*10.0_dp**16))
          IF (DOT_PRODUCT(efield%polarisation, efield%polarisation) == 0) THEN
             pol(:) = 1.0_dp/3.0_dp
@@ -234,7 +235,6 @@ CONTAINS
                   CALL get_qs_env(qs_env=qs_env, force=force)
                   force(ikind)%efield(:, iatom) = force(ikind)%efield(:, iatom) - field*zeff
                END IF
-!               END IF
             END DO
 
          END DO

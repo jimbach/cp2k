@@ -110,7 +110,12 @@ CONTAINS
       CALL section_vals_val_get(mp2_section, "RI_RPA%SCALE_RPA", r_val=mp2_env%ri_rpa%scale_rpa)
       mp2_env%ri_rpa%reuse_hfx = .FALSE.
 
-      CALL section_vals_val_get(mp2_section, "RI_RPA%AXK", l_val=mp2_env%ri_rpa%do_ri_axk)
+      CALL section_vals_val_get(mp2_section, "RI_RPA%EXCHANGE_CORRECTION%_SECTION_PARAMETERS_", &
+                                i_val=mp2_env%ri_rpa%exchange_correction)
+      CALL section_vals_val_get(mp2_section, "RI_RPA%EXCHANGE_CORRECTION%BLOCK_SIZE", &
+                                i_val=mp2_env%ri_rpa%exchange_block_size)
+      CALL section_vals_val_get(mp2_section, "RI_RPA%EXCHANGE_CORRECTION%USE_HFX_IMPLEMENTATION", &
+                                l_val=mp2_env%ri_rpa%use_hfx_implementation)
 
       CALL section_vals_val_get(mp2_section, "RI_RPA%RSE", l_val=mp2_env%ri_rpa%do_rse)
       CALL section_vals_val_get(mp2_section, "RI_RPA%PRINT_DGEMM_INFO", l_val=mp2_env%ri_rpa%print_dgemm_info)
@@ -263,6 +268,10 @@ CONTAINS
                                 r_val=mp2_env%ri_g0w0%dos_upper)
       CALL section_vals_val_get(mp2_section, "RI_RPA%GW%PRINT%GW_DOS%STEP", &
                                 r_val=mp2_env%ri_g0w0%dos_prec)
+      CALL section_vals_val_get(mp2_section, "RI_RPA%GW%PRINT%GW_DOS%MIN_LEVEL_SPECTRAL", &
+                                i_val=mp2_env%ri_g0w0%dos_min)
+      CALL section_vals_val_get(mp2_section, "RI_RPA%GW%PRINT%GW_DOS%MAX_LEVEL_SPECTRAL", &
+                                i_val=mp2_env%ri_g0w0%dos_max)
       CALL section_vals_val_get(mp2_section, "RI_RPA%GW%PRINT%GW_DOS%MIN_LEVEL_SELF_ENERGY", &
                                 i_val=mp2_env%ri_g0w0%min_level_self_energy)
       CALL section_vals_val_get(mp2_section, "RI_RPA%GW%PRINT%GW_DOS%MAX_LEVEL_SELF_ENERGY", &
@@ -439,7 +448,6 @@ CONTAINS
       ! Set the CPHF section
       CALL section_vals_val_get(mp2_section, "CANONICAL_GRADIENTS%FREE_HFX_BUFFER", l_val=mp2_env%ri_grad%free_hfx_buffer)
       CALL section_vals_val_get(mp2_section, "CANONICAL_GRADIENTS%EPS_CANONICAL", r_val=mp2_env%ri_grad%eps_canonical)
-      CALL section_vals_val_get(mp2_section, "CANONICAL_GRADIENTS%USE_OLD_GRADIENT_CODE", l_val=mp2_env%ri_grad%use_old_grad)
       CALL section_vals_val_get(mp2_section, "CANONICAL_GRADIENTS%DOT_PRODUCT_BLKSIZE", i_val=mp2_env%ri_grad%dot_blksize)
       CALL section_vals_val_get(mp2_section, "CANONICAL_GRADIENTS%MAX_PARALLEL_COMM", i_val=mp2_env%ri_grad%max_parallel_comm)
       cphf_section => section_vals_get_subs_vals(mp2_section, "CANONICAL_GRADIENTS%CPHF")

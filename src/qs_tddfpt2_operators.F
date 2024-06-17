@@ -9,6 +9,10 @@ MODULE qs_tddfpt2_operators
    USE admm_types,                      ONLY: admm_type
    USE cell_types,                      ONLY: cell_type,&
                                               pbc
+   USE cp_dbcsr_api,                    ONLY: &
+        dbcsr_create, dbcsr_filter, dbcsr_iterator_blocks_left, dbcsr_iterator_next_block, &
+        dbcsr_iterator_start, dbcsr_iterator_stop, dbcsr_iterator_type, dbcsr_p_type, &
+        dbcsr_release, dbcsr_set, dbcsr_type, dbcsr_type_no_symmetry
    USE cp_dbcsr_operations,             ONLY: copy_fm_to_dbcsr,&
                                               cp_dbcsr_plus_fm_fm_t,&
                                               cp_dbcsr_sm_fm_multiply
@@ -20,10 +24,6 @@ MODULE qs_tddfpt2_operators
                                               cp_fm_release,&
                                               cp_fm_to_fm,&
                                               cp_fm_type
-   USE dbcsr_api,                       ONLY: &
-        dbcsr_create, dbcsr_filter, dbcsr_iterator_blocks_left, dbcsr_iterator_next_block, &
-        dbcsr_iterator_start, dbcsr_iterator_stop, dbcsr_iterator_type, dbcsr_p_type, &
-        dbcsr_release, dbcsr_set, dbcsr_type, dbcsr_type_no_symmetry
    USE hartree_local_methods,           ONLY: Vh_1c_gg_integrals
    USE hartree_local_types,             ONLY: hartree_local_type
    USE hfx_admm_utils,                  ONLY: tddft_hfx_matrix
@@ -754,8 +754,7 @@ CONTAINS
       INTEGER                                            :: blk, handle, iatom, ispin, jatom, natom, &
                                                             nsgf, nspins
       INTEGER, DIMENSION(2)                              :: nactive
-      REAL(KIND=dp)                                      :: dr, eps_filter, fcut, gabr, r, rsmooth, &
-                                                            spinfac, xr
+      REAL(KIND=dp)                                      :: dr, eps_filter, fcut, gabr
       REAL(KIND=dp), DIMENSION(3)                        :: rij
       REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pblock
       TYPE(cell_type), POINTER                           :: cell
@@ -772,12 +771,9 @@ CONTAINS
       CALL timeset(routineN, handle)
 
       ! parameters
-      rsmooth = 1.0_dp
       eps_filter = 1.E-08_dp
 
       nspins = SIZE(X)
-      spinfac = 2.0_dp
-      IF (nspins == 2) spinfac = 1.0_dp
       DO ispin = 1, nspins
          CALL cp_fm_get_info(X(ispin), ncol_global=nactive(ispin))
       END DO
@@ -818,24 +814,22 @@ CONTAINS
             rij = particle_set(iatom)%r - particle_set(jatom)%r
             rij = pbc(rij, cell)
             dr = SQRT(SUM(rij(:)**2))
-            IF (dr < rcut - rsmooth) THEN
-               gabr = 0.0_dp
-            ELSE IF (dr > rcut + rsmooth) THEN
-               gabr = 1._dp/dr
+            gabr = 1._dp/rcut
+            IF (dr < 1.e-6) THEN
+               gabr = 2._dp*gabr/SQRT(3.1415926_dp)
             ELSE
-               r = dr - (rcut - rsmooth)
-               xr = 0.5_dp*r/rsmooth
-               fcut = 6._dp*xr**5 - 15._dp*xr**4 + 10._dp*xr**3
-               gabr = fcut/dr
+               gabr = ERF(gabr*dr)/dr
+               fcut = EXP(dr - 4._dp*rcut)
+               fcut = fcut/(fcut + 1._dp)
             END IF
-            pblock = gabr*pblock
+            pblock = hfx_scale*gabr*pblock
          END DO
          CALL dbcsr_iterator_stop(iter)
          ! CV(mu,i) = P(nu,mu)*CT(mu,i)
          CALL cp_dbcsr_sm_fm_multiply(pdens, ct, cvec, nactive(ispin), 1.0_dp, 0.0_dp)
          ! rho(nu,i) = rho(nu,i) + ShalfP(nu,mu)*CV(mu,i)
          CALL cp_dbcsr_sm_fm_multiply(work%shalf, cvec, res(ispin), nactive(ispin), &
-                                      -1.0_dp, hfx_scale)
+                                      -1.0_dp, 1.0_dp)
          !
          CALL dbcsr_release(pdens)
          !

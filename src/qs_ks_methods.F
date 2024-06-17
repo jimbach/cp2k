@@ -33,6 +33,10 @@ MODULE qs_ks_methods
                                               get_admm_env
    USE cell_types,                      ONLY: cell_type
    USE cp_control_types,                ONLY: dft_control_type
+   USE cp_dbcsr_api,                    ONLY: &
+        dbcsr_add, dbcsr_copy, dbcsr_create, dbcsr_filter, dbcsr_get_info, dbcsr_multiply, &
+        dbcsr_p_type, dbcsr_release, dbcsr_set, dbcsr_type, dbcsr_type_antisymmetric, &
+        dbcsr_type_symmetric
    USE cp_dbcsr_cp2k_link,              ONLY: cp_dbcsr_alloc_block_from_nbl
    USE cp_dbcsr_operations,             ONLY: dbcsr_allocate_matrix_set,&
                                               dbcsr_copy_columns_hack
@@ -43,10 +47,6 @@ MODULE qs_ks_methods
                                               cp_logger_type
    USE cp_output_handling,              ONLY: cp_p_file,&
                                               cp_print_key_should_output
-   USE dbcsr_api,                       ONLY: &
-        dbcsr_add, dbcsr_copy, dbcsr_create, dbcsr_filter, dbcsr_get_info, dbcsr_multiply, &
-        dbcsr_p_type, dbcsr_release, dbcsr_set, dbcsr_type, dbcsr_type_antisymmetric, &
-        dbcsr_type_symmetric
    USE dft_plus_u,                      ONLY: plus_u
    USE hartree_local_methods,           ONLY: Vh_1c_gg_integrals
    USE hartree_local_types,             ONLY: ecoul_1center_type
@@ -179,7 +179,7 @@ CONTAINS
       CHARACTER(LEN=*), PARAMETER :: routineN = 'qs_ks_build_kohn_sham_matrix'
 
       CHARACTER(len=default_string_length)               :: name
-      INTEGER                                            :: handle, iatom, img, ispin, nimages, ns, &
+      INTEGER                                            :: handle, iatom, img, ispin, nimages, &
                                                             nspins
       LOGICAL :: do_adiabatic_rescaling, do_ddapc, do_hfx, do_ppl, dokp, gapw, gapw_xc, &
          hfx_treat_lsd_in_core, just_energy_xc, lrigpw, my_print, rigpw, use_virial
@@ -258,12 +258,11 @@ CONTAINS
 
       CALL qs_rho_get(rho, rho_r=rho_r, rho_ao_kp=rho_ao)
 
-      IF (PRESENT(ext_ks_matrix)) THEN
-         ! remap pointer to allow for non-kpoint external ks matrix
-         ! ext_ks_matrix is used in linear response code
-         ns = SIZE(ext_ks_matrix)
-         ks_matrix(1:ns, 1:1) => ext_ks_matrix(1:ns)
-      END IF
+      nimages = dft_control%nimages
+      nspins = dft_control%nspins
+
+      ! remap pointer to allow for non-kpoint external ks matrix
+      IF (PRESENT(ext_ks_matrix)) ks_matrix(1:nspins, 1:1) => ext_ks_matrix(1:nspins)
 
       use_virial = virial%pv_availability .AND. (.NOT. virial%pv_numer)
 
@@ -282,8 +281,6 @@ CONTAINS
          just_energy_xc = .TRUE.
       END IF
 
-      nimages = dft_control%nimages
-      nspins = dft_control%nspins
       CPASSERT(ASSOCIATED(matrix_h))
       CPASSERT(ASSOCIATED(matrix_s))
       CPASSERT(ASSOCIATED(rho))

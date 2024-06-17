@@ -3,7 +3,7 @@
 # Usage: docker build -f ./Dockerfile.test_cmake ../../
 #
 
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Install common dependencies as pre-built Ubuntu packages.
 RUN apt-get update -qq && apt-get install -qq --no-install-recommends \
@@ -44,7 +44,7 @@ RUN apt-get update -qq && apt-get install -qq --no-install-recommends \
 WORKDIR /opt/spack
 RUN git init --quiet && \
     git remote add origin https://github.com/spack/spack.git && \
-    git fetch --quiet --depth 1 origin tag develop-2024-03-24 --no-tags && \
+    git fetch --quiet --depth 1 origin tag develop-2024-05-26 --no-tags && \
     git checkout --quiet FETCH_HEAD
 ENV PATH="/opt/spack/bin:${PATH}"
 
@@ -70,10 +70,10 @@ COPY ./CMakeLists.txt .
 
 # Build CP2K with CMake and run regression tests.
 ARG TESTOPTS=""
-COPY ./tools/docker/scripts/test_regtest_cmake.sh ./
+COPY ./tools/docker/scripts/build_cp2k_cmake.sh ./tools/docker/scripts/test_regtest_cmake.sh ./
 RUN /bin/bash -o pipefail -c " \
     TESTOPTS='${TESTOPTS}' \
-    ./test_regtest_cmake.sh |& tee report.log && \
+    ./test_regtest_cmake.sh spack psmp |& tee report.log && \
     rm -rf regtesting"
 
 # Output the report if the image is old and was therefore pulled from the build cache.

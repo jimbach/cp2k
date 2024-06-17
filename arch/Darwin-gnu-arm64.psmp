@@ -3,22 +3,22 @@
 # CP2K Darwin arch file for a parallel arm64 binary
 # (https://www.cp2k.org/howto:compile_on_macos)
 #
-# Tested with: GNU 13.2.0, OpenMPI 4.1.5,,
-#              ScaLAPACK 2.2.1, OpenBLAS 0.3.26,
+# Tested with: GNU 14.1.0, OpenMPI 4.1.6,,
+#              ScaLAPACK 2.2.1, OpenBLAS 0.3.27,
 #              FFTW 3.3.10, HDF5 1.14.3,
 #              LIBINT 2.6.0, LIBXC 6.2.2,
 #              SPGLIB 2.3.1, PLUMED 2.9.0,
 #              LIBVORI 220621, GSL 2.7.1,
 #              COSMA 2.6.6, SIRIUS 7.5.2,
 #              LIBGRPP 20231215,
-#              SPFFT 1.0.6, SPLA 1.5.5
-# on an Apple M1 (macOS 14.4 Sonoma)
+#              SPFFT 1.0.6, SPLA 1.6.0
+# on an Apple M1 (macOS 14.5.0 Sonoma)
 #
 # Usage: Source this arch file and then run make as instructed.
-#        Ensure the links in /usr/local/bin to the lastest gcc version
+#        Ensure the links in /opt/homebrew/bin to the gcc version
 #        and "brew unlink openmpi" (or mpich) if installed.
 #
-# Last update: 28.03.2024
+# Last update: 11.06.2024
 #
 # \
    if [[ "${0}" == "${BASH_SOURCE}" ]]; then \
@@ -82,7 +82,7 @@ USE_SCALAPACK  := 2.2.1
 USE_SIRIUS     := 7.5.2
 USE_SPFFT      := 1.0.6
 USE_SPGLIB     := 2.3.1
-USE_SPLA       := 1.5.5
+USE_SPLA       := 1.6.0
 # Only needed for SIRIUS
 LIBVDWXC_VER   := 0.4.0
 
@@ -262,7 +262,7 @@ FCFLAGS        += -ffree-line-length-none
 FCFLAGS        += -fno-omit-frame-pointer
 FCFLAGS        += -std=f2008
 
-LDFLAGS        += $(FCFLAGS)
+LDFLAGS        += $(FCFLAGS) -ld_classic
 
 LIBS           += -lz -ldl -lstdc++
 

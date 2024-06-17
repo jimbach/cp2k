@@ -34,7 +34,7 @@
       &NONBONDED
         &ALLEGRO
           ATOMS Si
-          PARM_FILE_NAME Allegro/si-deployed.pth
+          PARM_FILE_NAME Allegro/si-deployed-neq060dp.pth
           UNIT_COORDS angstrom
           UNIT_ENERGY eV
           UNIT_FORCES eV*angstrom^-1
@@ -47,10 +47,6 @@
       &END EWALD
     &END POISSON
   &END MM
-  &PRINT
-    &FORCES
-    &END FORCES
-  &END PRINT
   &SUBSYS
     &CELL
       ABC 10.861999859992501 10.861999859992501 10.861999859992501
@@ -58,8 +54,7 @@
     &END CELL
     &TOPOLOGY
       COORD_FILE_FORMAT XYZ
-      #   coordinates must be ordered by atomic number
-      COORD_FILE_NAME si_input.xyz
+      COORD_FILE_NAME Si.xyz
       #   MULTIPLE_UNIT_CELL 4 4 4
     &END TOPOLOGY
   &END SUBSYS
