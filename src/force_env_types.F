@@ -367,7 +367,7 @@ CONTAINS
          POINTER                                         :: sub_force_env
       TYPE(qmmm_env_type), OPTIONAL, POINTER             :: qmmm_env
       TYPE(qmmmx_env_type), OPTIONAL, POINTER            :: qmmmx_env
-      TYPE(adqmmmx_env_type), OPTIONAL, POINTER          :: adqmmmx_env  !JB Added adqmmmx_env variable 
+      TYPE(adqmmmx_env_type), OPTIONAL, POINTER          :: adqmmmx_env 
       TYPE(eip_environment_type), OPTIONAL, POINTER      :: eip_env
       TYPE(pwdft_environment_type), OPTIONAL, POINTER    :: pwdft_env
       TYPE(global_environment_type), OPTIONAL, POINTER   :: globenv
@@ -536,7 +536,7 @@ CONTAINS
       IF (PRESENT(sub_force_env)) sub_force_env => force_env%sub_force_env
       IF (PRESENT(qmmm_env)) qmmm_env => force_env%qmmm_env
       IF (PRESENT(qmmmx_env)) qmmmx_env => force_env%qmmmx_env
-      IF (PRESENT(adqmmmx_env)) adqmmmx_env => force_env%adqmmmx_env !JB
+      IF (PRESENT(adqmmmx_env)) adqmmmx_env => force_env%adqmmmx_env
       IF (PRESENT(mixed_env)) mixed_env => force_env%mixed_env
       IF (PRESENT(embed_env)) embed_env => force_env%embed_env
       IF (PRESENT(ipi_env)) ipi_env => force_env%ipi_env
