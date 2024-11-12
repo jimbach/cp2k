@@ -95,6 +95,7 @@ MODULE md_run
    USE virial_types,                    ONLY: virial_type
    USE wiener_process,                  ONLY: create_wiener_process,&
                                               create_wiener_process_cv
+   USE adqmmmx_energies,                ONLY: adqmmmx_calc_constant
 #include "../base/base_uses.f90"
 
    IMPLICIT NONE
@@ -487,6 +488,9 @@ CONTAINS
 
          ! Free Energy calculation
          CALL free_energy_evaluate(md_env, should_stop, free_energy_section)
+
+         !JB Calculate adaptive conserved quantity
+         CALL adqmmmx_calc_constant(md_env, md_ener, simpar, para_env)
 
          IF (should_stop) EXIT
 

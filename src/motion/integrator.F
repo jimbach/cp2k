@@ -85,6 +85,10 @@ MODULE integrator
    USE physcon,                         ONLY: femtoseconds
    USE qmmm_util,                       ONLY: apply_qmmm_walls_reflective
    USE qmmmx_update,                    ONLY: qmmmx_update_force_env
+   USE adqmmmx_util,                    ONLY: g_of_lambda, &
+                                              dg_of_lambda
+   USE adqmmmx_update,                  ONLY: adqmmmx_update_force_env, &
+                                              adqmmmx_vv_second
    USE qs_environment_types,            ONLY: get_qs_env
    USE reftraj_types,                   ONLY: REFTRAJ_EVAL_ENERGY_FORCES,&
                                               REFTRAJ_EVAL_NONE,&
@@ -104,6 +108,10 @@ MODULE integrator
    USE thermostat_types,                ONLY: thermostat_type
    USE virial_methods,                  ONLY: virial_evaluate
    USE virial_types,                    ONLY: virial_type
+   !MN Add output_unit temporarily
+   USE cp_log_handling,                 ONLY: cp_logger_get_default_io_unit,&
+                                              cp_logger_get_default_unit_nr
+   USE fist_environment_types,          ONLY: fist_env_get
 #include "../base/base_uses.f90"
 
    IMPLICIT NONE
@@ -393,11 +401,12 @@ CONTAINS
       TYPE(global_environment_type), POINTER             :: globenv
 
       INTEGER                                            :: i_iter, n_iter, nparticle, &
-                                                            nparticle_kind, nshell
+                                                            nparticle_kind, nshell, &
+                                                            output_unit
       INTEGER, POINTER                                   :: itimes
       LOGICAL                                            :: deallocate_vel, ehrenfest_md, &
                                                             shell_adiabatic, shell_check_distance, &
-                                                            shell_present
+                                                            shell_present, file_exists !MN Added
       REAL(KIND=dp)                                      :: dt
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: v_old
       TYPE(atomic_kind_list_type), POINTER               :: atomic_kinds
@@ -483,6 +492,20 @@ CONTAINS
       IF (simpar%variable_dt) CALL variable_timestep(md_env, tmp, dt, simpar, para_env, atomic_kind_set, &
                                                      local_particles, particle_set, core_particle_set, shell_particle_set, &
                                                      nparticle_kind, shell_adiabatic)
+      !MN Add ADQMMMX
+      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+         INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
+         IF (file_exists) THEN
+            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "old", POSITION = "append", ACTION = "write")
+         ELSE
+            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION = "write")
+         END IF
+
+         !MN Lambda propagation
+         WRITE (1336,*) "Lambda propagation starts:", force_env%adqmmmx_env%lambda_adqmmmx, dt
+         CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
+         output_unit = cp_logger_get_default_io_unit()
+      END IF
 
       IF (simpar%constraint) THEN
          ! Possibly update the target values
@@ -505,6 +528,13 @@ CONTAINS
       END IF
 
       ! Update forces
+
+
+      !MN I think i dont need this here because it will be calculated later
+      CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
+      WRITE(1336,*) "force_env%adqmmmx_env associated",ASSOCIATED(force_env%adqmmmx_env)
+
+
       ! In case of ehrenfest dynamics, velocities need to be iterated
       IF (ehrenfest_md) THEN
          ALLOCATE (v_old(3, SIZE(tmp%vel, 2)))
@@ -575,6 +605,10 @@ CONTAINS
          END IF
 
       END DO
+
+      !JB Propagation of vlambda if discrete
+      CALL adqmmmx_vv_second(force_env, dt, 1336)
+
 
       ! Update virial
       IF (simpar%constraint) CALL pv_constraint(gci, local_molecules, &
@@ -1043,6 +1077,29 @@ CONTAINS
       CALL vv_first(tmp, atomic_kind_set, local_particles, particle_set, &
                     core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt)
 
+        !MN Add ADQMMMX
+        IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+        INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
+        IF (file_exists) THEN
+        OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "old", POSITION ="append", ACTION = "write")
+        ELSE
+        OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION ="write")
+        END IF
+
+        !MN Lambda propagation
+        WRITE (1336,*) "Lambda propagation starts:",force_env%adqmmmx_env%lambda_adqmmmx, dt
+        WRITE (1336,*) "ASSOCIATION CHECK 2", ASSOCIATED(subsys),ASSOCIATED(atomic_kinds), ASSOCIATED(molecule_kinds)
+        CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
+
+        WRITE (1336,*) "Updated lambda:", force_env%adqmmmx_env%lambda_adqmmmx
+
+        output_unit = cp_logger_get_default_io_unit()
+        WRITE (1336,*) "MN adqmmmx force environment update in integrator.F"
+        WRITE (1336,*) "ASSOCIATION CHECK 1", ASSOCIATED(force_env),ASSOCIATED(force_env%adqmmmx_env)
+        END IF
+
+
+
       IF (simpar%variable_dt) CALL variable_timestep(md_env, tmp, dt, simpar, para_env, atomic_kind_set, &
                                                      local_particles, particle_set, core_particle_set, shell_particle_set, &
                                                      nparticle_kind, shell_adiabatic)
@@ -1108,6 +1165,9 @@ CONTAINS
       ![NB] let nvt work with force mixing which does not have consistent energies and forces
       CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
 
+      !MN I think i dont need this here because it will be calculated later
+      WRITE(1336,*) "force_env%adqmmmx_env associated",ASSOCIATED(force_env%adqmmmx_env)
+
       ! Metadynamics
       CALL metadyn_integrator(force_env, itimes, tmp%vel, rand=rand)
 
@@ -1143,6 +1203,9 @@ CONTAINS
             DEALLOCATE (rand)
          END IF
       END IF
+
+      !MN Propagation of vlambda if discrete
+      CALL adqmmmx_vv_second(force_env, dt, 1336)
 
       ! Update constraint virial
       IF (simpar%constraint) CALL pv_constraint(gci, local_molecules, &

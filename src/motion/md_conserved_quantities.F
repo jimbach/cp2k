@@ -43,6 +43,7 @@ MODULE md_conserved_quantities
    USE qmmm_types,                      ONLY: qmmm_env_type
    USE qmmm_types_low,                  ONLY: force_mixing_label_QM_dynamics
    USE qmmmx_types,                     ONLY: qmmmx_env_type
+   USE adqmmmx_types,                   ONLY: adqmmmx_env_type
    USE shell_potential_types,           ONLY: shell_kind_type
    USE simpar_types,                    ONLY: simpar_type
    USE thermostat_types,                ONLY: thermostat_type
@@ -198,6 +199,7 @@ CONTAINS
       TYPE(particle_list_type), POINTER                  :: particles
       TYPE(qmmm_env_type), POINTER                       :: qmmm_env
       TYPE(qmmmx_env_type), POINTER                      :: qmmmx_env
+      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env 
       TYPE(section_vals_type), POINTER                   :: force_env_section
 
       NULLIFY (qmmm_env, qmmmx_env, subsys, particles, force_env, force_env_section)
@@ -208,6 +210,7 @@ CONTAINS
                          subsys=subsys, &
                          qmmm_env=qmmm_env, &
                          qmmmx_env=qmmmx_env, &
+                         adqmmmx_env=adqmmmx_env, &
                          force_env_section=force_env_section)
 
       IF (ASSOCIATED(qmmm_env)) THEN ! conventional QM/MM

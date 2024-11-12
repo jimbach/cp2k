@@ -35,7 +35,8 @@ MODULE md_energies
    USE cp_units,                        ONLY: cp_unit_from_cp2k
    USE force_env_types,                 ONLY: force_env_get,&
                                               force_env_type,&
-                                              use_mixed_force
+                                              use_mixed_force,&
+                                              use_adqmmmx
    USE input_constants,                 ONLY: npe_f_ensemble,&
                                               npe_i_ensemble,&
                                               nph_uniaxial_damped_ensemble,&
@@ -86,6 +87,7 @@ MODULE md_energies
    USE thermostat_types,                ONLY: thermostats_type
    USE thermostat_utils,                ONLY: print_thermostats_status
    USE virial_types,                    ONLY: virial_type
+   USE adqmmmx_energies,                ONLY: adqmmmx_calc_constant
 #include "../base/base_uses.f90"
 
    IMPLICIT NONE
@@ -256,11 +258,13 @@ CONTAINS
 
       CHARACTER(LEN=default_string_length)               :: fmd, my_act, my_pos
       INTEGER                                            :: ene, ener_mix, handle, i, nat, nkind, &
-                                                            shene, tempkind, trsl
+                                                            shene, tempkind, trsl, ener_adqmmmx, &
+                                                            lam_adqmmmx
       INTEGER(KIND=int_8)                                :: max_memory
       INTEGER, POINTER                                   :: itimes
       LOGICAL                                            :: init, is_mixed, new_file, print_memory, &
-                                                            qmmm, shell_adiabatic, shell_present
+                                                            qmmm, shell_adiabatic, shell_present, &
+                                                            is_adqmmmx
       REAL(dp)                                           :: abc(3), cell_angle(3), dt, econs, &
                                                             pv_scalar, pv_xx, pv_xx_nc
       REAL(KIND=dp)                                      :: harm_shell, hugoniot
@@ -311,6 +315,8 @@ CONTAINS
 
       qmmm = calc_nfree_qm(md_env, md_ener) > 0
       is_mixed = (force_env%in_use == use_mixed_force)
+      !JB Check if its adqmmmx
+      is_adqmmmx = (force_env%in_use == use_adqmmmx)
 
       CALL cp_subsys_get(subsys, particles=particles, virial=virial)
       nat = particles%n_els
@@ -426,6 +432,45 @@ CONTAINS
             END IF
             CALL cp_print_key_finished_output(ener_mix, logger, motion_section, "PRINT%MIXED_ENERGIES")
          END IF
+
+         !MN Possibly Print ADQMMMX Energy
+         IF (is_adqmmmx) THEN
+            ener_adqmmmx = cp_print_key_unit_nr(logger, motion_section, "PRINT%ADQMMMX_ENERGIES", &
+                                    extension=".out", file_position=my_pos, &
+                                    file_action=my_act, is_new_file=new_file)
+            IF (ener_adqmmmx > 0) THEN
+               IF (new_file) THEN
+                  WRITE (ener_adqmmmx, '(1X, A10, 1X, A19, 1X, A19,1X, A19, 1X, A19, 1X, A19, 1X, A19, 1X, A19)')&
+                     "Step Nr.", "Time[fs]", "Kin.[a.u.]", "Pot.[a.u.]", "ELam", "ELC","TLE", "Cons Qty[a.u.]"
+               END IF
+               WRITE (ener_adqmmmx, "(1X, I10, 1X, F19.9, 1X, F19.9, 1X, F19.9, 1X, F19.9,1X, F19.9, 1X, F19.9, 1X, F19.9)") &
+                  itimes, time*femtoseconds, force_env%adqmmmx_env%kin_e, force_env%adqmmmx_env%totpot,& 
+                  force_env%adqmmmx_env%Elambda, force_env%adqmmmx_env%Elamcorr,&
+                  force_env%adqmmmx_env%tot_elambda, force_env%adqmmmx_env%constant 
+               CALL m_flush(ener_adqmmmx)
+            END IF
+            CALL cp_print_key_finished_output(ener_adqmmmx, logger, motion_section, "PRINT%ADQMMMX_ENERGIES")
+
+            !MN Print Lambda Output
+            lam_adqmmmx = cp_print_key_unit_nr(logger, motion_section, "PRINT%ADQMMMX_LAMBDA", &
+                                    extension=".out", file_position=my_pos, &
+                                    file_action=my_act, is_new_file=new_file)
+            IF (lam_adqmmmx > 0) THEN
+               IF (new_file) THEN
+                  WRITE (lam_adqmmmx, '(1X, A10, 1X, A19, 1X, A19, 1X, A19, 1X, A19, 1X, A19, 1X, A19)')&
+                     "Step Nr.", "Time", "Lambda", "Vlambda", "FLambda", "DPot [a.u.]", "Mass"
+               END IF
+               WRITE (lam_adqmmmx, "(1X, I10, 1X, F19.9, 1X, F19.9, 1X, F19.9, 1X, F19.9, 1X, F19.9, 1X, F19.9)") &
+                     itimes, time*femtoseconds, force_env%adqmmmx_env%lambda_adqmmmx,&
+                     force_env%adqmmmx_env%lambda_velocity, force_env%adqmmmx_env%lambda_force, &
+                     force_env%adqmmmx_env%dpot, force_env%adqmmmx_env%lambda_mass
+               CALL m_flush(lam_adqmmmx)
+            END IF
+            CALL cp_print_key_finished_output(lam_adqmmmx, logger, motion_section, "PRINT%ADQMMMX_LAMBDA")
+
+         END IF
+
+
 
          ! Print QMMM translation vector if requested
          IF (qmmm) THEN
