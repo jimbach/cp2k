@@ -109,7 +109,7 @@ MODULE force_env_types
       "SIRIUS", &
       "NNP   ", &
       "IPI   ", &
-      "ADQMM" /)
+      "ADQMM " /)
 
    PUBLIC :: force_env_type, &
              force_env_p_type
@@ -163,7 +163,7 @@ MODULE force_env_types
       TYPE(force_env_p_type), DIMENSION(:), POINTER    :: sub_force_env => NULL()
       TYPE(qmmm_env_type), POINTER                     :: qmmm_env => NULL()
       TYPE(qmmmx_env_type), POINTER                    :: qmmmx_env => NULL()
-      TYPE(aqmmmx_env_type), POINTER                   :: aqmmmx_env => NULL()
+      TYPE(adqmmmx_env_type), POINTER                  :: adqmmmx_env => NULL()
       TYPE(mixed_environment_type), POINTER            :: mixed_env => NULL()
       TYPE(nnp_type), POINTER                          :: nnp_env => NULL()
       TYPE(embed_env_type), POINTER                    :: embed_env => NULL()
