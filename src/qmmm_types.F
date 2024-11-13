@@ -32,6 +32,7 @@ MODULE qmmm_types
    PUBLIC :: qmmm_env_type, qmmm_env_release, qmmm_env_get
 
    TYPE qmmm_env_type
+      INTEGER                                                 :: ref_count = 1
       TYPE(qs_environment_type), POINTER                      :: qs_env => Null()
       TYPE(fist_environment_type), POINTER                    :: fist_env => Null()
       TYPE(qmmm_env_qm_type), POINTER                         :: qm => Null()
