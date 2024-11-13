@@ -54,7 +54,8 @@ MODULE input_constants
                                                do_embed = 7, &
                                                do_sirius = 8, &
                                                do_nnp = 9, &
-                                               do_ipi = 10
+                                               do_ipi = 10, &
+                                               do_adqmmmx = 11
 
    ! QMMM
    REAL(KIND=dp), PARAMETER, PUBLIC         :: RADIUS_QMMM_DEFAULT = 0.80_dp, & ! Angstrom
