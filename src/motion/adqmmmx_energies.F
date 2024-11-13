@@ -27,7 +27,8 @@ MODULE adqmmmx_energies
                                               md_environment_type
    USE simpar_types,                    ONLY: simpar_type
    USE input_constants,                 ONLY: nve_ensemble, nvt_ensemble
-   USE cp_para_types,                   ONLY: cp_para_env_type
+   !USE cp_para_types,                   ONLY: cp_para_env_type
+   USE message_passing,                 ONLY: mp_para_env_type
    USE thermostat_utils,                ONLY: get_thermostat_energies
    USE thermostat_types,                ONLY: thermostat_type
 #include "../base/base_uses.f90"
@@ -54,7 +55,7 @@ CONTAINS
       TYPE(md_environment_type), POINTER                 :: md_env
       TYPE(md_ener_type), POINTER                        :: md_ener
       TYPE(simpar_type), POINTER                         :: simpar
-      TYPE(cp_para_env_type), POINTER                    :: para_env
+      TYPE(mp_para_env_type), POINTER                    :: para_env
 !     TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
       CHARACTER(LEN=*), PARAMETER :: routineN = 'adqmmmx_calc_constant', &
       routineP = moduleN//':'//routineN
@@ -81,7 +82,7 @@ CONTAINS
    SUBROUTINE adqmmmx_calc_nve_constant(md_env, md_ener, para_env)
       TYPE(md_environment_type), POINTER                 :: md_env
       TYPE(md_ener_type), INTENT(inout)                  :: md_ener
-      TYPE(cp_para_env_type), POINTER                    :: para_env
+      TYPE(mp_para_env_type), POINTER                    :: para_env
 
       CHARACTER(LEN=*), PARAMETER :: routineN = 'adqmmmx_calc_nve_constant',&
                                      routineP = moduleN//':'//routineN
@@ -134,7 +135,7 @@ CONTAINS
    SUBROUTINE adqmmmx_calc_nvt_constant(md_env, md_ener, para_env)
       TYPE(md_environment_type), POINTER                 :: md_env
       TYPE(md_ener_type), INTENT(inout)                  :: md_ener
-      TYPE(cp_para_env_type), POINTER                    :: para_env
+      TYPE(mp_para_env_type), POINTER                    :: para_env
 
       CHARACTER(LEN=*), PARAMETER :: routineN = 'adqmmmx_calc_nve_constant',&
                                      routineP = moduleN//':'//routineN
