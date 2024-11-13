@@ -48,7 +48,7 @@ MODULE qmmm_types_low
                                  force_mixing_label_QM_dynamics = 7, &
                                  force_mixing_label_buffer_list = 6, &
                                  force_mixing_label_buffer = 5, &
-                                 force_mixing_label_termination = 4
+                                 force_mixing_label_termination = 4, &
                                  adqmmmx_label_none = -1, &
                                  adqmmmx_label_QM_core_list = 10, &
                                  adqmmmx_label_QM_core = 9, &
