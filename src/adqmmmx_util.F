@@ -18,7 +18,7 @@ MODULE adqmmmx_util
                                               pbc
    USE cp_log_handling,                 ONLY: cp_logger_get_default_io_unit,&
                                               cp_logger_get_default_unit_nr
-   USE cp_para_types,                   ONLY: cp_para_env_type
+!   USE cp_para_types,                   ONLY: cp_para_env_type
    USE cp_subsys_types,                 ONLY: cp_subsys_get,&
                                               cp_subsys_type
    USE fist_neighbor_list_types,        ONLY: fist_neighbor_deallocate,&
@@ -34,6 +34,7 @@ MODULE adqmmmx_util
                                               dp
    USE physcon,                         ONLY: femtoseconds, kcalmol
    USE memory_utilities,                ONLY: reallocate
+   USE message_passing,                 ONLY: mp_para_env_type
    USE molecule_list_types,             ONLY: molecule_list_type
    USE molecule_types,                  ONLY: molecule_type
    USE particle_list_types,             ONLY: particle_list_type
@@ -773,7 +774,7 @@ CONTAINS
       TYPE(fist_neighbor_type), POINTER                  :: nonbonded
       TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
       TYPE(cell_type), POINTER                           :: cell
-      TYPE(cp_para_env_type), POINTER                    :: para_env
+   !   TYPE(cp_para_env_type), POINTER                    :: para_env
       INTEGER, INTENT(IN)                                :: output_unit
       CHARACTER(LEN=*), INTENT(IN)                       :: name, unit_str
 
@@ -786,6 +787,7 @@ CONTAINS
       REAL(dp)                                           :: conv, dab
       REAL(dp), DIMENSION(3)                             :: cell_v, ra, rab, rb
       TYPE(neighbor_kind_pairs_type), POINTER            :: neighbor_kind_pair
+      TYPE(mp_para_env_type), POINTER                    :: para_env
 
 
       INQUIRE(FILE = "natrium_distance.out", EXIST=file_exists)
