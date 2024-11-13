@@ -9,7 +9,8 @@
 !> \author Ole Schuett
 ! **************************************************************************************************
 MODULE adqmmmx_create
-   USE cp_para_types,                   ONLY: cp_para_env_type
+   !USE cp_para_types,                   ONLY: cp_para_env_type
+   USE message_passing,                 ONLY: mp_para_env_type
    USE cp_subsys_types,                 ONLY: cp_subsys_type
    USE global_types,                    ONLY: global_environment_type
    USE input_section_types,             ONLY: section_vals_get_subs_vals,&
@@ -56,7 +57,7 @@ CONTAINS
                                force_env_section, subsys_section, use_motion_section)
       TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
       TYPE(section_vals_type), POINTER                   :: root_section
-      TYPE(cp_para_env_type), POINTER                    :: para_env
+      TYPE(mp_para_env_type), POINTER                    :: para_env
       TYPE(global_environment_type), POINTER             :: globenv
       TYPE(section_vals_type), POINTER                   :: force_env_section, subsys_section
       LOGICAL, INTENT(IN)                                :: use_motion_section
