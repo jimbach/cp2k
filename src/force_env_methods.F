@@ -280,6 +280,9 @@ CONTAINS
             CALL qmmmx_calc_energy_force(force_env%qmmmx_env, &
                                          calculate_forces, energy_consistency, linres=linres_run, &
                                          require_consistent_energy_force=require_consistent_energy_force)
+         CASE (use_adqmmmx)
+            CALL adqmmmx_calc_energy_force(force_env, &
+                                         calculate_forces, energy_consistency, linres=linres_run)
          CASE (use_mixed_force)
             CALL mixed_energy_forces(force_env, calculate_forces)
          CASE (use_nnp_force)
@@ -697,8 +700,8 @@ CONTAINS
 !> \author fawzi
 ! **************************************************************************************************
    SUBROUTINE force_env_create(force_env, root_section, para_env, globenv, fist_env, &
-                               qs_env, meta_env, sub_force_env, qmmm_env, qmmmx_env, eip_env, pwdft_env, force_env_section, &
-                               mixed_env, embed_env, nnp_env, ipi_env)
+                               qs_env, meta_env, sub_force_env, qmmm_env, qmmmx_env, adqmmmx_env, eip_env, pwdft_env, & 
+                               force_env_section, mixed_env, embed_env, nnp_env, ipi_env)
 
       TYPE(force_env_type), POINTER                      :: force_env
       TYPE(section_vals_type), POINTER                   :: root_section
@@ -711,6 +714,7 @@ CONTAINS
          POINTER                                         :: sub_force_env
       TYPE(qmmm_env_type), OPTIONAL, POINTER             :: qmmm_env
       TYPE(qmmmx_env_type), OPTIONAL, POINTER            :: qmmmx_env
+      TYPE(adqmmmx_env_type), OPTIONAL, POINTER          :: adqmmmx_env
       TYPE(eip_environment_type), OPTIONAL, POINTER      :: eip_env
       TYPE(pwdft_environment_type), OPTIONAL, POINTER    :: pwdft_env
       TYPE(section_vals_type), POINTER                   :: force_env_section
@@ -723,7 +727,7 @@ CONTAINS
       NULLIFY (force_env%fist_env, force_env%qs_env, &
                force_env%para_env, force_env%globenv, &
                force_env%meta_env, force_env%sub_force_env, &
-               force_env%qmmm_env, force_env%qmmmx_env, force_env%fp_env, &
+               force_env%qmmm_env, force_env%qmmmx_env, force_env%adqmmmx_env, force_env%fp_env, &
                force_env%force_env_section, force_env%eip_env, force_env%mixed_env, &
                force_env%embed_env, force_env%pwdft_env, force_env%nnp_env, &
                force_env%root_section)
