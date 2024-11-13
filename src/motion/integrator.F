@@ -406,7 +406,7 @@ CONTAINS
       INTEGER, POINTER                                   :: itimes
       LOGICAL                                            :: deallocate_vel, ehrenfest_md, &
                                                             shell_adiabatic, shell_check_distance, &
-                                                            shell_present, file_exists !MN Added
+                                                            shell_present, file_exists !JB Added
       REAL(KIND=dp)                                      :: dt
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: v_old
       TYPE(atomic_kind_list_type), POINTER               :: atomic_kinds
@@ -962,10 +962,11 @@ CONTAINS
       TYPE(md_environment_type), POINTER                 :: md_env
       TYPE(global_environment_type), POINTER             :: globenv
 
-      INTEGER                                            :: ivar, nparticle, nparticle_kind, nshell
+      INTEGER                                            :: ivar, nparticle, nparticle_kind, nshell, &
+                                                            output_unit
       INTEGER, POINTER                                   :: itimes
       LOGICAL                                            :: shell_adiabatic, shell_check_distance, &
-                                                            shell_present
+                                                            shell_present, file_exists
       REAL(KIND=dp)                                      :: dt
       REAL(KIND=dp), DIMENSION(:), POINTER               :: rand
       TYPE(atomic_kind_list_type), POINTER               :: atomic_kinds
