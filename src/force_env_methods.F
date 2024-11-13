@@ -67,7 +67,7 @@ MODULE force_env_methods
    USE force_env_types,                 ONLY: &
         force_env_get, force_env_get_natom, force_env_p_type, force_env_set, force_env_type, &
         use_eip_force, use_embed, use_fist_force, use_ipi, use_mixed_force, use_nnp_force, &
-        use_prog_name, use_pwdft_force, use_qmmm, use_qmmmx, use_qs_force
+        use_prog_name, use_pwdft_force, use_qmmm, use_qmmmx, use_adqmmmx, use_qs_force
    USE force_env_utils,                 ONLY: rescale_forces,&
                                               write_atener,&
                                               write_forces
