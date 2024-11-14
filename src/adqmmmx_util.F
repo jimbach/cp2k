@@ -681,7 +681,7 @@ CONTAINS
       conv = cp_unit_from_cp2k(1.0_dp, TRIM(unit_str))
       DO iab = 1, SIZE(nonbonded%neighbor_kind_pairs)
          neighbor_kind_pair => nonbonded%neighbor_kind_pairs(iab)
-         CALL MATMUL(cell_v, cell%hmat, REAL(neighbor_kind_pair%cell_vector, KIND=dp))
+         cell_v = MATMUL(cell%hmat, REAL(neighbor_kind_pair%cell_vector, KIND=dp))
          DO ilist = 1, neighbor_kind_pair%npairs
             nneighbor = nneighbor + 1
             IF (output_unit > 0) THEN
@@ -811,7 +811,7 @@ CONTAINS
       conv = cp_unit_from_cp2k(1.0_dp, TRIM(unit_str))
       DO iab = 1, SIZE(nonbonded%neighbor_kind_pairs)
          neighbor_kind_pair => nonbonded%neighbor_kind_pairs(iab)
-         CALL MATMUL(cell_v, cell%hmat, REAL(neighbor_kind_pair%cell_vector, KIND=dp))
+         cell_v = MATMUL(cell%hmat, REAL(neighbor_kind_pair%cell_vector, KIND=dp))
          DO ilist = 1, neighbor_kind_pair%npairs
             nneighbor = nneighbor + 1
             IF (output_unit > 0) THEN
