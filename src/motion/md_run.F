@@ -489,8 +489,11 @@ CONTAINS
          ! Free Energy calculation
          CALL free_energy_evaluate(md_env, should_stop, free_energy_section)
 
-         !JB Calculate adaptive conserved quantity
-         CALL adqmmmx_calc_constant(md_env, md_ener, simpar, para_env)
+         !JB Calculate adaptive conserved quantity, check if we are doing adqmmmx
+         IF (ASSOCIATED(force_env%adqmmmx_env)) THEN
+            CALL adqmmmx_calc_constant(md_env, md_ener, simpar, para_env)
+         END IF
+
 
          IF (should_stop) EXIT
 
