@@ -1168,7 +1168,7 @@ CONTAINS
       CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
 
       !MN I think i dont need this here because it will be calculated later
-      WRITE(1336,*) "force_env%adqmmmx_env associated",ASSOCIATED(force_env%adqmmmx_env)
+      !WRITE(1336,*) "force_env%adqmmmx_env associated",ASSOCIATED(force_env%adqmmmx_env)
 
       ! Metadynamics
       CALL metadyn_integrator(force_env, itimes, tmp%vel, rand=rand)
@@ -1206,9 +1206,12 @@ CONTAINS
          END IF
       END IF
 
-      !MN Propagation of vlambda if discrete
-      CALL adqmmmx_vv_second(force_env, dt, 1336)
 
+      !JB Propagation of vlambda if discrete
+      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+         CALL adqmmmx_vv_second(force_env, dt, 1336)
+      END IF
+      
       ! Update constraint virial
       IF (simpar%constraint) CALL pv_constraint(gci, local_molecules, &
                                                 molecule_set, molecule_kind_set, particle_set, virial, para_env)
