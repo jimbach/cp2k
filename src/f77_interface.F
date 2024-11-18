@@ -72,8 +72,8 @@ MODULE f77_interface
                                               globenv_release
    USE grid_api,                        ONLY: grid_library_finalize,&
                                               grid_library_init
-   USE input_constants,                 ONLY: &
-        do_eip, do_embed, do_fist, do_ipi, do_mixed, do_nnp, do_qmmm, do_qmmmx, do_qs, do_sirius, do_adqmmmx !JB value is 11
+   USE input_constants,                 ONLY: do_eip, do_embed, do_fist, do_ipi, do_mixed, do_nnp, &
+                                              do_qmmm, do_qmmmx, do_qs, do_sirius, do_adqmmmx
    USE input_cp2k_check,                ONLY: check_cp2k_input
    USE input_cp2k_force_eval,           ONLY: create_force_eval_section
    USE input_cp2k_read,                 ONLY: empty_initial_variables,&
@@ -129,6 +129,9 @@ MODULE f77_interface
    USE qmmm_types,                      ONLY: qmmm_env_type
    USE qmmmx_create,                    ONLY: qmmmx_env_create
    USE qmmmx_types,                     ONLY: qmmmx_env_type
+   USE adqmmmx_create,                  ONLY: adqmmmx_env_create
+   USE adqmmmx_types,                   ONLY: adqmmmx_env_release,&
+                                              adqmmmx_env_type
    USE qs_environment,                  ONLY: qs_init
    USE qs_environment_types,            ONLY: get_qs_env,&
                                               qs_env_create,&
@@ -586,7 +589,7 @@ CONTAINS
       INTEGER, DIMENSION(:), POINTER                     :: group_distribution, i_force_eval, &
                                                             lgroup_distribution
       LOGICAL :: check, do_qmmm_force_mixing, multiple_subsys, my_echo, my_owns_out_unit, &
-                 use_motion_section, use_multiple_para_env
+                 use_motion_section, use_multiple_para_env, do_adaptive_qmmm
       TYPE(cp_logger_type), POINTER                      :: logger, my_logger
       TYPE(mp_para_env_type), POINTER                    :: my_para_env, para_env
       TYPE(eip_environment_type), POINTER                :: eip_env
@@ -605,11 +608,12 @@ CONTAINS
       TYPE(pwdft_environment_type), POINTER              :: pwdft_env
       TYPE(qmmm_env_type), POINTER                       :: qmmm_env
       TYPE(qmmmx_env_type), POINTER                      :: qmmmx_env
+      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
       TYPE(qs_environment_type), POINTER                 :: qs_env
       TYPE(section_type), POINTER                        :: section
       TYPE(section_vals_type), POINTER :: fe_section, force_env_section, force_env_sections, &
-                                          fp_section, input_file, qmmm_section, qmmmx_section, root_section, subsys_section, &
-                                          wrk_section
+                                          fp_section, input_file, qmmm_section, qmmmx_section, adqmmmx_section, root_section, &
+                                          subsys_section, wrk_section
       TYPE(timer_env_type), POINTER                      :: timer_env
 
       CPASSERT(ASSOCIATED(input_declaration))
@@ -790,9 +794,14 @@ CONTAINS
 
          IF (method_name_id == do_qmmm) THEN
             qmmmx_section => section_vals_get_subs_vals(force_env_section, "QMMM%FORCE_MIXING")
+            adqmmmx_section => section_vals_get_subs_vals(force_env_section, "QMMM%ADAPTIVE_QMMM")
             CALL section_vals_get(qmmmx_section, explicit=do_qmmm_force_mixing)
+            CALL section_vals_get(adqmmmx_section, explicit=do_adaptive_qmmm)
             IF (do_qmmm_force_mixing) &
                method_name_id = do_qmmmx ! QMMM Force-Mixing has its own (hidden) method_id
+            IF (do_adaptive_qmmm) &
+               method_name_id = do_adqmmmx ! QMMM Force-Mixing has its own (hidden) method_id
+!              WRITE (output_unit,*) "MN check of f77_interface.F if something is in adqmmmx_section"
          END IF
 
          SELECT CASE (method_name_id)
@@ -823,6 +832,13 @@ CONTAINS
                                   force_env_section, subsys_section, use_motion_section)
             CALL force_env_create(my_force_env, root_section, qmmmx_env=qmmmx_env, para_env=my_para_env, &
                                   globenv=globenv, force_env_section=force_env_section)
+
+         CASE (do_adqmmmx)
+            CALL adqmmmx_env_create(adqmmmx_env, root_section, my_para_env, globenv, &
+                                  force_env_section, subsys_section, use_motion_section)
+            CALL force_env_create(my_force_env, root_section, adqmmmx_env=adqmmmx_env, para_env=my_para_env, &
+                                  globenv=globenv, force_env_section=force_env_section)
+            CALL adqmmmx_env_release(adqmmmx_env)
 
          CASE (do_eip)
             ALLOCATE (eip_env)
