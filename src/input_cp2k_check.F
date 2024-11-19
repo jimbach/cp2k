@@ -454,6 +454,7 @@ CONTAINS
                   work = vec
                   CALL section_vals_val_set(section2, "INITIAL_TRANSLATION_VECTOR", r_vals_ptr=work)
                END IF
+               ! ADAPTIVE QMMM restart missing
                ! BSSE restarts
                CALL section_vals_val_get(r_section, "RESTART_BSSE", l_val=flag)
                section1 => section_vals_get_subs_vals3(sections1, "BSSE", i_rep_section=iforce_eval)
