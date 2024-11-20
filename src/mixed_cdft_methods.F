@@ -52,6 +52,7 @@ MODULE mixed_cdft_methods
                                               force_env_type,&
                                               use_qmmm,&
                                               use_qmmmx,&
+                                              use_adqmmmx,&
                                               use_qs_force
    USE grid_api,                        ONLY: GRID_FUNC_AB,&
                                               collocate_pgf_product
@@ -212,6 +213,8 @@ CONTAINS
                   force_env_qs => force_env%sub_force_env(iforce_eval)%force_env
                CASE (use_qmmmx)
                   CPABORT("No force mixing allowed for mixed CDFT QM/MM")
+               CASE (use_adqmmmx)
+                  CPABORT("No ADQMMMX allowed for mixed CDFT QM/MM")
                CASE DEFAULT
                   CPASSERT(.FALSE.)
                END SELECT
