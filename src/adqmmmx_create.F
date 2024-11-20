@@ -81,6 +81,7 @@ CONTAINS
 !     IF (1==1) THEN
          WRITE (output_unit,*) "ADQMMMX Lambda", adqmmmx_env%lambda_adqmmmx
          WRITE (output_unit,*) "CREATE ADQMMMX_ENV FROM RESTART FILE"
+         ALLOCATE (dummy_qmmm_env)
          CALL qmmm_env_create(dummy_qmmm_env, root_section, para_env, globenv, &
                               force_env_section, qmmm_section, subsys_section, use_motion_section, &
                               ignore_outside_box=.TRUE.)
