@@ -260,6 +260,14 @@ CONTAINS
       CALL section_add_subsection(section, print_key)
       CALL section_release(print_key)
 
+      CALL cp_print_key_section_create(print_key, __LOCATION__, "ADQMMMX_LAMBDA", &
+                                       description="Dumps ADQMMMX lambda-related quantities.", &
+                                       print_level=high_print_level, common_iter_levels=1, &
+                                       filename="lambda")
+      CALL section_add_subsection(section, print_key)
+      CALL section_release(print_key)
+
+
    END SUBROUTINE create_motion_print_section
 
 ! **************************************************************************************************
