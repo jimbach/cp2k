@@ -189,6 +189,15 @@ CONTAINS
       CALL section_add_subsection(section, print_key)
       CALL section_release(print_key)
 
+      CALL cp_print_key_section_create(print_key, __LOCATION__, "ADQMMMX_ENERGIES", &
+                                       description="Controls the output of the energies of the adaptive"// &
+                                       "partitioning method."// &
+                                       "printed is step, time, kin. pot., ELam, ELC, TLE, Const.", &
+                                       print_level=low_print_level, common_iter_levels=1, &
+                                       filename="adqmmmx_energies")
+      CALL section_add_subsection(section, print_key)
+      CALL section_release(print_key)
+
       CALL cp_print_key_section_create(print_key, __LOCATION__, "STRESS", &
                                        description="Controls the output of the stress tensor", &
                                        print_level=high_print_level, common_iter_levels=1, &
