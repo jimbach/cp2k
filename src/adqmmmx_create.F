@@ -98,6 +98,9 @@ CONTAINS
                               ignore_outside_box=.TRUE.)
       ELSE
           
+         WRITE (output_unit,*) "ADQMMMX Lambda", adqmmmx_env%lambda_adqmmmx
+         WRITE (output_unit,*) "CREATING A NEW ADQMMMX_ENV"
+         ALLOCATE (dummy_qmmm_env)
          CALL qmmm_env_create(dummy_qmmm_env, root_section, para_env, globenv, &
                               force_env_section, qmmm_section, subsys_section, use_motion_section, &
                               ignore_outside_box=.TRUE.)
