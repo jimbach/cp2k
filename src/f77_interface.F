@@ -834,6 +834,7 @@ CONTAINS
                                   globenv=globenv, force_env_section=force_env_section)
 
          CASE (do_adqmmmx)
+            ALLOCATE (adqmmmx_env)
             CALL adqmmmx_env_create(adqmmmx_env, root_section, my_para_env, globenv, &
                                   force_env_section, subsys_section, use_motion_section)
             CALL force_env_create(my_force_env, root_section, adqmmmx_env=adqmmmx_env, para_env=my_para_env, &
