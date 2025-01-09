@@ -117,17 +117,25 @@ CONTAINS
       CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_release', &
          routineP = moduleN//':'//routineN
 
-      IF (ASSOCIATED(adqmmmx_env)) THEN
-         CPASSERT(adqmmmx_env%ref_count > 0)
-         adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
-         IF (adqmmmx_env%ref_count == 0) THEN
-            CALL qmmm_env_release(adqmmmx_env%oldsys)
-            CALL qmmm_env_release(adqmmmx_env%newsys)
-            DEALLOCATE (adqmmmx_env%oldsys)
-            DEALLOCATE (adqmmmx_env%newsys)
-         END IF
-      END IF
-      NULLIFY (adqmmmx_env)
+   ! JB old version 9.x new version does this differently
+   !   IF (ASSOCIATED(adqmmmx_env)) THEN
+   !      CPASSERT(adqmmmx_env%ref_count > 0)
+   !      adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
+   !      IF (adqmmmx_env%ref_count == 0) THEN
+   !         CALL qmmm_env_release(adqmmmx_env%oldsys)
+   !         CALL qmmm_env_release(adqmmmx_env%newsys)
+   !         DEALLOCATE (adqmmmx_env%oldsys)
+   !         DEALLOCATE (adqmmmx_env%newsys)
+   !      END IF
+   !   END IF
+   !   NULLIFY (adqmmmx_env)
+      
+      
+      CALL qmmm_env_release(adqmmmx_env%oldsys)
+      CALL qmmm_env_release(adqmmmx_env%newsys)
+      DEALLOCATE (adqmmmx_env%oldsys)
+      DEALLOCATE (adqmmmx_env%newsys)
+      
    END SUBROUTINE adqmmmx_env_release
 
 END MODULE adqmmmx_types
