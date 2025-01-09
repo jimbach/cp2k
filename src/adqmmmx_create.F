@@ -74,7 +74,9 @@ CONTAINS
  
       !MN Get restart information and if Lambda>0, set booleans accordingly
       CALL get_adqmmmx_values(qmmm_section, adqmmmx_env, output_unit)
- 
+
+       WRITE (output_unit,*) "ADQMMMX Lambda starting"
+
       ALLOCATE (dummy_qmmm_env)
       IF (adqmmmx_env%lambda_adqmmmx > 0.0) THEN
          WRITE (output_unit,*) "ADQMMMX Lambda", adqmmmx_env%lambda_adqmmmx
