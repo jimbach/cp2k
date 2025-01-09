@@ -55,38 +55,35 @@ CONTAINS
 ! **************************************************************************************************
    SUBROUTINE adqmmmx_env_create(adqmmmx_env, root_section, para_env, globenv, &
                                force_env_section, subsys_section, use_motion_section)
-      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
+      TYPE(qmmmx_env_type), INTENT(OUT)                  :: qmmmx_env
       TYPE(section_vals_type), POINTER                   :: root_section
       TYPE(mp_para_env_type), POINTER                    :: para_env
       TYPE(global_environment_type), POINTER             :: globenv
       TYPE(section_vals_type), POINTER                   :: force_env_section, subsys_section
       LOGICAL, INTENT(IN)                                :: use_motion_section
-      CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_create', &
-         routineP = moduleN//':'//routineN
-
+ 
       TYPE(cp_subsys_type), POINTER                      :: subsys
       TYPE(qmmm_env_type), POINTER                       :: dummy_qmmm_env
       TYPE(section_vals_type), POINTER                   :: new_qmmm_section, &
                                                             qmmm_section
-      INTEGER                                            :: output_unit
-
+ 
+      NULLIFY (dummy_qmmm_env)
+ 
       output_unit = cp_logger_get_default_io_unit()
-      !NULLIFY (dummy_qmmm_env)
-      ALLOCATE (adqmmmx_env)
       qmmm_section => section_vals_get_subs_vals(force_env_section, "QMMM")
+ 
       !MN Get restart information and if Lambda>0, set booleans accordingly
       CALL get_adqmmmx_values(qmmm_section, adqmmmx_env, output_unit)
-
+ 
+      ALLOCATE (dummy_qmmm_env)
       IF (adqmmmx_env%lambda_adqmmmx > 0.0) THEN
-!     IF (1==1) THEN
          WRITE (output_unit,*) "ADQMMMX Lambda", adqmmmx_env%lambda_adqmmmx
          WRITE (output_unit,*) "CREATE ADQMMMX_ENV FROM RESTART FILE"
-         ALLOCATE (dummy_qmmm_env)
          CALL qmmm_env_create(dummy_qmmm_env, root_section, para_env, globenv, &
-                              force_env_section, qmmm_section, subsys_section, use_motion_section, &
-                              ignore_outside_box=.TRUE.)
+                           force_env_section, qmmm_section, subsys_section, use_motion_section, &
+                           ignore_outside_box=.true.)
          CALL qmmm_env_get(dummy_qmmm_env, subsys=subsys)
-         !MN Get oldsys using old indices and labels
+          !MN Get oldsys using old indices and labels
          CALL setup_adqmmmx_sections(subsys, qmmm_section, new_qmmm_section, use_old_indlab=.TRUE.)
          CALL qmmm_env_create(adqmmmx_env%oldsys, root_section, para_env, globenv, &
                               force_env_section, new_qmmm_section, subsys_section, use_motion_section, &
@@ -97,14 +94,14 @@ CONTAINS
                               force_env_section, new_qmmm_section, subsys_section, use_motion_section, &
                               ignore_outside_box=.TRUE.)
       ELSE
-          
+ 
          WRITE (output_unit,*) "ADQMMMX Lambda", adqmmmx_env%lambda_adqmmmx
          WRITE (output_unit,*) "CREATING A NEW ADQMMMX_ENV"
-         ALLOCATE (dummy_qmmm_env)
          CALL qmmm_env_create(dummy_qmmm_env, root_section, para_env, globenv, &
-                              force_env_section, qmmm_section, subsys_section, use_motion_section, &
-                              ignore_outside_box=.TRUE.)
+                           force_env_section, qmmm_section, subsys_section, use_motion_section, &
+                           ignore_outside_box=.true.)
          CALL qmmm_env_get(dummy_qmmm_env, subsys=subsys)
+         
          !MN Here indices are updated, maybe grep old updates and store them in adqmmmx_env_type?
          adqmmmx_env%include_nc = .TRUE.
          CALL update_adqmmmx_labels(subsys, qmmm_section, include_nc=.TRUE., c_n_sw=adqmmmx_env%c_n_sw)
@@ -114,23 +111,27 @@ CONTAINS
          CALL setup_adqmmmx_sections(subsys, qmmm_section, new_qmmm_section)      
          WRITE (output_unit,*) "ADQMMMX | old_sys"
          CALL section_vals_write(qmmm_section, unit_nr=output_unit)
+         ALLOCATE (adqmmmx_env%oldsys)
          CALL qmmm_env_create(adqmmmx_env%oldsys, root_section, para_env, globenv, &
                               force_env_section, qmmm_section, subsys_section, use_motion_section, &
                               ignore_outside_box=.TRUE.)
    
          WRITE (output_unit,*) "ADQMMMX | new_sys"
          CALL section_vals_write(new_qmmm_section, unit_nr=output_unit)
+         ALLOCATE (adqmmmx_env%newsys)
          CALL qmmm_env_create(adqmmmx_env%newsys, root_section, para_env, globenv, &
                               force_env_section, new_qmmm_section, subsys_section, use_motion_section, &
                               ignore_outside_box=.TRUE.)
-   
+ 
+ 
          CALL section_vals_release(new_qmmm_section)
-         !CALL qmmm_env_release(dummy_qmmm_env)
-   
          WRITE (output_unit,*) "ADQMMMX | adqmmmx_env_create"
-
       END IF
-
+      
+      CALL qmmm_env_release(dummy_qmmm_env)
+      DEALLOCATE (dummy_qmmm_env)
+ 
    END SUBROUTINE adqmmmx_env_create
 
-END MODULE adqmmmx_create
+
+ 
