@@ -55,7 +55,7 @@ CONTAINS
 ! **************************************************************************************************
    SUBROUTINE adqmmmx_env_create(adqmmmx_env, root_section, para_env, globenv, &
                                force_env_section, subsys_section, use_motion_section)
-      TYPE(qmmmx_env_type), INTENT(OUT)                  :: qmmmx_env
+      TYPE(adqmmmx_env_type), INTENT(OUT)                :: adqmmmx_env
       TYPE(section_vals_type), POINTER                   :: root_section
       TYPE(mp_para_env_type), POINTER                    :: para_env
       TYPE(global_environment_type), POINTER             :: globenv
