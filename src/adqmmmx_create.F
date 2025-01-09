@@ -66,6 +66,7 @@ CONTAINS
       TYPE(qmmm_env_type), POINTER                       :: dummy_qmmm_env
       TYPE(section_vals_type), POINTER                   :: new_qmmm_section, &
                                                             qmmm_section
+      INTEGER                                            :: output_unit
  
       NULLIFY (dummy_qmmm_env)
  
