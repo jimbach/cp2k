@@ -269,7 +269,10 @@ CONTAINS
          
          CALL copy_adqmmmx_env(new_adqmmmx_env, force_env%adqmmmx_env)
          CALL adqmmmx_env_release(force_env%adqmmmx_env)
-         force_env%adqmmmx_env => new_adqmmmx_env
+         !JB Mod 2025
+         !force_env%adqmmmx_env => new_adqmmmx_env
+         force_env%adqmmmx_env = new_adqmmmx_env
+
 
       END IF
 
