@@ -73,7 +73,8 @@ CONTAINS
       REAL(dp)                                           :: dt, switch_t, Lam_Error
       REAL(dp), POINTER                                  :: lambda
       REAL(KIND=dp), PARAMETER                           :: pi = 3.14159265358979323846264338_dp
-      TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env
+!      TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env
+      TYPE(adqmmmx_env_type), INTENT(OUT)                :: new_adqmmmx_env
       TYPE(section_vals_type), POINTER                   :: qmmm_oldsys_section, &
                                                             qmmm_newsys_section, &
                                                             adqmmmx_section, qmmm_section, &
