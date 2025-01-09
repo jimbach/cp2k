@@ -74,6 +74,7 @@ CONTAINS
       qmmm_section => section_vals_get_subs_vals(force_env_section, "QMMM")
  
       !MN Get restart information and if Lambda>0, set booleans accordingly
+      ALLOCATE (adqmmmx_env)
       CALL get_adqmmmx_values(qmmm_section, adqmmmx_env, output_unit)
 
        WRITE (output_unit,*) "ADQMMMX Lambda starting"
