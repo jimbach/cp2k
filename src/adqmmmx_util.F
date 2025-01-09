@@ -522,7 +522,7 @@ CONTAINS
         ! JB mod
         ! TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env,&
         !                                                       adqmmmx_env
-         TYPE(adqmmmx_env_type), INTENT(OUT)                 :: new_adqmmmx_env,&
+         TYPE(adqmmmx_env_type), INTENT(OUT)                 :: new_adqmmmx_env
          TYPE(adqmmmx_env_type), INTENT(IN)                  :: adqmmmx_env
 
 
