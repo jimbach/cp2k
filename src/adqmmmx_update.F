@@ -83,6 +83,8 @@ CONTAINS
       IF (.NOT. ASSOCIATED(force_env)) RETURN
       IF (ASSOCIATED(force_env%adqmmmx_env)) THEN
 
+      WRITE(*,*) "this is a test"
+
       INQUIRE(FILE = "update_log.out", EXIST=file_exists)
       IF (file_exists) THEN
          OPEN (UNIT=1337, FILE = "update_log.out", STATUS = "old", POSITION = "append", ACTION = "write")
