@@ -204,7 +204,7 @@ CONTAINS
          subsys_section => section_vals_get_subs_vals(force_env%force_env_section, "SUBSYS")
          ![ADAPT] no sure about use_motion_section
          !MN Create qmmm_env with oldsys_section
-         ALLOCATE (new_adqmmmx_env%oldsys)
+         !ALLOCATE (new_adqmmmx_env%oldsys)
          CALL qmmm_env_create(new_adqmmmx_env%oldsys, &
                               force_env%root_section, force_env%para_env, force_env%globenv, &
                               force_env%force_env_section, qmmm_oldsys_section, subsys_section, use_motion_section=.TRUE., &
@@ -243,7 +243,7 @@ CONTAINS
          !MN Create sections for newsys using the new updated indices/labels
 
          CALL setup_adqmmmx_sections(subsys, qmmm_section, qmmm_newsys_section)
-         ALLOCATE (new_adqmmmx_env%newsys)
+         !ALLOCATE (new_adqmmmx_env%newsys)
          CALL qmmm_env_create(new_adqmmmx_env%newsys, &
                               force_env%root_section, force_env%para_env, force_env%globenv, &
                               force_env%force_env_section, qmmm_newsys_section, subsys_section, use_motion_section=.TRUE., &
