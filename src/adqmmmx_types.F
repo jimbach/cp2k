@@ -68,15 +68,15 @@ CONTAINS
 !> \author MN
 ! **************************************************************************************************
    SUBROUTINE adqmmmx_env_get(adqmmmx_env, subsys, potential_energy, kinetic_energy)
-      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
-!       TYPE(adqmmmx_env_type), INTENT(IN)                 :: adqmmmx_env
+!      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
+       TYPE(adqmmmx_env_type), INTENT(IN)                 :: adqmmmx_env
        TYPE(cp_subsys_type), OPTIONAL, POINTER            :: subsys
       REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: potential_energy, kinetic_energy
 
       CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_get', routineP = moduleN//':'//routineN
 
-      CPASSERT(ASSOCIATED(adqmmmx_env))
-      CPASSERT(adqmmmx_env%ref_count > 0)
+      !CPASSERT(ASSOCIATED(adqmmmx_env))
+      !CPASSERT(adqmmmx_env%ref_count > 0)
       !MN Get Newsys and oldsys
       CALL qmmm_env_get(adqmmmx_env%oldsys, &
                         kinetic_energy=kinetic_energy, &
