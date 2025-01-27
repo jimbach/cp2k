@@ -68,8 +68,8 @@ CONTAINS
 !> \author MN
 ! **************************************************************************************************
    SUBROUTINE adqmmmx_env_get(adqmmmx_env, subsys, potential_energy, kinetic_energy)
-!      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
-       TYPE(adqmmmx_env_type), INTENT(IN)                 :: adqmmmx_env
+      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
+!       TYPE(adqmmmx_env_type), INTENT(IN)                 :: adqmmmx_env
        TYPE(cp_subsys_type), OPTIONAL, POINTER            :: subsys
       REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: potential_energy, kinetic_energy
 
