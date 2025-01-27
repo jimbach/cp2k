@@ -76,7 +76,7 @@ CONTAINS
       CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_get', routineP = moduleN//':'//routineN
 
       CPASSERT(ASSOCIATED(adqmmmx_env))
-      !CPASSERT(adqmmmx_env%ref_count > 0)
+      CPASSERT(adqmmmx_env%ref_count > 0)
       !MN Get Newsys and oldsys
       CALL qmmm_env_get(adqmmmx_env%oldsys, &
                         kinetic_energy=kinetic_energy, &
