@@ -204,7 +204,7 @@ CONTAINS
          subsys_section => section_vals_get_subs_vals(force_env%force_env_section, "SUBSYS")
          ![ADAPT] no sure about use_motion_section
          !MN Create qmmm_env with oldsys_section
-         !ALLOCATE (new_adqmmmx_env%oldsys)
+         ALLOCATE (new_adqmmmx_env%oldsys)
          CALL qmmm_env_create(new_adqmmmx_env%oldsys, &
                               force_env%root_section, force_env%para_env, force_env%globenv, &
                               force_env%force_env_section, qmmm_oldsys_section, subsys_section, use_motion_section=.TRUE., &
