@@ -321,9 +321,6 @@ CONTAINS
       IF (.NOT. my_skip) THEN
          ! Flexible Partitioning
          IF (ASSOCIATED(force_env%fp_env)) THEN
-            ! JB added debug message this can be removed safely
-            WRITE(*,*) "Debug message: "
-            WRITE(*,*) force_env%fp_env%temperature
             IF (force_env%fp_env%use_fp) THEN
                CALL fp_eval(force_env%fp_env, subsys, cell)
             END IF

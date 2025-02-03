@@ -123,6 +123,7 @@ CONTAINS
 !      CALL qmmm_env_release(adqmmmx_env%newsys)
 !      DEALLOCATE (adqmmmx_env%newsys)
        IF (ASSOCIATED(adqmmmx_env)) THEN
+            CPASSERT(adqmmmx_env%ref_count > 0)
             adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
             IF (adqmmmx_env%ref_count == 0) THEN
               CALL qmmm_env_release(adqmmmx_env%oldsys)
