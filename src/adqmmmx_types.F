@@ -124,10 +124,12 @@ CONTAINS
 
 ! JB Mod
 ! NEW VERSION
-      CALL qmmm_env_release(adqmmmx_env%oldsys)
-      DEALLOCATE (adqmmmx_env%oldsys)
-      CALL qmmm_env_release(adqmmmx_env%newsys)
-      DEALLOCATE (adqmmmx_env%newsys)
+      IF (ASSOCIATED(adqmmmx_env)) THEN
+         CALL qmmm_env_release(adqmmmx_env%oldsys)
+         DEALLOCATE (adqmmmx_env%oldsys)
+         CALL qmmm_env_release(adqmmmx_env%newsys)
+         DEALLOCATE (adqmmmx_env%newsys)
+      END IF
       NULLIFY (adqmmmx_env)
 
 ! OLD VERSION
