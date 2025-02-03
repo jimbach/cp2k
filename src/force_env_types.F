@@ -109,7 +109,7 @@ MODULE force_env_types
       "SIRIUS", &
       "NNP   ", &
       "IPI   ", &
-      "ADQMM " /)
+      "ADQMMM" /)
 
    PUBLIC :: force_env_type, &
              force_env_p_type
