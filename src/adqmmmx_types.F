@@ -21,7 +21,9 @@ MODULE adqmmmx_types
 
    CHARACTER(len=*), PARAMETER, PRIVATE :: moduleN = 'adqmmmx_types'
 
-   PUBLIC :: adqmmmx_env_type, adqmmmx_env_get, adqmmmx_env_retain, adqmmmx_env_release
+   PUBLIC :: adqmmmx_env_type, adqmmmx_env_get, adqmmmx_env_release
+! JB Mod , adqmmmx_env_retain deleted
+
 
    TYPE adqmmmx_env_type
       INTEGER                                                 :: ref_count = 1,&
