@@ -21,9 +21,7 @@ MODULE adqmmmx_types
 
    CHARACTER(len=*), PARAMETER, PRIVATE :: moduleN = 'adqmmmx_types'
 
-   PUBLIC :: adqmmmx_env_type, adqmmmx_env_get, adqmmmx_env_release
-! JB Mod , adqmmmx_env_retain deleted
-
+   PUBLIC :: adqmmmx_env_type, adqmmmx_env_get, adqmmmx_env_retain, adqmmmx_env_release
 
    TYPE adqmmmx_env_type
       INTEGER                                                 :: ref_count = 1,&
@@ -76,9 +74,8 @@ CONTAINS
 
       CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_get', routineP = moduleN//':'//routineN
 
-      ! JB Mod 3 02 2025
-      !CPASSERT(ASSOCIATED(adqmmmx_env))
-      !CPASSERT(adqmmmx_env%ref_count > 0)
+      CPASSERT(ASSOCIATED(adqmmmx_env))
+      CPASSERT(adqmmmx_env%ref_count > 0)
       !MN Get Newsys and oldsys
       CALL qmmm_env_get(adqmmmx_env%oldsys, &
                         kinetic_energy=kinetic_energy, &
@@ -91,23 +88,22 @@ CONTAINS
 
    END SUBROUTINE adqmmmx_env_get
 
-! JB Mod 3 02 2025 this is not needed any more
 ! **************************************************************************************************
 !> \brief ...
 !> \note Adjustes names (qmmmx->adqmmmx)
 !> \param qmmmx_env ...
 !> \author MN
 ! **************************************************************************************************
-!   SUBROUTINE adqmmmx_env_retain(adqmmmx_env)
-!      TYPE(adqmmmx_env_type), POINTER                      :: adqmmmx_env
-!
-!      CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_retain', &
-!         routineP = moduleN//':'//routineN
+   SUBROUTINE adqmmmx_env_retain(adqmmmx_env)
+      TYPE(adqmmmx_env_type), POINTER                      :: adqmmmx_env
 
-!      CPASSERT(ASSOCIATED(adqmmmx_env))
-!      CPASSERT(adqmmmx_env%ref_count > 0)
-!      adqmmmx_env%ref_count = adqmmmx_env%ref_count + 1
-!   END SUBROUTINE adqmmmx_env_retain
+      CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_retain', &
+         routineP = moduleN//':'//routineN
+
+      CPASSERT(ASSOCIATED(adqmmmx_env))
+      CPASSERT(adqmmmx_env%ref_count > 0)
+      adqmmmx_env%ref_count = adqmmmx_env%ref_count + 1
+   END SUBROUTINE adqmmmx_env_retain
 
 ! **************************************************************************************************
 !> \brief releases the given adqmmmx_env
@@ -122,11 +118,11 @@ CONTAINS
       CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_release', &
          routineP = moduleN//':'//routineN
 
-
-       CPASSERT(ASSOCIATED(adqmmmx_env))
-! OLD VERSION
+!      CALL qmmm_env_release(adqmmmx_env%oldsys)
+!      DEALLOCATE (adqmmmx_env%oldsys)
+!      CALL qmmm_env_release(adqmmmx_env%newsys)
+!      DEALLOCATE (adqmmmx_env%newsys)
        IF (ASSOCIATED(adqmmmx_env)) THEN
-            CPASSERT(adqmmmx_env%ref_count > 0)
             adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
             IF (adqmmmx_env%ref_count == 0) THEN
               CALL qmmm_env_release(adqmmmx_env%oldsys)

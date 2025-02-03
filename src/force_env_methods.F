@@ -143,8 +143,8 @@ MODULE force_env_methods
    USE qmmmx_force,                     ONLY: qmmmx_calc_energy_force
    !JB Insert adqmmmx environment
    USE adqmmmx_force,                   ONLY: adqmmmx_calc_energy_force
-   USE adqmmmx_types,                   ONLY: adqmmmx_env_type
-   !JB Mod deleted adqmmmx_env_retain
+   USE adqmmmx_types,                   ONLY: adqmmmx_env_retain,&
+                                              adqmmmx_env_type
    USE qmmmx_types,                     ONLY: qmmmx_env_type
    USE qs_energy_types,                 ONLY: qs_energy_type
    USE qs_environment_types,            ONLY: get_qs_env,&
@@ -790,8 +790,7 @@ CONTAINS
          CPASSERT(force_env%in_use == 0)
          force_env%in_use = use_adqmmmx
          force_env%adqmmmx_env => adqmmmx_env
-         !JB Mod 3 02 2025 this is not used in the new cp2k
-         !CALL adqmmmx_env_retain(adqmmmx_env) !JB I think here environments are loaded because retain number is increased here
+         CALL adqmmmx_env_retain(adqmmmx_env) !JB I think here environments are loaded because retain number is increased here
       END IF
       IF (PRESENT(mixed_env)) THEN
          CPASSERT(ASSOCIATED(mixed_env))
