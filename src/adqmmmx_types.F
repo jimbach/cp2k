@@ -123,6 +123,7 @@ CONTAINS
          routineP = moduleN//':'//routineN
 
 
+       CPASSERT(ASSOCIATED(adqmmmx_env))
 ! OLD VERSION
        IF (ASSOCIATED(adqmmmx_env)) THEN
             CPASSERT(adqmmmx_env%ref_count > 0)
