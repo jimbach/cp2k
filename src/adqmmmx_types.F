@@ -74,8 +74,9 @@ CONTAINS
 
       CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_get', routineP = moduleN//':'//routineN
 
-      CPASSERT(ASSOCIATED(adqmmmx_env))
-      CPASSERT(adqmmmx_env%ref_count > 0)
+      ! JB Mod 3 02 2025
+      !CPASSERT(ASSOCIATED(adqmmmx_env))
+      !CPASSERT(adqmmmx_env%ref_count > 0)
       !MN Get Newsys and oldsys
       CALL qmmm_env_get(adqmmmx_env%oldsys, &
                         kinetic_energy=kinetic_energy, &
@@ -88,22 +89,23 @@ CONTAINS
 
    END SUBROUTINE adqmmmx_env_get
 
+! JB Mod 3 02 2025 this is not needed any more
 ! **************************************************************************************************
 !> \brief ...
 !> \note Adjustes names (qmmmx->adqmmmx)
 !> \param qmmmx_env ...
 !> \author MN
 ! **************************************************************************************************
-   SUBROUTINE adqmmmx_env_retain(adqmmmx_env)
-      TYPE(adqmmmx_env_type), POINTER                      :: adqmmmx_env
+!   SUBROUTINE adqmmmx_env_retain(adqmmmx_env)
+!      TYPE(adqmmmx_env_type), POINTER                      :: adqmmmx_env
+!
+!      CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_retain', &
+!         routineP = moduleN//':'//routineN
 
-      CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_retain', &
-         routineP = moduleN//':'//routineN
-
-      CPASSERT(ASSOCIATED(adqmmmx_env))
-      CPASSERT(adqmmmx_env%ref_count > 0)
-      adqmmmx_env%ref_count = adqmmmx_env%ref_count + 1
-   END SUBROUTINE adqmmmx_env_retain
+!      CPASSERT(ASSOCIATED(adqmmmx_env))
+!      CPASSERT(adqmmmx_env%ref_count > 0)
+!      adqmmmx_env%ref_count = adqmmmx_env%ref_count + 1
+!   END SUBROUTINE adqmmmx_env_retain
 
 ! **************************************************************************************************
 !> \brief releases the given adqmmmx_env
