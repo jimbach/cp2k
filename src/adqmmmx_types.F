@@ -125,6 +125,7 @@ CONTAINS
 ! JB Mod
 ! NEW VERSION
       IF (ASSOCIATED(adqmmmx_env)) THEN
+         CPASSERT(adqmmmx_env%ref_count > 0)
          CALL qmmm_env_release(adqmmmx_env%oldsys)
          DEALLOCATE (adqmmmx_env%oldsys)
          CALL qmmm_env_release(adqmmmx_env%newsys)
