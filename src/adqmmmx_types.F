@@ -128,6 +128,7 @@ CONTAINS
       DEALLOCATE (adqmmmx_env%oldsys)
       CALL qmmm_env_release(adqmmmx_env%newsys)
       DEALLOCATE (adqmmmx_env%newsys)
+      NULLIFY (adqmmmx_env)
 
 ! OLD VERSION
 !       IF (ASSOCIATED(adqmmmx_env)) THEN
