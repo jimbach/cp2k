@@ -122,32 +122,19 @@ CONTAINS
       CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_release', &
          routineP = moduleN//':'//routineN
 
-! JB Mod
-! NEW VERSION
-      IF (ASSOCIATED(adqmmmx_env)) THEN
-         CPASSERT(adqmmmx_env%ref_count > 0)
-         adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
-         IF (adqmmmx_env%ref_count == 0) THEN
-            CALL qmmm_env_release(adqmmmx_env%oldsys)
-            CALL qmmm_env_release(adqmmmx_env%newsys)
-            DEALLOCATE (adqmmmx_env%oldsys)
-            DEALLOCATE (adqmmmx_env%newsys)
-         END IF
-      END IF
-      NULLIFY (adqmmmx_env)
 
 ! OLD VERSION
-!       IF (ASSOCIATED(adqmmmx_env)) THEN
-!            CPASSERT(adqmmmx_env%ref_count > 0)
-!            adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
-!            IF (adqmmmx_env%ref_count == 0) THEN
-!              CALL qmmm_env_release(adqmmmx_env%oldsys)
-!              CALL qmmm_env_release(adqmmmx_env%newsys)
-!              DEALLOCATE (adqmmmx_env%newsys)
-!              DEALLOCATE (adqmmmx_env%oldsys)
-!            END IF
-!       END IF
-!       NULLIFY (adqmmmx_env)
+       IF (ASSOCIATED(adqmmmx_env)) THEN
+            CPASSERT(adqmmmx_env%ref_count > 0)
+            adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
+            IF (adqmmmx_env%ref_count == 0) THEN
+              CALL qmmm_env_release(adqmmmx_env%oldsys)
+              CALL qmmm_env_release(adqmmmx_env%newsys)
+              DEALLOCATE (adqmmmx_env%newsys)
+              DEALLOCATE (adqmmmx_env%oldsys)
+            END IF
+       END IF
+       NULLIFY (adqmmmx_env)
 
   ! this was working
   !    IF (ASSOCIATED(adqmmmx_env)) THEN
