@@ -143,8 +143,9 @@ MODULE force_env_methods
    USE qmmmx_force,                     ONLY: qmmmx_calc_energy_force
    !JB Insert adqmmmx environment
    USE adqmmmx_force,                   ONLY: adqmmmx_calc_energy_force
-   USE adqmmmx_types,                   ONLY: adqmmmx_env_retain,&
-                                              adqmmmx_env_type
+   USE adqmmmx_types,                   ONLY: adqmmmx_env_type
+      !JB ADD 4 02 2025 
+      !adqmmmx_env_retain,&
    USE qmmmx_types,                     ONLY: qmmmx_env_type
    USE qs_energy_types,                 ONLY: qs_energy_type
    USE qs_environment_types,            ONLY: get_qs_env,&
