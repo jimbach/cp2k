@@ -27,8 +27,9 @@ MODULE adqmmmx_types
 
 
    TYPE adqmmmx_env_type
-      INTEGER                                                 :: ref_count = 1,&
-                                                                 c_n_sw=-1
+      INTEGER                                                 :: c_n_sw=-1
+!JB ADD 4 02 2025                                                    
+!ref_count = 1,&
 
       !MN Core -> Old system, Ext -> New system
       TYPE(qmmm_env_type), POINTER                            :: oldsys => Null()
