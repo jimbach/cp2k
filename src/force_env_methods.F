@@ -790,7 +790,8 @@ CONTAINS
          CPASSERT(force_env%in_use == 0)
          force_env%in_use = use_adqmmmx
          force_env%adqmmmx_env => adqmmmx_env
-         CALL adqmmmx_env_retain(adqmmmx_env) !JB I think here environments are loaded because retain number is increased here
+         !JB ADD 4 02 2025
+         !CALL adqmmmx_env_retain(adqmmmx_env) !JB I think here environments are loaded because retain number is increased here
       END IF
       IF (PRESENT(mixed_env)) THEN
          CPASSERT(ASSOCIATED(mixed_env))

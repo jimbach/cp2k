@@ -89,11 +89,15 @@ CONTAINS
          CALL qmmm_env_get(dummy_qmmm_env, subsys=subsys)
           !MN Get oldsys using old indices and labels
          CALL setup_adqmmmx_sections(subsys, qmmm_section, new_qmmm_section, use_old_indlab=.TRUE.)
+         !JB ADD 4 02 2025
+         ALLOCATE(adqmmmx_env%oldsys)
          CALL qmmm_env_create(adqmmmx_env%oldsys, root_section, para_env, globenv, &
                               force_env_section, new_qmmm_section, subsys_section, use_motion_section, &
                               ignore_outside_box=.TRUE.)
          !MN Get newsys using new indices and labels
          CALL setup_adqmmmx_sections(subsys, qmmm_section, new_qmmm_section)
+         !JB ADD 4 02 2025
+         ALLOCATE(adqmmmx_env%newsys)
          CALL qmmm_env_create(adqmmmx_env%newsys, root_section, para_env, globenv, &
                               force_env_section, new_qmmm_section, subsys_section, use_motion_section, &
                               ignore_outside_box=.TRUE.)

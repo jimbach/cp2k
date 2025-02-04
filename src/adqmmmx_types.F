@@ -68,14 +68,17 @@ CONTAINS
 !> \author MN
 ! **************************************************************************************************
    SUBROUTINE adqmmmx_env_get(adqmmmx_env, subsys, potential_energy, kinetic_energy)
-      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
+      !JB ADD 4 02 2025
+      !TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
+      TYPE(adqmmmx_env_type), INTENT(IN)                 :: adqmmmx_env
       TYPE(cp_subsys_type), OPTIONAL, POINTER            :: subsys
       REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: potential_energy, kinetic_energy
 
       CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_get', routineP = moduleN//':'//routineN
 
-      CPASSERT(ASSOCIATED(adqmmmx_env))
-      CPASSERT(adqmmmx_env%ref_count > 0)
+      !JB ADD 4 02 2025
+      !CPASSERT(ASSOCIATED(adqmmmx_env))
+      !CPASSERT(adqmmmx_env%ref_count > 0)
       !MN Get Newsys and oldsys
       CALL qmmm_env_get(adqmmmx_env%oldsys, &
                         kinetic_energy=kinetic_energy, &
@@ -94,16 +97,17 @@ CONTAINS
 !> \param qmmmx_env ...
 !> \author MN
 ! **************************************************************************************************
-   SUBROUTINE adqmmmx_env_retain(adqmmmx_env)
-      TYPE(adqmmmx_env_type), POINTER                      :: adqmmmx_env
-
-      CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_retain', &
-         routineP = moduleN//':'//routineN
-
-      CPASSERT(ASSOCIATED(adqmmmx_env))
-      CPASSERT(adqmmmx_env%ref_count > 0)
-      adqmmmx_env%ref_count = adqmmmx_env%ref_count + 1
-   END SUBROUTINE adqmmmx_env_retain
+!JB ADD 4 02 2025
+!   SUBROUTINE adqmmmx_env_retain(adqmmmx_env)
+!      TYPE(adqmmmx_env_type), POINTER                      :: adqmmmx_env
+!
+!      CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_retain', &
+!         routineP = moduleN//':'//routineN
+!
+!      CPASSERT(ASSOCIATED(adqmmmx_env))
+!      CPASSERT(adqmmmx_env%ref_count > 0)
+!      adqmmmx_env%ref_count = adqmmmx_env%ref_count + 1
+!   END SUBROUTINE adqmmmx_env_retain
 
 ! **************************************************************************************************
 !> \brief releases the given adqmmmx_env
@@ -122,16 +126,17 @@ CONTAINS
 !      DEALLOCATE (adqmmmx_env%oldsys)
 !      CALL qmmm_env_release(adqmmmx_env%newsys)
 !      DEALLOCATE (adqmmmx_env%newsys)
-       IF (ASSOCIATED(adqmmmx_env)) THEN
-            adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
-            IF (adqmmmx_env%ref_count == 0) THEN
+!JB ADD 4 02 2025
+!       IF (ASSOCIATED(adqmmmx_env)) THEN
+!            adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
+!            IF (adqmmmx_env%ref_count == 0) THEN
               CALL qmmm_env_release(adqmmmx_env%oldsys)
+              DEALLOCATE (adqmmmx_env%oldsys)
               CALL qmmm_env_release(adqmmmx_env%newsys)
               DEALLOCATE (adqmmmx_env%newsys)
-              DEALLOCATE (adqmmmx_env%oldsys)
-            END IF
-       END IF
-       NULLIFY (adqmmmx_env)
+!            END IF
+!       END IF
+!       NULLIFY (adqmmmx_env)
 
   ! this was working
   !    IF (ASSOCIATED(adqmmmx_env)) THEN
