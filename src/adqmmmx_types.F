@@ -120,8 +120,8 @@ CONTAINS
 !> \author MN
 ! **************************************************************************************************
    SUBROUTINE adqmmmx_env_release(adqmmmx_env)
-      TYPE(adqmmmx_env_type), POINTER                      :: adqmmmx_env
-!      TYPE(adqmmmx_env_type), INTENT(INOUT)                 :: adqmmmx_env
+!      TYPE(adqmmmx_env_type), POINTER                      :: adqmmmx_env
+      TYPE(adqmmmx_env_type), INTENT(INOUT)                 :: adqmmmx_env
 
       CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_release', &
          routineP = moduleN//':'//routineN
