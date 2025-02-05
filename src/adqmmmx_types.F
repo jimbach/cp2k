@@ -27,9 +27,8 @@ MODULE adqmmmx_types
 
 
    TYPE adqmmmx_env_type
-      INTEGER                                                 :: c_n_sw=-1
-!JB ADD 4 02 2025                                                    
-!ref_count = 1,&
+      INTEGER                                                 :: ref_count = 1,&
+                                                                 c_n_sw=-1
 
       !MN Core -> Old system, Ext -> New system
       TYPE(qmmm_env_type), POINTER                            :: oldsys => Null()
@@ -78,7 +77,7 @@ CONTAINS
       TYPE(cp_subsys_type), OPTIONAL, POINTER            :: subsys
       REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: potential_energy, kinetic_energy
 
-      CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_get', routineP = moduleN//':'//routineN
+      !CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_get', routineP = moduleN//':'//routineN
 
       !JB ADD 4 02 2025
       !CPASSERT(ASSOCIATED(adqmmmx_env))
@@ -123,21 +122,21 @@ CONTAINS
 !      TYPE(adqmmmx_env_type), POINTER                      :: adqmmmx_env
       TYPE(adqmmmx_env_type), INTENT(INOUT)                 :: adqmmmx_env
 
-      CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_release', &
-         routineP = moduleN//':'//routineN
+      !CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_release', &
+      !   routineP = moduleN//':'//routineN
 
-!      CALL qmmm_env_release(adqmmmx_env%oldsys)
-!      DEALLOCATE (adqmmmx_env%oldsys)
-!      CALL qmmm_env_release(adqmmmx_env%newsys)
-!      DEALLOCATE (adqmmmx_env%newsys)
+      CALL qmmm_env_release(adqmmmx_env%oldsys)
+      DEALLOCATE (adqmmmx_env%oldsys)
+      CALL qmmm_env_release(adqmmmx_env%newsys)
+      DEALLOCATE (adqmmmx_env%newsys)
 !JB ADD 4 02 2025
 !       IF (ASSOCIATED(adqmmmx_env)) THEN
 !            adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
 !            IF (adqmmmx_env%ref_count == 0) THEN
-              CALL qmmm_env_release(adqmmmx_env%oldsys)
-              DEALLOCATE (adqmmmx_env%oldsys)
-              CALL qmmm_env_release(adqmmmx_env%newsys)
-              DEALLOCATE (adqmmmx_env%newsys)
+!              CALL qmmm_env_release(adqmmmx_env%oldsys)
+!              DEALLOCATE (adqmmmx_env%oldsys)
+!              CALL qmmm_env_release(adqmmmx_env%newsys)
+!              DEALLOCATE (adqmmmx_env%newsys)
 !            END IF
 !       END IF
 !       NULLIFY (adqmmmx_env)

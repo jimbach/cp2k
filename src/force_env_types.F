@@ -447,8 +447,6 @@ CONTAINS
                             potential_energy=potential_energy, &
                             kinetic_energy=kinetic_energy)
       CASE (use_adqmmmx) !JB Added full env_get-routine
-         !JB ADD 5 02 2025 
-         CPASSERT(ASSOCIATED(force_env%adqmmmx_env))
          CALL adqmmmx_env_get(force_env%adqmmmx_env, &
                             subsys=subsys, &
                             potential_energy=potential_energy, &
