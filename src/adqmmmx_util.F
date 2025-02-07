@@ -420,8 +420,9 @@ CONTAINS
 !> \author Marvin Nyenhuis
 ! **************************************************************************************************
   SUBROUTINE get_adqmmmx_values(qmmm_section, adqmmmx_env, output_unit)
-     !TYPE(adqmmmx_env_type), POINTER, OPTIONAL          :: adqmmmx_env
-     TYPE(adqmmmx_env_type), INTENT(OUT), OPTIONAL          :: adqmmmx_env
+     TYPE(adqmmmx_env_type), POINTER, OPTIONAL          :: adqmmmx_env
+     ! JB Mod 7.02
+     !TYPE(adqmmmx_env_type), INTENT(OUT), OPTIONAL          :: adqmmmx_env
      TYPE(section_vals_type), POINTER                   :: qmmm_section,&
                                                            adqmmmx_section,&
                                                            restart_section
