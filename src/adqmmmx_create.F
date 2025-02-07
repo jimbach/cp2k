@@ -139,7 +139,6 @@ CONTAINS
                               ignore_outside_box=.TRUE.)
          
          !JB Add 7.02.2025
-         WRITE(*,*) adqmmmx_env%newsys
          WRITE(*,*) "I am here 3"
  
          CALL section_vals_release(new_qmmm_section)
