@@ -137,7 +137,9 @@ CONTAINS
          CALL qmmm_env_create(adqmmmx_env%newsys, root_section, para_env, globenv, &
                               force_env_section, new_qmmm_section, subsys_section, use_motion_section, &
                               ignore_outside_box=.TRUE.)
- 
+         
+         !JB Add 7.02.2025
+         WRITE(*,*) "I am here 3"
  
          CALL section_vals_release(new_qmmm_section)
          WRITE (output_unit,*) "ADQMMMX | adqmmmx_env_create"

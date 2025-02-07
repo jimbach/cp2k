@@ -524,7 +524,7 @@ CONTAINS
   SUBROUTINE copy_adqmmmx_env(new_adqmmmx_env, adqmmmx_env)
      ! JB Mod 7.02
      TYPE(adqmmmx_env_type), INTENT(IN), OPTIONAL          :: adqmmmx_env
-     TYPE(adqmmmx_env_type), INTENT(out), OPTIONAL          :: new_adqmmmx_env
+     TYPE(adqmmmx_env_type), INTENT(OUT), OPTIONAL          :: new_adqmmmx_env
       !   TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env,&
       !                                                         adqmmmx_env
 

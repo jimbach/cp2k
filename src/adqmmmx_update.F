@@ -314,7 +314,8 @@ CONTAINS
 !> \param to_local_particles ...
 ! **************************************************************************************************
    SUBROUTINE lambda_propagation(adqmmmx_env, switch_t, dt, output_unit)
-      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
+      !TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
+      TYPE(adqmmmx_env_type), INTENT(INOUT)                 :: adqmmmx_env
       CHARACTER(len=*), PARAMETER :: routineN = 'lambda_propagation', routineP = moduleN//':'//routineN
       REAL(dp)                                           :: lambda, prop_time, dpot, vlambda, mlambda
       REAL(dp)                                           :: dt, omega, omega1, switch_t, A, B
@@ -374,7 +375,8 @@ CONTAINS
 !> \param to_local_particles ...
 ! **************************************************************************************************
    SUBROUTINE lambda_propagation_discrete(adqmmmx_env, dt, output_unit)
-      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
+      !TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
+      TYPE(adqmmmx_env_type), INTENT(INOUT)                 :: adqmmmx_env
       CHARACTER(len=*), PARAMETER :: routineN = 'lambda_propagation_discrete', routineP = moduleN//':'//routineN
       REAL(dp)                                           :: dt, test_F
       INTEGER                                            :: output_unit
