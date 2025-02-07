@@ -482,7 +482,9 @@ CONTAINS
 !> \author Marvin Nyenhuis
 ! **************************************************************************************************
   SUBROUTINE update_adqmmmx_values(adqmmmx_section, adqmmmx_env, output_unit)
-     TYPE(adqmmmx_env_type), POINTER, OPTIONAL          :: adqmmmx_env
+     !TYPE(adqmmmx_env_type), POINTER, OPTIONAL          :: adqmmmx_env
+     ! JB Mod 7.02
+     TYPE(adqmmmx_env_type), INTENT(INOUT), OPTIONAL          :: adqmmmx_env
      TYPE(section_vals_type), POINTER                   :: adqmmmx_section,&
                                                            restart_section
      LOGICAL                                            :: explicit
@@ -520,8 +522,11 @@ CONTAINS
 !> \author Marvin Nyenhuis
 ! **************************************************************************************************
   SUBROUTINE copy_adqmmmx_env(new_adqmmmx_env, adqmmmx_env)
-         TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env,&
-                                                               adqmmmx_env
+     ! JB Mod 7.02
+     TYPE(adqmmmx_env_type), INTENT(IN), OPTIONAL          :: adqmmmx_env
+     TYPE(adqmmmx_env_type), INTENT(out), OPTIONAL          :: new_adqmmmx_env
+      !   TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env,&
+      !                                                         adqmmmx_env
 
 
          new_adqmmmx_env%lambda_adqmmmx  = 0.0 
