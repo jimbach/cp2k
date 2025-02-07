@@ -10,13 +10,13 @@
 ! **************************************************************************************************
 MODULE adqmmmx_create
    !USE cp_para_types,                   ONLY: cp_para_env_type
-   USE message_passing,                 ONLY: mp_para_env_type
    USE cp_subsys_types,                 ONLY: cp_subsys_type
    USE global_types,                    ONLY: global_environment_type
    USE input_section_types,             ONLY: section_vals_get_subs_vals,&
                                               section_vals_release,&
                                               section_vals_type, &
                                               section_vals_write
+   USE message_passing,                 ONLY: mp_para_env_type
    USE cp_log_handling,                 ONLY: cp_logger_get_default_io_unit,&
                                               cp_logger_get_default_unit_nr
    USE qmmm_create,                     ONLY: qmmm_env_create
@@ -89,6 +89,10 @@ CONTAINS
          CALL qmmm_env_get(dummy_qmmm_env, subsys=subsys)
           !MN Get oldsys using old indices and labels
          CALL setup_adqmmmx_sections(subsys, qmmm_section, new_qmmm_section, use_old_indlab=.TRUE.)
+         
+         
+         !JB Add 7.02.2025
+         WRITE(*,*) "I am here 1"
          !JB ADD 4 02 2025
          ALLOCATE(adqmmmx_env%oldsys)
          CALL qmmm_env_create(adqmmmx_env%oldsys, root_section, para_env, globenv, &
@@ -113,6 +117,9 @@ CONTAINS
          !MN Here indices are updated, maybe grep old updates and store them in adqmmmx_env_type?
          adqmmmx_env%include_nc = .TRUE.
          CALL update_adqmmmx_labels(subsys, qmmm_section, include_nc=.TRUE., c_n_sw=adqmmmx_env%c_n_sw)
+   
+         !JB Add 7.02.2025
+         WRITE(*,*) "I am here 2"
    
          ! using CUR_INDICES and CUR_LABELS, create appropriate QM_KIND sections for two QM/MM calculations
          !MN And here I can create a whole new environment for the old subsys or push it on core?
