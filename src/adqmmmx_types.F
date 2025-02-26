@@ -83,6 +83,11 @@ CONTAINS
       !CPASSERT(ASSOCIATED(adqmmmx_env))
       !CPASSERT(adqmmmx_env%ref_count > 0)
       !MN Get Newsys and oldsys
+      
+      !JB Mod 27.2
+      CPASSERT(ASSOCIATED(adqmmmx_env%oldsys))
+      CPASSERT(ASSOCIATED(adqmmmx_env%newsys))
+      
       CALL qmmm_env_get(adqmmmx_env%oldsys, &
                         kinetic_energy=kinetic_energy, &
                         potential_energy=potential_energy, &
