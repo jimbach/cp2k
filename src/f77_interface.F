@@ -841,7 +841,8 @@ CONTAINS
                                   force_env_section, subsys_section, use_motion_section)
             CALL force_env_create(my_force_env, root_section, adqmmmx_env=adqmmmx_env, para_env=my_para_env, &
                                   globenv=globenv, force_env_section=force_env_section)
-            CALL adqmmmx_env_release(adqmmmx_env)
+            !JB Mod 27.2
+            !CALL adqmmmx_env_release(adqmmmx_env)
 
          CASE (do_eip)
             ALLOCATE (eip_env)
