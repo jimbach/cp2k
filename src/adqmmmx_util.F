@@ -424,7 +424,7 @@ CONTAINS
      ! JB Mod 7.02
      !TYPE(adqmmmx_env_type), INTENT(INOUT), OPTIONAL    :: adqmmmx_env
      ! JB Mod 10.02
-     TYPE(adqmmmx_env_type), INTENT(OUT), OPTIONAL      :: adqmmmx_env
+     TYPE(adqmmmx_env_type), INTENT(INOUT), OPTIONAL      :: adqmmmx_env
      TYPE(section_vals_type), POINTER                   :: qmmm_section,&
                                                            adqmmmx_section,&
                                                            restart_section
