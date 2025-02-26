@@ -222,6 +222,8 @@ CONTAINS
       ind_counter = 1
       starting_qm_counter = 1
 
+      WRITE(*,*) "I AM HERE IREP"
+
       !MN Try to get Core section directly from input
       !MN Get New indices, sort it
       NULLIFY (mm_index_entry, qm_core)
