@@ -70,9 +70,6 @@ CONTAINS
  
       NULLIFY (dummy_qmmm_env)
       
-      !JB Mod 27.2
-      CPASSERT(ASSOCIATED(adqmmmx_env%oldsys))
-      CPASSERT(ASSOCIATED(adqmmmx_env%newsys))
       
       output_unit = cp_logger_get_default_io_unit()
       qmmm_section => section_vals_get_subs_vals(force_env_section, "QMMM")
@@ -152,6 +149,9 @@ CONTAINS
       CALL qmmm_env_release(dummy_qmmm_env)
       DEALLOCATE (dummy_qmmm_env)
  
+      !JB Mod 27.2
+      CPASSERT(ASSOCIATED(adqmmmx_env%oldsys))
+      CPASSERT(ASSOCIATED(adqmmmx_env%newsys))
    END SUBROUTINE adqmmmx_env_create
 
 END MODULE adqmmmx_create 
