@@ -197,7 +197,7 @@ CONTAINS
          CALL force_env_get(force_env, subsys=subsys)
          
          !MN Create new_adqmmmx_env
-         !ALLOCATE (new_adqmmmx_env)
+         ALLOCATE (new_adqmmmx_env)
          !MN Create sections for oldsys using the old updated indices/labels
          CALL setup_adqmmmx_sections(subsys, qmmm_section, qmmm_oldsys_section)
 
@@ -205,8 +205,8 @@ CONTAINS
          ![ADAPT] no sure about use_motion_section
          !MN Create qmmm_env with oldsys_section
          !JB ADD 4 02 2025
-         DEALLOCATE (new_adqmmmx_env%oldsys)
-         ALLOCATE (new_adqmmmx_env%oldsys)
+         !DEALLOCATE (new_adqmmmx_env%oldsys)
+         !ALLOCATE (new_adqmmmx_env%oldsys)
          CALL qmmm_env_create(new_adqmmmx_env%oldsys, &
                               force_env%root_section, force_env%para_env, force_env%globenv, &
                               force_env%force_env_section, qmmm_oldsys_section, subsys_section, use_motion_section=.TRUE., &
@@ -246,8 +246,8 @@ CONTAINS
 
          CALL setup_adqmmmx_sections(subsys, qmmm_section, qmmm_newsys_section)
          !JB ADD 4 02 2025
-         DEALLOCATE (new_adqmmmx_env%newsys)
-         ALLOCATE (new_adqmmmx_env%newsys)
+         !DEALLOCATE (new_adqmmmx_env%newsys)
+         !ALLOCATE (new_adqmmmx_env%newsys)
          CALL qmmm_env_create(new_adqmmmx_env%newsys, &
                               force_env%root_section, force_env%para_env, force_env%globenv, &
                               force_env%force_env_section, qmmm_newsys_section, subsys_section, use_motion_section=.TRUE., &
