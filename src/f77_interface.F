@@ -835,6 +835,8 @@ CONTAINS
 
          CASE (do_adqmmmx)
             ALLOCATE (adqmmmx_env)
+            !JB Mod 27.2
+            WRITE(*,*) "I AM CREATING THE FORCE ENV"
             CALL adqmmmx_env_create(adqmmmx_env, root_section, my_para_env, globenv, &
                                   force_env_section, subsys_section, use_motion_section)
             CALL force_env_create(my_force_env, root_section, adqmmmx_env=adqmmmx_env, para_env=my_para_env, &
