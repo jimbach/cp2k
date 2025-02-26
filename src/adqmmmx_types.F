@@ -136,13 +136,13 @@ CONTAINS
 !      DEALLOCATE (adqmmmx_env%newsys)
 !JB ADD 4 02 2025
  !      IF (ASSOCIATED(adqmmmx_env)) THEN
-            adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
-            IF (adqmmmx_env%ref_count == 0) THEN
+           ! adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
+           ! IF (adqmmmx_env%ref_count == 0) THEN
               CALL qmmm_env_release(adqmmmx_env%oldsys)
               DEALLOCATE (adqmmmx_env%oldsys)
               CALL qmmm_env_release(adqmmmx_env%newsys)
               DEALLOCATE (adqmmmx_env%newsys)
-            END IF
+           ! END IF
  !      END IF
  !      NULLIFY (adqmmmx_env)
 
