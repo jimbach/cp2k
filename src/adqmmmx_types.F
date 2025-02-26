@@ -139,7 +139,8 @@ CONTAINS
               DEALLOCATE (adqmmmx_env%newsys)
             END IF
  !      END IF
-       NULLIFY (adqmmmx_env)
+ 	DEALLOCATE(adqmmmx_env)
+ !      NULLIFY (adqmmmx_env)
 
   ! this was working
   !    IF (ASSOCIATED(adqmmmx_env)) THEN
