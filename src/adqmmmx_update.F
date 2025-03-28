@@ -73,7 +73,9 @@ CONTAINS
       REAL(dp)                                           :: dt, switch_t, Lam_Error
       REAL(dp), POINTER                                  :: lambda
       REAL(KIND=dp), PARAMETER                           :: pi = 3.14159265358979323846264338_dp
-      TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env
+!      TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env
+! JB MODS 28 03
+      TYPE(adqmmmx_env_type)                             :: new_adqmmmx_env
       TYPE(section_vals_type), POINTER                   :: qmmm_oldsys_section, &
                                                             qmmm_newsys_section, &
                                                             adqmmmx_section, qmmm_section, &
@@ -199,7 +201,7 @@ CONTAINS
          CALL force_env_get(force_env, subsys=subsys)
          
          !MN Create new_adqmmmx_env
-         ALLOCATE (new_adqmmmx_env)
+         !ALLOCATE (new_adqmmmx_env)
          !MN Create sections for oldsys using the old updated indices/labels
          CALL setup_adqmmmx_sections(subsys, qmmm_section, qmmm_oldsys_section)
 
@@ -275,7 +277,9 @@ CONTAINS
          
          CALL copy_adqmmmx_env(new_adqmmmx_env, force_env%adqmmmx_env)
          CALL adqmmmx_env_release(force_env%adqmmmx_env)
-         force_env%adqmmmx_env => new_adqmmmx_env
+         !force_env%adqmmmx_env => new_adqmmmx_env
+         ! JB MOD 28 03
+         force_env%adqmmmx_env = new_adqmmmx_env
 
       END IF
 
