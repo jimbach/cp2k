@@ -83,6 +83,8 @@ CONTAINS
       IF (.NOT. ASSOCIATED(force_env)) RETURN
       IF (ASSOCIATED(force_env%adqmmmx_env)) THEN
 
+      
+
       WRITE(*,*) "this is a test"
 
       INQUIRE(FILE = "update_log.out", EXIST=file_exists)
@@ -197,7 +199,7 @@ CONTAINS
          CALL force_env_get(force_env, subsys=subsys)
          
          !MN Create new_adqmmmx_env
-         !ALLOCATE (new_adqmmmx_env)
+         ALLOCATE (new_adqmmmx_env)
          !MN Create sections for oldsys using the old updated indices/labels
          CALL setup_adqmmmx_sections(subsys, qmmm_section, qmmm_oldsys_section)
 
