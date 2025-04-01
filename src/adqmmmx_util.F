@@ -487,8 +487,8 @@ CONTAINS
 ! **************************************************************************************************
   SUBROUTINE update_adqmmmx_values(adqmmmx_section, adqmmmx_env, output_unit)
      !TYPE(adqmmmx_env_type), POINTER, OPTIONAL          :: adqmmmx_env
-     ! JB Mod 7.02
-     TYPE(adqmmmx_env_type), INTENT(INOUT), OPTIONAL          :: adqmmmx_env
+     ! JB Mod 1.04.25
+     TYPE(adqmmmx_env_type), INTENT(IN), OPTIONAL       :: adqmmmx_env
      TYPE(section_vals_type), POINTER                   :: adqmmmx_section,&
                                                            restart_section
      LOGICAL                                            :: explicit
