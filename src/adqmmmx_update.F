@@ -236,7 +236,7 @@ CONTAINS
          IF (.NOT. labels_changed) THEN
                WRITE (1337,*) "Labels have not changed or MAX_N_SWITCH reached"
                force_env%adqmmmx_env%switch_active=.FALSE.
-               !CALL adqmmmx_env_release(new_adqmmmx_env)
+               CALL adqmmmx_env_release(new_adqmmmx_env)
                RETURN               
          END IF
 
@@ -276,8 +276,7 @@ CONTAINS
          !MN Copy adaptive switching parameters and release old environemnt
          
          CALL copy_adqmmmx_env(new_adqmmmx_env, force_env%adqmmmx_env)
-         ! JB MOD 3.4
-         !CALL adqmmmx_env_release(force_env%adqmmmx_env)
+         CALL adqmmmx_env_release(force_env%adqmmmx_env)
          !force_env%adqmmmx_env => new_adqmmmx_env
          ! JB MOD 28 03
          force_env%adqmmmx_env = new_adqmmmx_env
