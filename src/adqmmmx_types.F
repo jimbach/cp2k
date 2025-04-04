@@ -73,7 +73,7 @@ CONTAINS
    SUBROUTINE adqmmmx_env_get(adqmmmx_env, subsys, potential_energy, kinetic_energy)
       !JB ADD 4 02 2025
       !TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
-      TYPE(adqmmmx_env_type), INTENT(INOUT)                 :: adqmmmx_env
+      TYPE(adqmmmx_env_type), INTENT(IN)                 :: adqmmmx_env
       TYPE(cp_subsys_type), OPTIONAL, POINTER            :: subsys
       REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: potential_energy, kinetic_energy
 
@@ -95,8 +95,8 @@ CONTAINS
                         subsys=subsys)
 
       !JB Mod 27.2
-      CPASSERT(ASSOCIATED(adqmmmx_env%oldsys))
-      CPASSERT(ASSOCIATED(adqmmmx_env%newsys))
+      !CPASSERT(ASSOCIATED(adqmmmx_env%oldsys))
+      !CPASSERT(ASSOCIATED(adqmmmx_env%newsys))
    END SUBROUTINE adqmmmx_env_get
 
 ! **************************************************************************************************
@@ -123,9 +123,9 @@ CONTAINS
 !> \param adqmmmx_env the object to release
 !> \author MN
 ! **************************************************************************************************
-   SUBROUTINE adqmmmx_env_release(adqmmmx_env)
+!   SUBROUTINE adqmmmx_env_release(adqmmmx_env)
 !      TYPE(adqmmmx_env_type), POINTER                      :: adqmmmx_env
-      TYPE(adqmmmx_env_type), INTENT(INOUT)                 :: adqmmmx_env
+!      TYPE(adqmmmx_env_type), INTENT(INOUT)                 :: adqmmmx_env
 
       !CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_env_release', &
       !   routineP = moduleN//':'//routineN
@@ -138,10 +138,10 @@ CONTAINS
  !      IF (ASSOCIATED(adqmmmx_env)) THEN
            ! adqmmmx_env%ref_count = adqmmmx_env%ref_count - 1
            ! IF (adqmmmx_env%ref_count == 0) THEN
-              CALL qmmm_env_release(adqmmmx_env%oldsys)
-              DEALLOCATE (adqmmmx_env%oldsys)
-              CALL qmmm_env_release(adqmmmx_env%newsys)
-              DEALLOCATE (adqmmmx_env%newsys)
+   !    CALL qmmm_env_release(adqmmmx_env%oldsys)
+   !    DEALLOCATE (adqmmmx_env%oldsys)
+   !    CALL qmmm_env_release(adqmmmx_env%newsys)
+   !    DEALLOCATE (adqmmmx_env%newsys)
            ! END IF
  !      END IF
  !      NULLIFY (adqmmmx_env)
@@ -159,6 +159,18 @@ CONTAINS
   !    NULLIFY (adqmmmx_env)
 
 
+!   END SUBROUTINE adqmmmx_env_release
+   SUBROUTINE adqmmmx_env_release(adqmmmx_env)
+      TYPE(adqmmmx_env_type), INTENT(INOUT)                :: adqmmmx_env
+
+      CALL qmmm_env_release(adqmmmx_env%oldsys)
+      DEALLOCATE (adqmmmx_env%oldsys)
+      CALL qmmm_env_release(adqmmmx_env%newsys)
+      DEALLOCATE (adqmmmx_env%newsys)
+
    END SUBROUTINE adqmmmx_env_release
+
+
+
 
 END MODULE adqmmmx_types
