@@ -163,9 +163,11 @@ CONTAINS
    SUBROUTINE adqmmmx_env_release(adqmmmx_env)
       TYPE(adqmmmx_env_type), INTENT(INOUT)                :: adqmmmx_env
       !JB MOD 8.04.25
-      IF ((ASSOCIATED(adqmmmx_env%oldsys)).OR.(ASSOCIATED(adqmmmx_env%newsys))) THEN
+      IF (ASSOCIATED(adqmmmx_env%oldsys)) THEN
          CALL qmmm_env_release(adqmmmx_env%oldsys)
          DEALLOCATE (adqmmmx_env%oldsys)
+      END IF
+      IF (ASSOCIATED(adqmmmx_env%newsys)) THEN
          CALL qmmm_env_release(adqmmmx_env%newsys)
          DEALLOCATE (adqmmmx_env%newsys)
       END IF
