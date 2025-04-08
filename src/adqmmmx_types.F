@@ -162,12 +162,13 @@ CONTAINS
 !   END SUBROUTINE adqmmmx_env_release
    SUBROUTINE adqmmmx_env_release(adqmmmx_env)
       TYPE(adqmmmx_env_type), INTENT(INOUT)                :: adqmmmx_env
-
-      CALL qmmm_env_release(adqmmmx_env%oldsys)
-      DEALLOCATE (adqmmmx_env%oldsys)
-      CALL qmmm_env_release(adqmmmx_env%newsys)
-      DEALLOCATE (adqmmmx_env%newsys)
-
+      !JB MOD 8.04.25
+      IF (ASSOCIATED(adqmmmx_env)) THEN
+         CALL qmmm_env_release(adqmmmx_env%oldsys)
+         DEALLOCATE (adqmmmx_env%oldsys)
+         CALL qmmm_env_release(adqmmmx_env%newsys)
+         DEALLOCATE (adqmmmx_env%newsys)
+      END IF
    END SUBROUTINE adqmmmx_env_release
 
 
