@@ -237,7 +237,7 @@ CONTAINS
                WRITE (1337,*) "Labels have not changed or MAX_N_SWITCH reached"
                force_env%adqmmmx_env%switch_active=.FALSE.
                ! JB MOD 4.4.25
-           !    CALL adqmmmx_env_release(new_adqmmmx_env)
+               CALL adqmmmx_env_release(new_adqmmmx_env)
                RETURN               
          END IF
 
