@@ -173,6 +173,8 @@ CONTAINS
                                           force_env%adqmmmx_env%Elamcorr
             force_env%adqmmmx_env%Elamcorr        = 0.d0
             force_env%adqmmmx_env%Elambda         = 0.d0
+            !Added JB 16.04.25
+            force_env%adqmmmx_env%lambda_force    = 0.d0           
             lambda                                = 1.d0
             force_env%adqmmmx_env%lambda_velocity = 0.d0
             force_env%adqmmmx_env%energy_add      =.FALSE.
@@ -201,7 +203,8 @@ CONTAINS
          CALL force_env_get(force_env, subsys=subsys)
          
          !MN Create new_adqmmmx_env
-         !ALLOCATE (new_adqmmmx_env)
+         !JB changed 28.4.24
+         ALLOCATE (new_adqmmmx_env)
          !MN Create sections for oldsys using the old updated indices/labels
          CALL setup_adqmmmx_sections(subsys, qmmm_section, qmmm_oldsys_section)
 
@@ -210,7 +213,7 @@ CONTAINS
          !MN Create qmmm_env with oldsys_section
          !JB ADD 4 02 2025
          !DEALLOCATE (new_adqmmmx_env%oldsys)
-         ALLOCATE (new_adqmmmx_env%oldsys)
+         !ALLOCATE (new_adqmmmx_env%oldsys)
          CALL qmmm_env_create(new_adqmmmx_env%oldsys, &
                               force_env%root_section, force_env%para_env, force_env%globenv, &
                               force_env%force_env_section, qmmm_oldsys_section, subsys_section, use_motion_section=.TRUE., &
@@ -252,7 +255,7 @@ CONTAINS
          CALL setup_adqmmmx_sections(subsys, qmmm_section, qmmm_newsys_section)
          !JB ADD 4 02 2025
          !DEALLOCATE (new_adqmmmx_env%newsys)
-         ALLOCATE (new_adqmmmx_env%newsys)
+         !ALLOCATE (new_adqmmmx_env%newsys)
          CALL qmmm_env_create(new_adqmmmx_env%newsys, &
                               force_env%root_section, force_env%para_env, force_env%globenv, &
                               force_env%force_env_section, qmmm_newsys_section, subsys_section, use_motion_section=.TRUE., &
