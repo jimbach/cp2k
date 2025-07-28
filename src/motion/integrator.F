@@ -531,8 +531,9 @@ CONTAINS
 
 
       !MN I think i dont need this here because it will be calculated later
-      !CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE
-      !WRITE(1336,*) "force_env%adqmmmx_env associated",ASSOCIATED(force_env%adqmmmx_env)
+      ! changes 07.2025
+      CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE
+      WRITE(1336,*) "force_env%adqmmmx_env associated",ASSOCIATED(force_env%adqmmmx_env)
 
 
       ! In case of ehrenfest dynamics, velocities need to be iterated
@@ -607,9 +608,10 @@ CONTAINS
       END DO
 
       !JB Propagation of vlambda if discrete
-      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
-         CALL adqmmmx_vv_second(force_env, dt, 1336)
-      END IF
+      ! changes 07.2025
+      !IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+      CALL adqmmmx_vv_second(force_env, dt, 1336)
+      !END IF
 
       ! Update virial
       IF (simpar%constraint) CALL pv_constraint(gci, local_molecules, &
