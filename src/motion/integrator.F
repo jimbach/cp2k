@@ -532,7 +532,7 @@ CONTAINS
 
       !MN I think i dont need this here because it will be calculated later
       ! changes 07.2025
-      CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE
+      CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
       WRITE(1336,*) "force_env%adqmmmx_env associated",ASSOCIATED(force_env%adqmmmx_env)
 
 
