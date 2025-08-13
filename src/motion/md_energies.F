@@ -618,8 +618,8 @@ CONTAINS
             traj_adqmmmx = cp_print_key_unit_nr(logger, motion_section, "PRINT%ADQMMMX_ENERGIES")
             IF (traj_adqmmmx > 0) THEN
            	 !JB adds 08.2025
-                 CALL force_env_get(force_env%adqmmmx_env%oldsys%qs_env)
-                 CALL cp_subsys_get(force_env%adqmmmx_env%oldsys%qs_env, shell_particles=shell_particles, core_particles=core_particles)
+                 CALL force_env_get(force_env)
+                 CALL cp_subsys_get(force_env%adqmmmx_env%oldsys%qs_env%ks_env%subsys)
                  CALL write_trajectory(force_env%oldsys%qs_env, root_section, itimes, time*femtoseconds, dt*femtoseconds, md_ener%epot, &
                                   "ADQMMMX_QM_TRAJECTORY", my_pos, my_act, "adqmmmx-qm", extended_xmol_title=.TRUE.)
             END IF
