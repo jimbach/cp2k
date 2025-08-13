@@ -615,11 +615,12 @@ CONTAINS
          
          ! JB adds 08.2025
          IF (is_adqmmmx) THEN
-            CALL force_env_get(force_env)
-            CALL cp_subsys_get(subsys=force_env%adqmmmx_env%oldsys%qs_env%ks_env%subsys%cp_subsys)
-                 CALL write_trajectory(force_env%adqmmmx_env%oldsys%qs_env%ks_env%subsys%cp_subsys, root_section, itimes, &
-                                  time*femtoseconds, dt*femtoseconds, md_ener%epot, &
-                                 "ADQMMMX_QM_TRAJECTORY", my_pos, my_act, "adqmmmx-qm", extended_xmol_title=.TRUE.)
+          !  CALL force_env_get(force_env)
+          !  CALL cp_subsys_get(subsys=force_env%adqmmmx_env%oldsys%qs_env%ks_env%subsys%cp_subsys)
+          !       CALL write_trajectory(force_env%adqmmmx_env%oldsys%qs_env%ks_env%subsys%cp_subsys, root_section, itimes, &
+          !                        time*femtoseconds, dt*femtoseconds, md_ener%epot, &
+          !                       "ADQMMMX_QM_TRAJECTORY", my_pos, my_act, "adqmmmx-qm", extended_xmol_title=.TRUE.)
+           WRITE(*,*) force_env%adqmmmx_env%oldsys%qs_env%ks_env%subsys%cp_subsys
          END IF
          
          
