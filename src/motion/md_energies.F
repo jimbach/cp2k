@@ -467,7 +467,8 @@ CONTAINS
                CALL m_flush(lam_adqmmmx)
             END IF
             CALL cp_print_key_finished_output(lam_adqmmmx, logger, motion_section, "PRINT%ADQMMMX_LAMBDA")
-
+            
+            
          END IF
 
 
@@ -611,6 +612,20 @@ CONTAINS
                END IF
             END IF
          END IF
+         
+         ! JB adds 08.2025
+         IF (is_adqmmmx) THEN
+            traj_adqmmmx = cp_print_key_unit_nr(logger, motion_section, "PRINT%ADQMMMX_ENERGIES")
+            IF (traj_adqmmmx > 0) THEN
+           	 !JB adds 08.2025
+           	 CALL force_env_get(force_env%oldsys%qs_env)
+                 CALL cp_subsys_get(subsys%oldsys%qs_env, shell_particles=shell_particles, core_particles=core_particles)
+                 CALL write_trajectory(force_env%oldsys%qs_env, root_section, itimes, time*femtoseconds, dt*femtoseconds, md_ener%epot, &
+                                  "ADQMMMX_QM_TRAJECTORY", my_pos, my_act, "adqmmmx-qm", extended_xmol_title=.TRUE.)
+            END IF
+         END IF
+         
+         
       END IF
       init = .FALSE.
       CALL set_md_env(md_env, init=init)
