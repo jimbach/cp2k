@@ -80,14 +80,14 @@ CONTAINS
       CALL section_release(print_key)
 
       !JB adds 08.2025
-      CALL cp_print_key_section_create(print_key, __LOCATION__, "ADQMMMX_QM_TRAJECTORY", &
-                                       description="Controls the output of the QM trajectory in an ADQMMMX run", &
-                                       print_level=low_print_level, common_iter_levels=1, &
-                                       filename="", unit_str="angstrom")
-      CALL add_format_keyword(keyword, print_key, pos=.TRUE., &
-                              description="Specifies the format of the output file for the trajectory.")
-      CALL section_add_subsection(section, print_key)
-      CALL section_release(print_key)
+ !     CALL cp_print_key_section_create(print_key, __LOCATION__, "ADQMMMX_QM_TRAJECTORY", &
+ !                                      description="Controls the output of the QM trajectory in an ADQMMMX run", &
+ !                                      print_level=low_print_level, common_iter_levels=1, &
+ !                                      filename="", unit_str="angstrom")
+ !     CALL add_format_keyword(keyword, print_key, pos=.TRUE., &
+  !                            description="Specifies the format of the output file for the trajectory.")
+  !    CALL section_add_subsection(section, print_key)
+  !    CALL section_release(print_key)
 
       CALL cp_print_key_section_create( &
          print_key, __LOCATION__, "SHELL_TRAJECTORY", &
