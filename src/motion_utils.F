@@ -342,6 +342,10 @@ CONTAINS
       CASE ("FORCE_MIXING_LABELS")
          id_dcd = "FML "
          id_wpc = "FORCE_MIXING_LABELS"
+         !JB ADD 26.8
+      CASE ("QM_TRAJECTORY")
+         id_dcd = "QMCORD "
+         id_wpc = "QMPOS"
       CASE DEFAULT
          CPABORT("")
       END SELECT
