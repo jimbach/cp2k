@@ -152,6 +152,18 @@ CONTAINS
                               description="Specifies the format of the output file for the force mixing labels.")
       CALL section_add_subsection(section, print_key)
       CALL section_release(print_key)
+      
+      !JB ADD 26.08
+      CALL cp_print_key_section_create( &
+         print_key, __LOCATION__, "QM_TRAJECTORY", &
+         description="Controls the output of the qm trajectory in a adqmmmx calculation", &
+         print_level=high_print_level, common_iter_levels=1, &
+         filename="")
+      CALL add_format_keyword(keyword, print_key, pos=.FALSE., &
+                              description="Specifies the format of the output file for the qm trajectory.")
+      CALL section_add_subsection(section, print_key)
+      CALL section_release(print_key)
+
 
       CALL cp_print_key_section_create(print_key, __LOCATION__, "FORCES", &
                                        description="Controls the output of the forces", &

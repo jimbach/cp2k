@@ -297,7 +297,9 @@ CONTAINS
       INTEGER                                            :: handle, i, ii, iskip, nat, outformat, &
                                                             traj_unit
       INTEGER, POINTER                                   :: force_mixing_indices(:), &
-                                                            force_mixing_labels(:)
+                                                            force_mixing_labels(:), &
+                                                            qm_indices(:), &  ! JB ADD 26.8
+                                                            qm_labels(:)
       LOGICAL                                            :: charge_beta, charge_extended, &
                                                             charge_occup, explicit, &
                                                             my_extended_xmol_title, new_file, &
@@ -310,7 +312,8 @@ CONTAINS
       TYPE(particle_list_type), POINTER                  :: my_particles
       TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
       TYPE(section_vals_type), POINTER                   :: force_env_section, &
-                                                            force_mixing_restart_section
+                                                            force_mixing_restart_section, &
+                                                            adqmmmx_restart_section !JB ADD 26.8
 
       CALL timeset(routineN, handle)
 
@@ -465,6 +468,30 @@ CONTAINS
                                             charge_beta=charge_beta, &
                                             charge_extended=charge_extended)
          END IF
+         ! JB ADD 26.8 
+         IF (TRIM(my_pk_name) == "QM_TRAJECTORY") THEN
+            ALLOCATE (fml_array(3*SIZE(particle_set)))
+            fml_array = 0.0_dp
+            CALL force_env_get(force_env, force_env_section=force_env_section)
+            adqmmmx_restart_section => section_vals_get_subs_vals(force_env_section, &
+                                                                  "QMMM%ADAPTIVE_QMMM%RESTART_INFO", &
+                                                                  can_return_null=.TRUE.)
+            IF (ASSOCIATED(adqmmmx_restart_section)) THEN
+               CALL section_vals_get(adqmmmx_restart_section, explicit=explicit)
+               IF (explicit) THEN
+                  CALL section_vals_val_get(adqmmmx_restart_section, "INDICES", i_vals=qm_indices)
+                  CALL section_vals_val_get(adqmmmx_restart_section, "LABELS", i_vals=qm_labels)
+                  DO i = 1, SIZE(qm_indices)
+                     ii = qm_indices(i)
+                     CPASSERT(ii <= SIZE(particle_set))
+                     fml_array((ii - 1)*3 + 1:(ii - 1)*3 + 3) = qm_labels(i)
+                  END DO
+               END IF
+            END IF
+            CALL write_particle_coordinates(particle_set, traj_unit, outformat, TRIM(id_wpc), TRIM(title), cell, &
+                                            array=fml_array, print_kind=print_kind)
+            DEALLOCATE (fml_array)
+      END IF
       END IF
 
       CALL cp_print_key_finished_output(traj_unit, logger, root_section, "MOTION%PRINT%"//TRIM(my_pk_name))
