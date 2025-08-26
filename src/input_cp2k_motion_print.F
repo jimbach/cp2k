@@ -158,7 +158,7 @@ CONTAINS
          print_key, __LOCATION__, "QM_TRAJECTORY", &
          description="Controls the output of the qm trajectory in a adqmmmx calculation", &
          print_level=high_print_level, common_iter_levels=1, &
-         filename="")
+         filename="", unit_str="angstrom")
       CALL add_format_keyword(keyword, print_key, pos=.FALSE., &
                               description="Specifies the format of the output file for the qm trajectory.")
       CALL section_add_subsection(section, print_key)
