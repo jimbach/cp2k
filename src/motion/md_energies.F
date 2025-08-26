@@ -503,8 +503,11 @@ CONTAINS
          
          !JB ADD 26.8                      
          ! Print Force-Mixing labels
-         CALL write_trajectory(force_env, root_section, itimes, time*femtoseconds, dt*femtoseconds, md_ener%epot, &
-                               "QM_TRAJECTORY", my_pos, my_act, middle_name="qmtraj", extended_xmol_title=.TRUE.)
+         IF (is_adqmmmx) THEN
+              CALL write_trajectory(force_env, root_section, itimes, time*femtoseconds, dt*femtoseconds, md_ener%epot, &
+                                     "QM_TRAJECTORY", my_pos, my_act, middle_name="qmtraj", extended_xmol_title=.TRUE.)
+         END IF
+
 
          ! Print Simulation Cell
          CALL write_simulation_cell(cell, motion_section, itimes, time*femtoseconds, my_pos, my_act)
