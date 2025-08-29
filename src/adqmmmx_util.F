@@ -385,9 +385,10 @@ CONTAINS
       
       !clear the QM particle list before rebuilding it
       NULLIFY (qm_particle_set)
-      allocate_particle_set(qm_particle_set,SIZE(cur_indices))
+      WRITE(*,*) SIZE(cur_indices)
+      !allocate_particle_set(qm_particle_set,SIZE(cur_indices))
       DO i=1,SIZE(cur_indices)
-          qm_particle_set(i)=particle_set(cur_indices_(i))
+          qm_particle_set(i)=particle_set(cur_indices(i))
       END DO
       WRITE(*,*) "WRITING THE PARTICLE LIST"
       WRITE(*,*) cur_indices
