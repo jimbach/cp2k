@@ -175,6 +175,7 @@ CONTAINS
       TYPE(particle_list_type), POINTER                  :: particles
       TYPE(particle_list_type), POINTER                  :: qm_particles
       TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
+      TYPE(particle_type), DIMENSION(:), POINTER         :: qm_particle_set
       TYPE(fist_neighbor_type), POINTER                  :: nlist
 
       !MN Create temporary output files
@@ -383,10 +384,10 @@ CONTAINS
       !JB ADD 26.8
       
       !clear the QM particle list before rebuilding it
-      NULLIFY (qm_particles)
-      allocate_particle_set(qm_particles,SIZE(cur_indices))
+      NULLIFY (qm_particle_set)
+      allocate_particle_set(qm_particle_set,SIZE(cur_indices))
       DO i=1,SIZE(cur_indices)
-          qm_particles(i)=particles(cur_indices_(i))
+          qm_particle_set(i)=particle_set(cur_indices_(i))
       END DO
       WRITE(*,*) "WRITING THE PARTICLE LIST"
       WRITE(*,*) cur_indices
