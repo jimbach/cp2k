@@ -381,8 +381,9 @@ CONTAINS
 
       !JB ADD 26.8
       WRITE(*,*) "WRITING THE PARTICLE LIST"
-      WRITE(*,*) ""
-      subsys%qm_particles=cur_indices
+      WRITE(*,*) particles
+      !JB ADD 26.8 CONTINUE HERE AND WRITE THE PROPER PARTICLES FROM PARTICLES TO THE QM_PARTICLES LIST
+      !subsys%qm_particles=cur_indices
 
 !     DEALLOCATE (cur_indices, cur_labels)
       CALL fist_neighbor_deallocate(nlist)
