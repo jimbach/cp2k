@@ -38,7 +38,8 @@ MODULE adqmmmx_util
    USE molecule_list_types,             ONLY: molecule_list_type
    USE molecule_types,                  ONLY: molecule_type
    USE particle_list_types,             ONLY: particle_list_type
-   USE particle_types,                  ONLY: particle_type
+   !JB ADD 26.8
+   USE particle_types,                  ONLY: particle_type, allocate_particle_set
    USE qmmm_ff_fist,                    ONLY: qmmm_ff_precond_only_qm
    USE qmmm_types,                      ONLY: qmmm_env_get
    USE qmmm_types_low,                  ONLY: adqmmmx_label_QM_core,&
@@ -380,6 +381,13 @@ CONTAINS
 !     CLOSE(1338)
 
       !JB ADD 26.8
+      
+      !clear the QM particle list before rebuilding it
+      NULLIFY (qm_particles)
+      allocate_particle_set(qm_particles,SIZE(cur_indices))
+      DO i=1,SIZE(cur_indices)
+          qm_particles(i)=particles(cur_indices_(i))
+      END DO
       WRITE(*,*) "WRITING THE PARTICLE LIST"
       WRITE(*,*) cur_indices
       !JB ADD 26.8 CONTINUE HERE AND WRITE THE PROPER PARTICLES FROM PARTICLES TO THE QM_PARTICLES LIST
