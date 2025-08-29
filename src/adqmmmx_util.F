@@ -381,7 +381,7 @@ CONTAINS
 
       !JB ADD 26.8
       WRITE(*,*) "WRITING THE PARTICLE LIST"
-      WRITE(*,*) particles
+      WRITE(*,*) cur_indices
       !JB ADD 26.8 CONTINUE HERE AND WRITE THE PROPER PARTICLES FROM PARTICLES TO THE QM_PARTICLES LIST
       !subsys%qm_particles=cur_indices
 
