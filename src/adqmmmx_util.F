@@ -172,6 +172,7 @@ CONTAINS
       TYPE(molecule_list_type), POINTER                  :: molecules
       TYPE(molecule_type), DIMENSION(:), POINTER         :: molecule_set
       TYPE(particle_list_type), POINTER                  :: particles
+      TYPE(particle_list_type), POINTER                  :: qm_particles
       TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
       TYPE(fist_neighbor_type), POINTER                  :: nlist
 
@@ -195,7 +196,8 @@ CONTAINS
 
       !MN Get atom information
       NULLIFY (particles, molecules, cell)
-      CALL cp_subsys_get(subsys=subsys, particles=particles, molecules=molecules, cell=cell)
+      !JB ADD 26.8
+      CALL cp_subsys_get(subsys=subsys, particles=particles, molecules=molecules, cell=cell, qm_particles=qm_particles)
       particle_set => particles%els
       molecule_set => molecules%els
       natoms = SIZE(particle_set)
@@ -222,7 +224,6 @@ CONTAINS
       ind_counter = 1
       starting_qm_counter = 1
 
-      WRITE(*,*) "I AM HERE IREP"
 
       !MN Try to get Core section directly from input
       !MN Get New indices, sort it
@@ -377,6 +378,11 @@ CONTAINS
 
 !     CLOSE(1339)
 !     CLOSE(1338)
+
+      !JB ADD 26.8
+      WRITE(*,*) "WRITING THE PARTICLE LIST"
+      WRITE(*,*) ""
+      subsys%qm_particles=cur_indices
 
 !     DEALLOCATE (cur_indices, cur_labels)
       CALL fist_neighbor_deallocate(nlist)

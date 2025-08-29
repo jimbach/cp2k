@@ -93,6 +93,8 @@ MODULE cp_subsys_types
       TYPE(particle_list_type), POINTER          :: particles => Null()
       TYPE(particle_list_type), POINTER          :: shell_particles => Null()
       TYPE(particle_list_type), POINTER          :: core_particles => Null()
+      !JB ADD 26.8
+      TYPE(particle_list_type), POINTER          :: qm_particles => Null()
       TYPE(distribution_1d_type), POINTER        :: local_particles => Null()
       TYPE(mp_para_env_type), POINTER            :: para_env => Null()
       ! molecules kinds
@@ -201,7 +203,8 @@ CONTAINS
 ! **************************************************************************************************
    SUBROUTINE cp_subsys_set(subsys, atomic_kinds, particles, local_particles, &
                             molecules, molecule_kinds, local_molecules, para_env, &
-                            colvar_p, shell_particles, core_particles, gci, multipoles, results, cell)
+                            colvar_p, shell_particles, core_particles, qm_particles, &
+                            gci, multipoles, results, cell)
       TYPE(cp_subsys_type), INTENT(INOUT)                :: subsys
       TYPE(atomic_kind_list_type), OPTIONAL, POINTER     :: atomic_kinds
       TYPE(particle_list_type), OPTIONAL, POINTER        :: particles
@@ -212,7 +215,9 @@ CONTAINS
       TYPE(mp_para_env_type), OPTIONAL, POINTER          :: para_env
       TYPE(colvar_p_type), DIMENSION(:), OPTIONAL, &
          POINTER                                         :: colvar_p
-      TYPE(particle_list_type), OPTIONAL, POINTER        :: shell_particles, core_particles
+      !JB ADD 26.8
+      TYPE(particle_list_type), OPTIONAL, POINTER        :: shell_particles, core_particles, &
+                                                            qm_particles
       TYPE(global_constraint_type), OPTIONAL, POINTER    :: gci
       TYPE(multipole_type), OPTIONAL, POINTER            :: multipoles
       TYPE(cp_result_type), OPTIONAL, POINTER            :: results
@@ -279,6 +284,14 @@ CONTAINS
             CALL particle_list_retain(core_particles)
             CALL particle_list_release(subsys%core_particles)
             subsys%core_particles => core_particles
+         END IF
+      END IF
+      ! JB ADD 26.8
+      IF (PRESENT(qm_particles)) THEN
+         IF (ASSOCIATED(qm_particles)) THEN
+            CALL particle_list_retain(qm_particles)
+            CALL particle_list_release(subsys%qm_particles)
+            subsys%qm_particles => qm_particles
          END IF
       END IF
       IF (PRESENT(gci)) THEN

@@ -279,8 +279,9 @@ CONTAINS
       TYPE(force_env_type), POINTER                      :: force_env
       TYPE(md_ener_type), POINTER                        :: md_ener
       TYPE(mp_para_env_type), POINTER                    :: para_env
+      !JB ADD 26.8
       TYPE(particle_list_type), POINTER                  :: core_particles, particles, &
-                                                            shell_particles
+                                                            shell_particles, qm_particles
       TYPE(qmmm_env_type), POINTER                       :: qmmm_env
       TYPE(reftraj_type), POINTER                        :: reftraj
       TYPE(section_vals_type), POINTER                   :: motion_section, print_key, root_section
@@ -504,8 +505,9 @@ CONTAINS
          !JB ADD 26.8                      
          ! Print Force-Mixing labels
          IF (is_adqmmmx) THEN
-              CALL write_trajectory(force_env, root_section, itimes, time*femtoseconds, dt*femtoseconds, md_ener%epot, &
-                                     "QM_TRAJECTORY", my_pos, my_act, middle_name="qmtraj", extended_xmol_title=.TRUE.)
+            CALL cp_subsys_get(subsys, qm_particles=qm_particles)
+            CALL write_trajectory(force_env, root_section, itimes, time*femtoseconds, dt*femtoseconds, md_ener%epot, &
+                                  "QM_TRAJECTORY", my_pos, my_act, middle_name="qmtraj", extended_xmol_title=.TRUE.)
          END IF
 
 
