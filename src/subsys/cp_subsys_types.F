@@ -352,7 +352,7 @@ CONTAINS
                             particles, particle_set, &
                             local_particles, molecules, molecule_set, molecule_kinds, &
                             molecule_kind_set, local_molecules, para_env, colvar_p, &
-                            shell_particles, core_particles, gci, multipoles, &
+                            shell_particles, core_particles, qm_particles, gci, multipoles, &
                             natom, nparticle, ncore, nshell, nkind, atprop, virial, &
                             results, cell)
       TYPE(cp_subsys_type), INTENT(IN)                   :: subsys
@@ -374,7 +374,9 @@ CONTAINS
       TYPE(mp_para_env_type), OPTIONAL, POINTER          :: para_env
       TYPE(colvar_p_type), DIMENSION(:), OPTIONAL, &
          POINTER                                         :: colvar_p
-      TYPE(particle_list_type), OPTIONAL, POINTER        :: shell_particles, core_particles
+      !JB ADD 26.8
+      TYPE(particle_list_type), OPTIONAL, POINTER        :: shell_particles, core_particles, &
+                                                            qm_particles
       TYPE(global_constraint_type), OPTIONAL, POINTER    :: gci
       TYPE(multipole_type), OPTIONAL, POINTER            :: multipoles
       INTEGER, INTENT(out), OPTIONAL                     :: natom, nparticle, ncore, nshell, nkind
@@ -406,6 +408,7 @@ CONTAINS
       IF (PRESENT(colvar_p)) colvar_p => subsys%colvar_p
       IF (PRESENT(shell_particles)) shell_particles => subsys%shell_particles
       IF (PRESENT(core_particles)) core_particles => subsys%core_particles
+      IF (PRESENT(qm_particles)) qm_particles => subsys%qm_particles
       IF (PRESENT(gci)) gci => subsys%gci
       IF (PRESENT(multipoles)) multipoles => subsys%multipoles
       IF (PRESENT(virial)) virial => subsys%virial
