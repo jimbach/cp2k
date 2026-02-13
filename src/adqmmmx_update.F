@@ -70,7 +70,7 @@ CONTAINS
       CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_update_force_env', routineP = moduleN//':'//routineN
       LOGICAL                                            :: file_exists,labels_changed, adqmmmx_active,&
                                                             lam_int_disc
-      REAL(dp)                                           :: dt, switch_t, Lam_Error
+      REAL(dp)                                           :: dt, switch_t, Lam_Error, swprecision
       REAL(dp), POINTER                                  :: lambda
       REAL(KIND=dp), PARAMETER                           :: pi = 3.14159265358979323846264338_dp
 !      TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env
@@ -86,7 +86,7 @@ CONTAINS
       IF (ASSOCIATED(force_env%adqmmmx_env)) THEN
 
       
-
+      swprecision=0.01d0
       WRITE(*,*) "this is a test"
 
       INQUIRE(FILE = "update_log.out", EXIST=file_exists)
@@ -137,8 +137,8 @@ CONTAINS
 
 
 
-      !MN Insert Lambda check
-      IF ((0 <= lambda .AND. lambda < 1)&
+      !JB Insert Lambda check
+      IF ((0 <= lambda) .AND. ((lambda-1.d0) >= swprecision) &
              .AND. (force_env%adqmmmx_env%switch_active)) THEN
          WRITE (1337,*) "UPDATE_FORCE_ENV: Switching still active..."
          IF (force_env%adqmmmx_env%lambda_mass == 0.d0) THEN
@@ -156,15 +156,15 @@ CONTAINS
             END IF
             WRITE (1337,*) "MASS: ", force_env%adqmmmx_env%lambda_mass
          END IF
-
-      ELSE IF ((lambda >= 1) .OR. (.NOT. force_env%adqmmmx_env%switch_active)) THEN
+      !JB modify check
+      ELSE IF ((lambda-1.d0) <= swprecision .OR. (.NOT. force_env%adqmmmx_env%switch_active)) THEN
          WRITE (1337,*) "UPDATE_FORCE_ENV: Switching complete, start new update cycle..."
          WRITE (1337,*) "Switch Active:", force_env%adqmmmx_env%switch_active
 
          IF (force_env%adqmmmx_env%energy_add) THEN
-            !MN Calculate Error function for total lambda energy only once!
-            Lam_Error = force_env%adqmmmx_env%dpot*(lambda - 1)**2
-            WRITE (1337,*) "g of dlambda", g_of_lambda(lambda),(lambda-1)**2
+            !JB Calculate Error function for total lambda energy only once!
+            Lam_Error = force_env%adqmmmx_env%dpot*(lambda - 1.d0)**2
+            WRITE (1337,*) "g of dlambda", g_of_lambda(lambda),(lambda-1.d0)**2
             WRITE (1337,*) "Total E_l is updated. OLD: ", force_env%adqmmmx_env%Tot_Elambda,&
                            "Added E: ", force_env%adqmmmx_env%Elambda,&
                            "Added dE:", Lam_Error
@@ -178,13 +178,16 @@ CONTAINS
             lambda                                = 1.d0
             force_env%adqmmmx_env%lambda_velocity = 0.d0
             force_env%adqmmmx_env%energy_add      =.FALSE.
+
+            force_env%adqmmmx_env%switch_active   = .FALSE.
+
+         !JB add a check for lambda > 1
+         ELSE IF ((lambda > 1)) THEN
+            CPABORT("Lambda > 1 overshot, choose a longer switching time")
          END IF
-
-         force_env%adqmmmx_env%switch_active   = .FALSE.
-
          ELSE
-         CPABORT("LAMBDA IS LOWER THAN 0 OR NaN, SOMETHING WENT WRONG!")
-      END IF
+            CPABORT("LAMBDA IS LOWER THAN 0 OR NaN, SOMETHING WENT WRONG!")
+         END IF
       
       IF (.NOT. ASSOCIATED(adqmmmx_section)) RETURN
       CALL section_vals_get(adqmmmx_section, explicit=adqmmmx_active)
@@ -287,7 +290,7 @@ CONTAINS
 
       END IF
 
-      !MN Propagate lambda
+      !JB Write lambda propagation output
       IF ( force_env%adqmmmx_env%switch_active ) THEN
          !MN adqmmmx_section empty?
          CALL section_vals_val_get(adqmmmx_section, "SWITCH_T", r_val=switch_t)
@@ -296,12 +299,6 @@ CONTAINS
          WRITE(1337,*) "ADQMMMX_SECTION ASS:", ASSOCIATED(adqmmmx_section), "SWITCH_T:", switch_t/4
          force_env%adqmmmx_env%do_discrete = lam_int_disc
          WRITE(1337,*) "LAM_INT_DISC: ", lam_int_disc,force_env%adqmmmx_env%do_discrete
-         !MN Propagation of Lambda
-         IF ( lam_int_disc ) THEN
-            CALL lambda_propagation_discrete(force_env%adqmmmx_env, dt, 1337)
-         ELSE
-            CALL lambda_propagation(force_env%adqmmmx_env, switch_t, dt, 1337)
-         END IF
          WRITE (1337,*) "Elambda = ", force_env%adqmmmx_env%Elambda, "TOT_Elambda = ", force_env%adqmmmx_env%Tot_Elambda
 
       ELSE
@@ -410,9 +407,9 @@ CONTAINS
 !> \param to_local_particle_kinds ...
 !> \param to_local_particles ...
 ! **************************************************************************************************
-   SUBROUTINE adqmmmx_vv_second(force_env, dt, output_unit)
+   SUBROUTINE adqmmmx_vv_first(force_env, dt, output_unit)
       TYPE(force_env_type), POINTER                    :: force_env
-      REAL(dp)                                         :: dt, test_F
+      REAL(dp)                                         :: dt
       INTEGER                                          :: output_unit
 
       IF (force_env%adqmmmx_env%lambda_adqmmmx==0.0) THEN
@@ -424,16 +421,41 @@ CONTAINS
                              force_env%adqmmmx_env%do_discrete,&
                              force_env%adqmmmx_env%energy_add
 
-      IF ( (.NOT. force_env%adqmmmx_env%do_discrete) .AND. (force_env%adqmmmx_env%energy_add)) THEN
-         WRITE (output_unit,*) "Skipped"
+      
+      force_env%adqmmmx_env%lambda_velocity = force_env%adqmmmx_env%lambda_velocity + &
+                           0.5d0*dt*(force_env%adqmmmx_env%lambda_force/force_env%adqmmmx_env%lambda_mass) 
+      force_env%adqmmmx_env%lambda_adqmmmx = force_env%adqmmmx_env%lambda_adqmmmx + dt*force_env%adqmmmx_env%lambda_velocity
+      
+      WRITE(output_unit,*) "Full V_Lam: ", force_env%adqmmmx_env%lambda_velocity
+      WRITE (output_unit,*) "New F_Lam: ", force_env%adqmmmx_env%lambda_force
+      END IF
+   END SUBROUTINE
+! **************************************************************************************************
+!> \brief ...
+!> \param from_local_particle_kinds ...
+!> \param from_local_particles ...
+!> \param to_local_particle_kinds ...
+!> \param to_local_particles ...
+! **************************************************************************************************
+   SUBROUTINE adqmmmx_vv_second(force_env, dt, output_unit)
+      TYPE(force_env_type), POINTER                    :: force_env
+      REAL(dp)                                         :: dt
+      INTEGER                                          :: output_unit
+
+      IF (force_env%adqmmmx_env%lambda_adqmmmx==0.0) THEN
+         WRITE(output_unit,*) "Skipped first vv_second"
          RETURN
-      ELSE
-      test_F = -2*force_env%adqmmmx_env%dpot*(force_env%adqmmmx_env%lambda_adqmmmx - 1)
+      END IF
+      IF (.NOT. ASSOCIATED(force_env%adqmmmx_env) ) RETURN
+      WRITE (output_unit,*) "Discrete Lambda Propagation (second step)",&
+                             force_env%adqmmmx_env%do_discrete,&
+                             force_env%adqmmmx_env%energy_add
+
+
       force_env%adqmmmx_env%lambda_velocity = force_env%adqmmmx_env%lambda_velocity +&
       0.5*dt*(force_env%adqmmmx_env%lambda_force/force_env%adqmmmx_env%lambda_mass) 
       WRITE(output_unit,*) "Full V_Lam: ", force_env%adqmmmx_env%lambda_velocity
-      WRITE (output_unit,*) "New F_Lam: ", force_env%adqmmmx_env%lambda_force,&
-                            "Test_F: ", test_F
+      WRITE (output_unit,*) "New F_Lam: ", force_env%adqmmmx_env%lambda_force
       END IF
    END SUBROUTINE
 ! **************************************************************************************************

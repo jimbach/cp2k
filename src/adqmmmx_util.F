@@ -222,7 +222,6 @@ CONTAINS
       ind_counter = 1
       starting_qm_counter = 1
 
-      WRITE(*,*) "I AM HERE IREP"
 
       !MN Try to get Core section directly from input
       !MN Get New indices, sort it
@@ -1488,7 +1487,7 @@ CONTAINS
 
 !     output_unit = cp_logger_get_default_io_unit()
 !     WRITE (output_unit,*) "dg(lambda) is calculated right now"
-      dg = 2*(lambda - 1.0)
+      dg = 2.0d0*(lambda - 1.0d0)
    END FUNCTION
 
 

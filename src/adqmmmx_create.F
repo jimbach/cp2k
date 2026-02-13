@@ -92,8 +92,6 @@ CONTAINS
          CALL setup_adqmmmx_sections(subsys, qmmm_section, new_qmmm_section, use_old_indlab=.TRUE.)
          
          
-         !JB Add 7.02.2025
-         WRITE(*,*) "I am here 1"
          !JB ADD 4 02 2025
          ALLOCATE(adqmmmx_env%oldsys)
          CALL qmmm_env_create(adqmmmx_env%oldsys, root_section, para_env, globenv, &
@@ -119,8 +117,6 @@ CONTAINS
          adqmmmx_env%include_nc = .TRUE.
          CALL update_adqmmmx_labels(subsys, qmmm_section, include_nc=.TRUE., c_n_sw=adqmmmx_env%c_n_sw)
    
-         !JB Add 7.02.2025
-         WRITE(*,*) "I am here 2"
    
          ! using CUR_INDICES and CUR_LABELS, create appropriate QM_KIND sections for two QM/MM calculations
          !MN And here I can create a whole new environment for the old subsys or push it on core?
@@ -139,8 +135,6 @@ CONTAINS
                               force_env_section, new_qmmm_section, subsys_section, use_motion_section, &
                               ignore_outside_box=.TRUE.)
          
-         !JB Add 7.02.2025
-         WRITE(*,*) "I am here 3"
  
          CALL section_vals_release(new_qmmm_section)
          WRITE (output_unit,*) "ADQMMMX | adqmmmx_env_create"

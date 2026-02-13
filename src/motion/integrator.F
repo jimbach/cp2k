@@ -88,6 +88,7 @@ MODULE integrator
    USE adqmmmx_util,                    ONLY: g_of_lambda, &
                                               dg_of_lambda
    USE adqmmmx_update,                  ONLY: adqmmmx_update_force_env, &
+                                              adqmmmx_vv_first, &
                                               adqmmmx_vv_second
    USE qs_environment_types,            ONLY: get_qs_env
    USE reftraj_types,                   ONLY: REFTRAJ_EVAL_ENERGY_FORCES,&
@@ -485,14 +486,7 @@ CONTAINS
       IF (simpar%constraint) CALL getold(gci, local_molecules, molecule_set, &
                                          molecule_kind_set, particle_set, cell)
 
-      ! Velocity Verlet (first part)
-      CALL vv_first(tmp, atomic_kind_set, local_particles, particle_set, &
-                    core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt)
-
-      IF (simpar%variable_dt) CALL variable_timestep(md_env, tmp, dt, simpar, para_env, atomic_kind_set, &
-                                                     local_particles, particle_set, core_particle_set, shell_particle_set, &
-                                                     nparticle_kind, shell_adiabatic)
-      !MN Add ADQMMMX
+      !JB ADQMMMX partitioning setup
       IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
          INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
          IF (file_exists) THEN
@@ -506,6 +500,21 @@ CONTAINS
          CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
          output_unit = cp_logger_get_default_io_unit()
       END IF
+
+
+      ! JB Lambda first part
+      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+         CALL adqmmmx_vv_first(force_env, dt, 1336)
+      END IF
+
+      ! Velocity Verlet (first part)
+      CALL vv_first(tmp, atomic_kind_set, local_particles, particle_set, &
+                    core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt)
+
+      IF (simpar%variable_dt) CALL variable_timestep(md_env, tmp, dt, simpar, para_env, atomic_kind_set, &
+                                                     local_particles, particle_set, core_particle_set, shell_particle_set, &
+                                                     nparticle_kind, shell_adiabatic)
+
 
       IF (simpar%constraint) THEN
          ! Possibly update the target values
@@ -575,6 +584,14 @@ CONTAINS
          CALL vv_second(tmp, atomic_kind_set, local_particles, particle_set, &
                         core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt)
 
+
+         !JB Propagation of vlambda if discrete
+         ! changes 07.2025
+         IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+            CALL adqmmmx_vv_second(force_env, dt, 1336)
+         END IF
+
+
          IF (simpar%constraint) CALL rattle_control(gci, local_molecules, molecule_set, &
                                                     molecule_kind_set, particle_set, tmp%vel, dt, simpar%shake_tol, &
                                                     simpar%info_constraint, simpar%lagrange_multipliers, simpar%dump_lm, &
@@ -607,11 +624,6 @@ CONTAINS
 
       END DO
 
-      !JB Propagation of vlambda if discrete
-      ! changes 07.2025
-      !IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
-      CALL adqmmmx_vv_second(force_env, dt, 1336)
-      !END IF
 
       ! Update virial
       IF (simpar%constraint) CALL pv_constraint(gci, local_molecules, &
@@ -1077,30 +1089,33 @@ CONTAINS
          END IF
       END IF
 
+      !MN Add ADQMMMX
+      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+         INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
+         IF (file_exists) THEN
+            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "old", POSITION ="append", ACTION = "write")
+         ELSE
+            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION ="write")
+         END IF
+
+         !MN Lambda propagation
+         WRITE (1336,*) "Lambda propagation starts:",force_env%adqmmmx_env%lambda_adqmmmx, dt
+         WRITE (1336,*) "ASSOCIATION CHECK 2", ASSOCIATED(subsys),ASSOCIATED(atomic_kinds), ASSOCIATED(molecule_kinds)
+         CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
+
+         WRITE (1336,*) "Updated lambda:", force_env%adqmmmx_env%lambda_adqmmmx
+
+         output_unit = cp_logger_get_default_io_unit()
+         WRITE (1336,*) "MN adqmmmx force environment update in integrator.F"
+         WRITE (1336,*) "ASSOCIATION CHECK 1", ASSOCIATED(force_env),ASSOCIATED(force_env%adqmmmx_env)
+      END IF
+
+
       ! Velocity Verlet (first part)
       CALL vv_first(tmp, atomic_kind_set, local_particles, particle_set, &
                     core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt)
 
-        !MN Add ADQMMMX
-        IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
-        INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
-        IF (file_exists) THEN
-        OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "old", POSITION ="append", ACTION = "write")
-        ELSE
-        OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION ="write")
-        END IF
 
-        !MN Lambda propagation
-        WRITE (1336,*) "Lambda propagation starts:",force_env%adqmmmx_env%lambda_adqmmmx, dt
-        WRITE (1336,*) "ASSOCIATION CHECK 2", ASSOCIATED(subsys),ASSOCIATED(atomic_kinds), ASSOCIATED(molecule_kinds)
-        CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
-
-        WRITE (1336,*) "Updated lambda:", force_env%adqmmmx_env%lambda_adqmmmx
-
-        output_unit = cp_logger_get_default_io_unit()
-        WRITE (1336,*) "MN adqmmmx force environment update in integrator.F"
-        WRITE (1336,*) "ASSOCIATION CHECK 1", ASSOCIATED(force_env),ASSOCIATED(force_env%adqmmmx_env)
-        END IF
 
 
 

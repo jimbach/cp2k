@@ -160,7 +160,7 @@ CONTAINS
 
 
           glam = g_of_lambda(adqmmmx_env%lambda_adqmmmx)
-          totpot = glam*epot1  + (1-glam)*epot2
+          totpot = glam*epot1  + (1.d0-glam)*epot2
           adqmmmx_env%totpot = totpot
      
           !MN Calculate kinetic energy
@@ -179,7 +179,7 @@ CONTAINS
           DO iatoms = 1,SIZE(particles_fist)
              mass  = particles_fist(iatoms)%atomic_kind%mass
              vel   = particles_fist(iatoms)%v
-             kin_e = kin_e + 0.5*mass*DOT_PRODUCT(vel,vel)
+             kin_e = kin_e + 0.5d0*mass*DOT_PRODUCT(vel,vel)
 
           END DO
           !MN Ugly hack to have consistent kinetic energies
@@ -190,7 +190,7 @@ CONTAINS
           !MN Mix forces for particles
           DO ip = 1, SIZE(particles_qmmm_oldsys)
              old_part = glam*particles_qmmm_oldsys(ip)%f
-             new_part = (1.0-glam)*particles_qmmm_newsys(ip)%f
+             new_part = (1.0d0-glam)*particles_qmmm_newsys(ip)%f
              particles_primary(ip)%f = old_part + new_part
 !            oldf_l = DSQRT(DOT_PRODUCT(particles_qmmm_oldsys(ip)%f,particles_qmmm_oldsys(ip)%f))
 !            newf_l = DSQRT(DOT_PRODUCT(particles_qmmm_newsys(ip)%f,particles_qmmm_newsys(ip)%f))
@@ -238,7 +238,7 @@ CONTAINS
           DO iatoms = 1,SIZE(particles_fist)
              mass  = particles_fist(iatoms)%atomic_kind%mass
              vel   = particles_fist(iatoms)%v
-             kin_e = kin_e + 0.5*mass*DOT_PRODUCT(vel,vel)
+             kin_e = kin_e + 0.5d0*mass*DOT_PRODUCT(vel,vel)
 
           END DO
           !MN Ugly hack to have consistent kinetic energies
