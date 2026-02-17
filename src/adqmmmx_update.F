@@ -71,7 +71,7 @@ CONTAINS
       LOGICAL                                            :: file_exists,labels_changed, adqmmmx_active,&
                                                             lam_int_disc
       REAL(dp)                                           :: dt, switch_t, Lam_Error, swprecision
-      REAL(dp), POINTER                                  :: lambda
+      REAL(dp), POINTER                                  :: lambda, vlambda
       REAL(KIND=dp), PARAMETER                           :: pi = 3.14159265358979323846264338_dp
 !      TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env
 ! JB MODS 28 03
@@ -112,6 +112,8 @@ CONTAINS
       END IF
       NULLIFY(lambda)
       lambda => force_env%adqmmmx_env%lambda_adqmmmx
+      NULLIFY(vlambda)
+      vlambda => force_env%adqmmmx_env%lambda_velocity
 
 !     !MN Print out Output one time when t=0
 !     IF (force_env%adqmmmx_env%prop_time==0) CALL print_adqmmmx_output(force_env%adqmmmx_env)
