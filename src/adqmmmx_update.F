@@ -428,7 +428,7 @@ CONTAINS
       
       WRITE(output_unit,*) "Full V_Lam: ", force_env%adqmmmx_env%lambda_velocity
       WRITE (output_unit,*) "New F_Lam: ", force_env%adqmmmx_env%lambda_force
-      END IF
+      
    END SUBROUTINE
 ! **************************************************************************************************
 !> \brief ...
@@ -456,7 +456,7 @@ CONTAINS
       0.5*dt*(force_env%adqmmmx_env%lambda_force/force_env%adqmmmx_env%lambda_mass) 
       WRITE(output_unit,*) "Full V_Lam: ", force_env%adqmmmx_env%lambda_velocity
       WRITE (output_unit,*) "New F_Lam: ", force_env%adqmmmx_env%lambda_force
-      END IF
+      
    END SUBROUTINE
 ! **************************************************************************************************
 !> \brief ...
