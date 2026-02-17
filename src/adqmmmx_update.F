@@ -47,7 +47,7 @@ MODULE adqmmmx_update
    LOGICAL, PRIVATE, PARAMETER :: debug_this_module = .TRUE.
    CHARACTER(len=*), PARAMETER, PRIVATE :: moduleN = 'adqmmmx_update'
 
-   PUBLIC :: adqmmmx_update_force_env, adqmmmx_vv_second
+   PUBLIC :: adqmmmx_update_force_env, adqmmmx_vv_first, adqmmmx_vv_second
 
 CONTAINS
 
