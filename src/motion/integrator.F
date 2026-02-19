@@ -1103,7 +1103,9 @@ CONTAINS
 
 
          output_unit = cp_logger_get_default_io_unit()
+      END IF
          
+      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
          !JB Lambda propagation
          WRITE (1336,*) "Lambda propagation starts:",force_env%adqmmmx_env%lambda_adqmmmx, dt
          CALL adqmmmx_vv_first(force_env, dt, 1336)
