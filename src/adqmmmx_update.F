@@ -71,7 +71,7 @@ CONTAINS
       LOGICAL                                            :: file_exists,labels_changed, adqmmmx_active,&
                                                             lam_int_disc
       REAL(dp)                                           :: dt, switch_t, Lam_Error, swprecision
-      REAL(dp), POINTER                                  :: lambda, vlambda
+      REAL(dp), POINTER                                  :: lambda
       REAL(KIND=dp), PARAMETER                           :: pi = 3.14159265358979323846264338_dp
 !      TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env
 ! JB MODS 28 03
@@ -100,20 +100,23 @@ CONTAINS
 !        WRITE (1337,*) "OLDSYS=NEWSYS ==> SKIP update routine"
 !        force_env%adqmmmx_env%switch_active=.FALSE.
 !        RETURN
-      IF ( force_env%adqmmmx_env%dpot == 0.0) THEN
-         WRITE (1337,*) "DPOT = 0 ==> SKIP update routine and set switch_active to False"
-         force_env%adqmmmx_env%switch_active=.FALSE.
-         force_env%adqmmmx_env%lambda_adqmmmx=1.d0
-         force_env%adqmmmx_env%lambda_velocity=0.d0
+! JB 19.02.26 THIS IS NOT NEEDED BECAUSE IT IS NEVER THE CASE
+!      IF ( force_env%adqmmmx_env%dpot == 0.0) THEN
+!         WRITE (1337,*) "DPOT = 0 ==> SKIP update routine and set switch_active to False"
+!         force_env%adqmmmx_env%switch_active=.FALSE.
+!         force_env%adqmmmx_env%lambda_adqmmmx=1.d0
+!         force_env%adqmmmx_env%lambda_velocity=0.d0
 !        RETURN
-      END IF 
-      ELSE IF (.NOT. ASSOCIATED(force_env%adqmmmx_env)) THEN
+!      END IF 
+!      ELSE 
+      IF (.NOT. ASSOCIATED(force_env%adqmmmx_env)) THEN
               RETURN
       END IF
       NULLIFY(lambda)
       lambda => force_env%adqmmmx_env%lambda_adqmmmx
-      NULLIFY(vlambda)
-      vlambda => force_env%adqmmmx_env%lambda_velocity
+! JB 19.02.26 THIS IS NOT NEEDED 
+!      NULLIFY(vlambda)
+!      vlambda => force_env%adqmmmx_env%lambda_velocity
 
 !     !MN Print out Output one time when t=0
 !     IF (force_env%adqmmmx_env%prop_time==0) CALL print_adqmmmx_output(force_env%adqmmmx_env)
@@ -157,6 +160,10 @@ CONTAINS
                                                 (4*pi**2)
             END IF
             WRITE (1337,*) "MASS: ", force_env%adqmmmx_env%lambda_mass
+            ! Initialize lambda and vlambda
+            WRITE (1337,*) "UPDATE_FORCE_ENV: initializing lambda=0 and vlambda=0"
+            force_env%adqmmmx_env%lambda_adqmmmx=0.d0
+            force_env%adqmmmx_env%lambda_velocity=0.d0
          END IF
       !JB modify check
       ELSE IF ((lambda-1.d0) <= swprecision .OR. (.NOT. force_env%adqmmmx_env%switch_active)) THEN

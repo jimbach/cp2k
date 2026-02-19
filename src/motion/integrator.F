@@ -1098,18 +1098,19 @@ CONTAINS
             OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION ="write")
          END IF
 
-         !MN Lambda propagation
-         WRITE (1336,*) "Lambda propagation starts:",force_env%adqmmmx_env%lambda_adqmmmx, dt
          WRITE (1336,*) "ASSOCIATION CHECK 2", ASSOCIATED(subsys),ASSOCIATED(atomic_kinds), ASSOCIATED(molecule_kinds)
          CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
 
-         WRITE (1336,*) "Updated lambda:", force_env%adqmmmx_env%lambda_adqmmmx
 
          output_unit = cp_logger_get_default_io_unit()
-         WRITE (1336,*) "MN adqmmmx force environment update in integrator.F"
+         
+         !JB Lambda propagation
+         WRITE (1336,*) "Lambda propagation starts:",force_env%adqmmmx_env%lambda_adqmmmx, dt
+         CALL adqmmmx_vv_first(force_env, dt, 1336)
+         WRITE (1336,*) "Updated lambda:", force_env%adqmmmx_env%lambda_adqmmmx
+         WRITE (1336,*) "JB adqmmmx force environment update in integrator.F"
          WRITE (1336,*) "ASSOCIATION CHECK 1", ASSOCIATED(force_env),ASSOCIATED(force_env%adqmmmx_env)
       END IF
-
 
       ! Velocity Verlet (first part)
       CALL vv_first(tmp, atomic_kind_set, local_particles, particle_set, &
