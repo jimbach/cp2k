@@ -97,14 +97,13 @@ CONTAINS
 !        WRITE (1337,*) "OLDSYS=NEWSYS ==> SKIP update routine"
 !        force_env%adqmmmx_env%switch_active=.FALSE.
 !        RETURN
-! JB 19.02.26 THIS IS NOT NEEDED BECAUSE IT IS NEVER THE CASE
-!      IF ( force_env%adqmmmx_env%dpot == 0.0) THEN
-!         WRITE (1337,*) "DPOT = 0 ==> SKIP update routine and set switch_active to False"
-!         force_env%adqmmmx_env%switch_active=.FALSE.
-!         force_env%adqmmmx_env%lambda_adqmmmx=1.d0
-!         force_env%adqmmmx_env%lambda_velocity=0.d0
-!        RETURN
-!      END IF 
+      IF ( force_env%adqmmmx_env%dpot == 0.0) THEN
+         WRITE (1337,*) "DPOT = 0 ==> SKIP update routine and set switch_active to False"
+         force_env%adqmmmx_env%switch_active=.FALSE.
+         force_env%adqmmmx_env%lambda_adqmmmx=1.d0
+         force_env%adqmmmx_env%lambda_velocity=0.d0
+        RETURN
+      END IF 
       ELSE IF (.NOT. ASSOCIATED(force_env%adqmmmx_env)) THEN
               RETURN
       END IF
