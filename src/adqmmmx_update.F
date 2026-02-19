@@ -83,18 +83,15 @@ CONTAINS
       INTEGER                                            :: max_n_sw
 
       IF (.NOT. ASSOCIATED(force_env)) RETURN
-      IF (ASSOCIATED(force_env%adqmmmx_env)) THEN
-
-      
-      swprecision=0.01d0
-      WRITE(*,*) "this is a test"
-
-      INQUIRE(FILE = "update_log.out", EXIST=file_exists)
-      IF (file_exists) THEN
-         OPEN (UNIT=1337, FILE = "update_log.out", STATUS = "old", POSITION = "append", ACTION = "write")
-      ELSE
-         OPEN (UNIT=1337, FILE = "update_log.out", STATUS = "new", ACTION = "write")
-      END IF
+      IF (ASSOCIATED(force_env%adqmmmx_env)) THEN   
+         swprecision=0.01d0
+         WRITE(*,*) "this is a test"
+         INQUIRE(FILE = "update_log.out", EXIST=file_exists)
+         IF (file_exists) THEN
+            OPEN (UNIT=1337, FILE = "update_log.out", STATUS = "old", POSITION = "append", ACTION = "write")
+         ELSE
+            OPEN (UNIT=1337, FILE = "update_log.out", STATUS = "new", ACTION = "write")
+         END IF
      
 !     IF ( force_env%adqmmmx_env%oldsys .EQ. force_env%adqmmmx_env%newsys) THEN
 !        WRITE (1337,*) "OLDSYS=NEWSYS ==> SKIP update routine"
@@ -108,8 +105,7 @@ CONTAINS
 !         force_env%adqmmmx_env%lambda_velocity=0.d0
 !        RETURN
 !      END IF 
-!      ELSE 
-      IF (.NOT. ASSOCIATED(force_env%adqmmmx_env)) THEN
+      ELSE IF (.NOT. ASSOCIATED(force_env%adqmmmx_env)) THEN
               RETURN
       END IF
       NULLIFY(lambda)
@@ -284,7 +280,7 @@ CONTAINS
          CALL cp_subsys_get(subsys_new, atomic_kinds=new_atomic_kinds, local_particles=new_local_particles)
          IF (ASSOCIATED(local_particles%local_particle_set)) THEN
             CALL copy_wiener_process(atomic_kinds, local_particles, new_atomic_kinds, new_local_particles)
-         ENDIF
+         END IF
 
          CALL section_vals_release(qmmm_oldsys_section)
          CALL section_vals_release(qmmm_newsys_section)
@@ -296,7 +292,6 @@ CONTAINS
          !force_env%adqmmmx_env => new_adqmmmx_env
          ! JB MOD 28 03
          force_env%adqmmmx_env = new_adqmmmx_env
-
       END IF
 
       !JB Write lambda propagation output
@@ -309,7 +304,6 @@ CONTAINS
          force_env%adqmmmx_env%do_discrete = lam_int_disc
          WRITE(1337,*) "LAM_INT_DISC: ", lam_int_disc,force_env%adqmmmx_env%do_discrete
          WRITE (1337,*) "Elambda = ", force_env%adqmmmx_env%Elambda, "TOT_Elambda = ", force_env%adqmmmx_env%Tot_Elambda
-
       ELSE
          WRITE (1337,*) "First Lambda-Step 'skipped'"
          force_env%adqmmmx_env%switch_active = .TRUE.
