@@ -413,12 +413,9 @@ CONTAINS
       REAL(dp)                                         :: dt
       INTEGER                                          :: output_unit
 
-      IF (force_env%adqmmmx_env%lambda_adqmmmx==0.0) THEN
-         WRITE(output_unit,*) "Skipped first vv_second"
-         RETURN
-      END IF
+
       IF (.NOT. ASSOCIATED(force_env%adqmmmx_env) ) RETURN
-      WRITE (output_unit,*) "Discrete Lambda Propagation (second step)",&
+      WRITE (output_unit,*) "Discrete Lambda Propagation (first step)",&
                              force_env%adqmmmx_env%do_discrete,&
                              force_env%adqmmmx_env%energy_add
 
@@ -443,10 +440,10 @@ CONTAINS
       REAL(dp)                                         :: dt
       INTEGER                                          :: output_unit
 
-      IF (force_env%adqmmmx_env%lambda_adqmmmx==0.0) THEN
-         WRITE(output_unit,*) "Skipped first vv_second"
-         RETURN
-      END IF
+!      IF (force_env%adqmmmx_env%lambda_adqmmmx==0.0) THEN
+!         WRITE(output_unit,*) "Skipped first vv_second"
+!         RETURN
+!      END IF
       IF (.NOT. ASSOCIATED(force_env%adqmmmx_env) ) RETURN
       WRITE (output_unit,*) "Discrete Lambda Propagation (second step)",&
                              force_env%adqmmmx_env%do_discrete,&
