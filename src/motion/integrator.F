@@ -1099,6 +1099,7 @@ CONTAINS
          END IF
 
          WRITE (1336,*) "ASSOCIATION CHECK 2", ASSOCIATED(subsys),ASSOCIATED(atomic_kinds), ASSOCIATED(molecule_kinds)
+         WRITE (1336,*) "CHECKING THE SYSTEM FOR PARITIONING CHANGES")
          CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
 
 

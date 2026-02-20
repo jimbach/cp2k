@@ -85,7 +85,6 @@ CONTAINS
       IF (.NOT. ASSOCIATED(force_env)) RETURN
       IF (ASSOCIATED(force_env%adqmmmx_env)) THEN   
          swprecision=0.01d0
-         WRITE(*,*) "this is a test"
          INQUIRE(FILE = "update_log.out", EXIST=file_exists)
          IF (file_exists) THEN
             OPEN (UNIT=1337, FILE = "update_log.out", STATUS = "old", POSITION = "append", ACTION = "write")
@@ -97,13 +96,13 @@ CONTAINS
 !        WRITE (1337,*) "OLDSYS=NEWSYS ==> SKIP update routine"
 !        force_env%adqmmmx_env%switch_active=.FALSE.
 !        RETURN
-      IF ( force_env%adqmmmx_env%dpot == 0.0) THEN
-         WRITE (1337,*) "DPOT = 0 ==> SKIP update routine and set switch_active to False"
-         force_env%adqmmmx_env%switch_active=.FALSE.
-         force_env%adqmmmx_env%lambda_adqmmmx=1.d0
-         force_env%adqmmmx_env%lambda_velocity=0.d0
-        RETURN
-      END IF 
+        IF ( force_env%adqmmmx_env%dpot == 0.0) THEN
+           WRITE (1337,*) "DPOT = 0 ==> SKIP update routine and set switch_active to False"
+           force_env%adqmmmx_env%switch_active=.FALSE.
+           force_env%adqmmmx_env%lambda_adqmmmx=1.d0
+           force_env%adqmmmx_env%lambda_velocity=0.d0
+          RETURN
+        END IF 
       ELSE IF (.NOT. ASSOCIATED(force_env%adqmmmx_env)) THEN
               RETURN
       END IF
@@ -138,7 +137,7 @@ CONTAINS
 
 
       !JB Insert Lambda check
-      IF ((0 <= lambda) .AND. ((lambda-1.d0) >= swprecision) &
+      IF ((lambda >= 0) .AND. ((1.d0-lambda) >= swprecision) &
              .AND. (force_env%adqmmmx_env%switch_active)) THEN
          WRITE (1337,*) "UPDATE_FORCE_ENV: Switching still active..."
          IF (force_env%adqmmmx_env%lambda_mass == 0.d0) THEN
@@ -161,7 +160,7 @@ CONTAINS
             force_env%adqmmmx_env%lambda_velocity=0.d0
          END IF
       !JB modify check
-      ELSE IF ((lambda-1.d0) <= swprecision .OR. (.NOT. force_env%adqmmmx_env%switch_active)) THEN
+      ELSE IF ((1.d0-lambda) <= swprecision .OR. (.NOT. force_env%adqmmmx_env%switch_active)) THEN
          WRITE (1337,*) "UPDATE_FORCE_ENV: Switching complete, start new update cycle..."
          WRITE (1337,*) "Switch Active:", force_env%adqmmmx_env%switch_active
 
