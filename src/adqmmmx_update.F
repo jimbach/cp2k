@@ -191,7 +191,7 @@ CONTAINS
          !JB add a check for lambda > 1
       ELSE IF ((lambda > 1)) THEN
          CPABORT("Lambda > 1 overshot, choose a longer switching time")
-      ELSE IF ((lambda < 0) .or. (ISNAN(lambda))) THEN
+      ELSE IF ((lambda < 0) .OR. (lambda .NE. lambda)) THEN
          CPABORT("LAMBDA IS LOWER THAN 0 OR NaN, SOMETHING WENT WRONG!")
       END IF
       
