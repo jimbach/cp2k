@@ -191,7 +191,7 @@ CONTAINS
          ELSE IF ((lambda > 1)) THEN
             CPABORT("Lambda > 1 overshot, choose a longer switching time")
          END IF
-         ELSE
+         ELSE IF ((lambda < 0) .or. (ISNAN(lambda)) THEN
             CPABORT("LAMBDA IS LOWER THAN 0 OR NaN, SOMETHING WENT WRONG!")
          END IF
       
