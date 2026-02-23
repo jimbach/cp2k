@@ -271,12 +271,11 @@ CONTAINS
             force_env%adqmmmx_env%switch_active=.FALSE.
             ! JB MOD 4.4.25
             CALL adqmmmx_env_release(new_adqmmmx_env)
-            force_env%adqmmmx_env%lambda_adqmmmx=1.d0
-            force_env%adqmmmx_env%lambda_velocity=0.d0
             RETURN 
          ! JB MOD 23 02 26 
          ELSE
             WRITE (1337,*) "Partitioning changed ==> Starting update routine"
+            force_env%adqmmmx_env%lambda_mass     = 0.d0
             force_env%adqmmmx_env%switch_active = .TRUE.             
          END IF
 
