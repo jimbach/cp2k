@@ -51,7 +51,7 @@ MODULE adqmmmx_types
       REAL(KIND=dp)                                           :: Elamcorr=0.0      !MN Sign correction
       REAL(KIND=dp)                                           :: dpot_sgn=0.0      !MN Original sign
       REAL(KIND=dp)                                           :: Tot_Elambda=0.0  !MN Energy of all lambdas
-      LOGICAL                                                 :: switch_active=.TRUE.,&
+      LOGICAL                                                 :: switch_active=.FALSE.,&
                                                                  labels_changed=.TRUE.,&
                                                                  energy_add=.TRUE.,&
                                                                  output_energies=.FALSE.,&
