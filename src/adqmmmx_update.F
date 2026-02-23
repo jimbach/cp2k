@@ -137,30 +137,32 @@ CONTAINS
 
 
       !JB Insert Lambda check
-      IF ((lambda >= 0) .AND. ((1.d0-lambda) >= swprecision) &
-             .AND. (force_env%adqmmmx_env%switch_active)) THEN
-         WRITE (1337,*) "UPDATE_FORCE_ENV: Switching still active..."
-         IF (force_env%adqmmmx_env%lambda_mass == 0.d0) THEN
-            CALL section_vals_val_get(adqmmmx_section, "SWITCH_T", r_val=switch_t)
-            !MN This definition only covers a quarter of a transition, multiply by 4!
-            WRITE (1337,*) "UPDATE_FORCE_ENV: First and only calculation of lambda_mass"
-            IF (lam_int_disc) THEN
-               switch_t = 4.0*(switch_t) - dt
-               force_env%adqmmmx_env%lambda_mass = (2*DABS(force_env%adqmmmx_env%dpot)*switch_t**2)/&
-                                                (4*pi**2)
-               ELSE
-               switch_t = 4.0*(switch_t)
-               force_env%adqmmmx_env%lambda_mass = (2*DABS(force_env%adqmmmx_env%dpot)*switch_t**2)/&
-                                                (4*pi**2)
-            END IF
-            WRITE (1337,*) "MASS: ", force_env%adqmmmx_env%lambda_mass
-            ! Initialize lambda and vlambda
-            WRITE (1337,*) "UPDATE_FORCE_ENV: initializing lambda=0 and vlambda=0"
-            force_env%adqmmmx_env%lambda_adqmmmx=0.d0
-            force_env%adqmmmx_env%lambda_velocity=0.d0
-         END IF
+    !  IF ((lambda >= 0) .AND. ((1.d0-lambda) >= swprecision) &
+    !         .AND. (force_env%adqmmmx_env%switch_active)) THEN
+    !     WRITE (1337,*) "UPDATE_FORCE_ENV: Switching still active..."
+    !     IF (force_env%adqmmmx_env%lambda_mass == 0.d0) THEN
+    !        CALL section_vals_val_get(adqmmmx_section, "SWITCH_T", r_val=switch_t)
+    !        !MN This definition only covers a quarter of a transition, multiply by 4!
+    !        WRITE (1337,*) "UPDATE_FORCE_ENV: First and only calculation of lambda_mass"
+    !        IF (lam_int_disc) THEN
+    !           switch_t = 4.0*(switch_t) - dt
+    !           force_env%adqmmmx_env%lambda_mass = (2*DABS(force_env%adqmmmx_env%dpot)*switch_t**2)/&
+    !                                            (4*pi**2)
+    !           ELSE
+    !           switch_t = 4.0*(switch_t)
+    !           force_env%adqmmmx_env%lambda_mass = (2*DABS(force_env%adqmmmx_env%dpot)*switch_t**2)/&
+    !                                            (4*pi**2)
+    !        END IF
+    !        WRITE (1337,*) "MASS: ", force_env%adqmmmx_env%lambda_mass
+    !        ! Initialize lambda and vlambda
+    !        WRITE (1337,*) "UPDATE_FORCE_ENV: initializing lambda=0 and vlambda=0"
+    !        force_env%adqmmmx_env%lambda_adqmmmx=0.d0
+    !        force_env%adqmmmx_env%lambda_velocity=0.d0
+    !     END IF
       !JB modify check
-      ELSE IF ((1.d0-lambda) <= swprecision .OR. (.NOT. force_env%adqmmmx_env%switch_active)) THEN
+    !  ELSE 
+      ! ELSE broken here
+      IF ((1.d0-lambda) <= swprecision .OR. (.NOT. force_env%adqmmmx_env%switch_active)) THEN
          WRITE (1337,*) "UPDATE_FORCE_ENV: Switching complete, start new update cycle..."
          WRITE (1337,*) "Switch Active:", force_env%adqmmmx_env%switch_active
 
@@ -290,10 +292,41 @@ CONTAINS
          !force_env%adqmmmx_env => new_adqmmmx_env
          ! JB MOD 28 03
          force_env%adqmmmx_env = new_adqmmmx_env
+         ! JB MOD 23 02 26
+         IF ( force_env%adqmmmx_env%oldsys .EQ. force_env%adqmmmx_env%newsys) THEN
+            WRITE (1337,*) "OLDSYS=NEWSYS ==> SKIP update routine"
+            force_env%adqmmmx_env%lambda_adqmmmx=1.d0
+            force_env%adqmmmx_env%lambda_velocity=0.d0
+         ELSE
+            WRITE (1337,*) "Partitioning changed ==> Starting update routine"
+            force_env%adqmmmx_env%switch_active = .TRUE.
+         END IF
       END IF
 
-      !JB Write lambda propagation output
+      !JB Write lambda propagation output and setup mass
       IF ( force_env%adqmmmx_env%switch_active ) THEN
+     !INSERTED HERE 
+         WRITE (1337,*) "UPDATE_FORCE_ENV: Switching still active..."
+         IF (force_env%adqmmmx_env%lambda_mass == 0.d0) THEN
+            CALL section_vals_val_get(adqmmmx_section, "SWITCH_T", r_val=switch_t)
+            !MN This definition only covers a quarter of a transition, multiply by 4!
+            WRITE (1337,*) "UPDATE_FORCE_ENV: First and only calculation of lambda_mass"
+            IF (lam_int_disc) THEN
+               switch_t = 4.0*(switch_t) - dt
+               force_env%adqmmmx_env%lambda_mass = (2*DABS(force_env%adqmmmx_env%dpot)*switch_t**2)/&
+                                                (4*pi**2)
+               ELSE
+               switch_t = 4.0*(switch_t)
+               force_env%adqmmmx_env%lambda_mass = (2*DABS(force_env%adqmmmx_env%dpot)*switch_t**2)/&
+                                                (4*pi**2)
+            END IF
+            WRITE (1337,*) "MASS: ", force_env%adqmmmx_env%lambda_mass
+            ! Initialize lambda and vlambda
+            WRITE (1337,*) "UPDATE_FORCE_ENV: initializing lambda=0 and vlambda=0"
+            force_env%adqmmmx_env%lambda_adqmmmx=0.d0
+            force_env%adqmmmx_env%lambda_velocity=0.d0
+         END IF
+         !END INSERTED HERE
          !MN adqmmmx_section empty?
          CALL section_vals_val_get(adqmmmx_section, "SWITCH_T", r_val=switch_t)
          !MN This definition only covers a quarter of a transition, multiply by 4!
@@ -302,9 +335,9 @@ CONTAINS
          force_env%adqmmmx_env%do_discrete = lam_int_disc
          WRITE(1337,*) "LAM_INT_DISC: ", lam_int_disc,force_env%adqmmmx_env%do_discrete
          WRITE (1337,*) "Elambda = ", force_env%adqmmmx_env%Elambda, "TOT_Elambda = ", force_env%adqmmmx_env%Tot_Elambda
-      ELSE
-         WRITE (1337,*) "First Lambda-Step 'skipped'"
-         force_env%adqmmmx_env%switch_active = .TRUE.
+    !  ELSE
+    !     WRITE (1337,*) "First Lambda-Step 'skipped'"
+    !     force_env%adqmmmx_env%switch_active = .TRUE.
       END IF
 
       !MN adqmmmx values in restart file
