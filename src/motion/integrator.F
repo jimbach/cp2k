@@ -1089,8 +1089,6 @@ CONTAINS
          END IF
       END IF
 
-
-      WRITE(*,*) "adqmmmx env associated:", ASSOCIATED(force_env%adqmmmx_env)
       !MN Add ADQMMMX
       IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
          INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
