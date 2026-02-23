@@ -186,13 +186,14 @@ CONTAINS
             force_env%adqmmmx_env%energy_add      =.FALSE.
 
             force_env%adqmmmx_env%switch_active   = .FALSE.
+         END IF
 
          !JB add a check for lambda > 1
-         ELSE IF ((lambda > 1)) THEN
-            CPABORT("Lambda > 1 overshot, choose a longer switching time")
-         ELSE IF ((lambda < 0) .or. (ISNAN(lambda))) THEN
-            CPABORT("LAMBDA IS LOWER THAN 0 OR NaN, SOMETHING WENT WRONG!")
-         END IF
+      ELSE IF ((lambda > 1)) THEN
+         CPABORT("Lambda > 1 overshot, choose a longer switching time")
+      ELSE IF ((lambda < 0) .or. (ISNAN(lambda))) THEN
+         CPABORT("LAMBDA IS LOWER THAN 0 OR NaN, SOMETHING WENT WRONG!")
+      END IF
       
       IF (.NOT. ASSOCIATED(adqmmmx_section)) RETURN
       CALL section_vals_get(adqmmmx_section, explicit=adqmmmx_active)
