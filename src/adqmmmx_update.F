@@ -241,15 +241,21 @@ CONTAINS
 
          !MN Call update routine
          CALL update_adqmmmx_labels(subsys,qmmm_section,labels_changed=labels_changed,&
-               include_nc=force_env%adqmmmx_env%include_nc,c_n_sw=force_env%adqmmmx_env%c_n_sw)
+            include_nc=force_env%adqmmmx_env%include_nc,c_n_sw=force_env%adqmmmx_env%c_n_sw)
          WRITE (1337,*) "Labels changed?", labels_changed
 
          IF (.NOT. labels_changed) THEN
-               WRITE (1337,*) "Labels have not changed or MAX_N_SWITCH reached"
-               force_env%adqmmmx_env%switch_active=.FALSE.
-               ! JB MOD 4.4.25
-               CALL adqmmmx_env_release(new_adqmmmx_env)
-               RETURN               
+            WRITE (1337,*) "Labels have not changed or MAX_N_SWITCH reached"
+            force_env%adqmmmx_env%switch_active=.FALSE.
+            ! JB MOD 4.4.25
+            CALL adqmmmx_env_release(new_adqmmmx_env)
+            force_env%adqmmmx_env%lambda_adqmmmx=1.d0
+            force_env%adqmmmx_env%lambda_velocity=0.d0
+            RETURN 
+         ! JB MOD 23 02 26 
+         ELSE
+            WRITE (1337,*) "Partitioning changed ==> Starting update routine"
+            force_env%adqmmmx_env%switch_active = .TRUE.             
          END IF
 
          !MN Check if Indices and labels from new_*** are correctly handled
@@ -291,16 +297,7 @@ CONTAINS
          CALL adqmmmx_env_release(force_env%adqmmmx_env)
          !force_env%adqmmmx_env => new_adqmmmx_env
          ! JB MOD 28 03
-         force_env%adqmmmx_env = new_adqmmmx_env
-         ! JB MOD 23 02 26
-         IF ( force_env%adqmmmx_env%oldsys .EQ. force_env%adqmmmx_env%newsys) THEN
-            WRITE (1337,*) "OLDSYS=NEWSYS ==> SKIP update routine"
-            force_env%adqmmmx_env%lambda_adqmmmx=1.d0
-            force_env%adqmmmx_env%lambda_velocity=0.d0
-         ELSE
-            WRITE (1337,*) "Partitioning changed ==> Starting update routine"
-            force_env%adqmmmx_env%switch_active = .TRUE.
-         END IF
+         force_env%adqmmmx_env = new_adqmmmx_env         
       END IF
 
       !JB Write lambda propagation output and setup mass
