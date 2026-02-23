@@ -104,7 +104,7 @@ CONTAINS
           RETURN
         END IF 
       ELSE IF (.NOT. ASSOCIATED(force_env%adqmmmx_env)) THEN
-              RETURN
+        RETURN
       END IF
       NULLIFY(lambda)
       lambda => force_env%adqmmmx_env%lambda_adqmmmx
@@ -193,6 +193,8 @@ CONTAINS
          CPABORT("Lambda > 1 overshot, choose a longer switching time")
       ELSE IF ((lambda < 0) .OR. (lambda .NE. lambda)) THEN
          CPABORT("LAMBDA IS LOWER THAN 0 OR NaN, SOMETHING WENT WRONG!")
+      ELSE
+         WRITE (1337,*) "passed first lambda check"
       END IF
       
       IF (.NOT. ASSOCIATED(adqmmmx_section)) RETURN
