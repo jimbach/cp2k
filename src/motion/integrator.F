@@ -1089,22 +1089,7 @@ CONTAINS
          END IF
       END IF
 
-      !MN Add ADQMMMX
-      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
-         INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
-         IF (file_exists) THEN
-            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "old", POSITION ="append", ACTION = "write")
-         ELSE
-            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION ="write")
-         END IF
-
-         WRITE (1336,*) "ASSOCIATION CHECK 2", ASSOCIATED(subsys),ASSOCIATED(atomic_kinds), ASSOCIATED(molecule_kinds)
-         WRITE (1336,*) "CHECKING THE SYSTEM FOR PARITIONING CHANGES"
-         CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
-
-
-         output_unit = cp_logger_get_default_io_unit()
-      END IF
+      ! LAMBDA TAKEN FROM HERE
          
       IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
          !JB Lambda propagation
@@ -1231,6 +1216,23 @@ CONTAINS
       !JB Propagation of vlambda if discrete
       IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
          CALL adqmmmx_vv_second(force_env, dt, 1336)
+      END IF
+      
+      !JB PARTITIONING CHECK
+      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+         INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
+         IF (file_exists) THEN
+            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "old", POSITION ="append", ACTION = "write")
+         ELSE
+            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION ="write")
+         END IF
+
+         WRITE (1336,*) "ASSOCIATION CHECK 2", ASSOCIATED(subsys),ASSOCIATED(atomic_kinds), ASSOCIATED(molecule_kinds)
+         WRITE (1336,*) "CHECKING THE SYSTEM FOR PARITIONING CHANGES"
+         CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
+
+
+         output_unit = cp_logger_get_default_io_unit()
       END IF
       
       ! Update constraint virial
