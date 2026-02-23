@@ -164,7 +164,7 @@ CONTAINS
       ! ELSE broken here
       ! IF ((1.d0-lambda) <= swprecision .AND. (.NOT. force_env%adqmmmx_env%switch_active)) THEN
       
-      IF (force_env%adqmmmx_env%lambda_mass == 0.d0) THEN
+      IF ((force_env%adqmmmx_env%lambda_mass == 0.d0) .AND. (force_env%adqmmmx_env%switch_active)) THEN
          CALL section_vals_val_get(adqmmmx_section, "SWITCH_T", r_val=switch_t)
          !MN This definition only covers a quarter of a transition, multiply by 4!
          WRITE (1337,*) "UPDATE_FORCE_ENV: First and only calculation of lambda_mass"
