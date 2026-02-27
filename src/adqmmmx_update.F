@@ -423,6 +423,7 @@ CONTAINS
    SUBROUTINE adqmmmx_vv_first(force_env, dt, output_unit)
       TYPE(force_env_type), POINTER                    :: force_env
       REAL(dp)                                         :: dt,  switch_t
+      REAL(KIND=dp), PARAMETER                         :: pi = 3.14159265358979323846264338_dp
       INTEGER                                          :: output_unit
 
 
