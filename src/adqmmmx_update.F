@@ -425,11 +425,18 @@ CONTAINS
       REAL(dp)                                         :: dt,  switch_t
       REAL(KIND=dp), PARAMETER                         :: pi = 3.14159265358979323846264338_dp
       INTEGER                                          :: output_unit
+      LOGICAL                                          :: file_exists
 
 
       IF (.NOT. ASSOCIATED(force_env%adqmmmx_env) ) RETURN
                 
       IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
+         INQUIRE(FILE = "update_log.out", EXIST=file_exists)
+         IF (file_exists) THEN
+            OPEN (UNIT=1337, FILE = "update_log.out", STATUS = "old", POSITION = "append", ACTION = "write")
+         ELSE
+            OPEN (UNIT=1337, FILE = "update_log.out", STATUS = "new", ACTION = "write")
+         END IF
          CALL section_vals_val_get(adqmmmx_section, "SWITCH_T", r_val=switch_t)
          !MN This definition only covers a quarter of a transition, multiply by 4!
          WRITE (1337,*) "UPDATE_FORCE_ENV: First and only calculation of lambda_mass"
