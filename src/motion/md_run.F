@@ -96,6 +96,7 @@ MODULE md_run
    USE wiener_process,                  ONLY: create_wiener_process,&
                                               create_wiener_process_cv
    USE adqmmmx_energies,                ONLY: adqmmmx_calc_constant
+   USE adqmmmx_update,                  ONLY: adqmmmx_update_force_env
 #include "../base/base_uses.f90"
 
    IMPLICIT NONE
@@ -360,6 +361,11 @@ CONTAINS
             CALL section_vals_remove_values(work_section)
             work_section => section_vals_get_subs_vals(subsys_section, "CORE_VELOCITY")
             CALL section_vals_remove_values(work_section)
+         END IF
+
+         !JB INSERT 27.02.26
+         IF (ASSOCIATED(force_env%adqmmmx_env)) THEN
+            CALL adqmmmx_update_force_env(force_env, force_env%root_section, simpar%dt)
          END IF
 
          IF (ehrenfest_md) THEN

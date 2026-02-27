@@ -164,26 +164,6 @@ CONTAINS
       ! ELSE broken here
       ! IF ((1.d0-lambda) <= swprecision .AND. (.NOT. force_env%adqmmmx_env%switch_active)) THEN
       
-      IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
-         CALL section_vals_val_get(adqmmmx_section, "SWITCH_T", r_val=switch_t)
-         !MN This definition only covers a quarter of a transition, multiply by 4!
-         WRITE (1337,*) "UPDATE_FORCE_ENV: First and only calculation of lambda_mass"
-         IF (lam_int_disc) THEN
-            switch_t = 4.0*(switch_t) - dt
-            force_env%adqmmmx_env%lambda_mass = (2*DABS(force_env%adqmmmx_env%dpot)*switch_t**2)/&
-                                                (4*pi**2)
-         ELSE
-            switch_t = 4.0*(switch_t)
-            force_env%adqmmmx_env%lambda_mass = (2*DABS(force_env%adqmmmx_env%dpot)*switch_t**2)/&
-                                                (4*pi**2)
-         END IF
-         WRITE (1337,*) "MASS: ", force_env%adqmmmx_env%lambda_mass, "DPOT: ", force_env%adqmmmx_env%dpot
-         ! Initialize lambda and vlambda
-         WRITE (1337,*) "UPDATE_FORCE_ENV: initializing lambda=0 and vlambda=0"
-         force_env%adqmmmx_env%lambda_adqmmmx=0.d0
-         force_env%adqmmmx_env%lambda_velocity=0.d0
-      END IF
-      
       IF ((1.d0-lambda) <= swprecision .AND. (force_env%adqmmmx_env%switch_active)) THEN
          WRITE (1337,*) "UPDATE_FORCE_ENV: Switching complete, start new update cycle..."
          WRITE (1337,*) "Switch Active:", force_env%adqmmmx_env%switch_active
@@ -442,11 +422,32 @@ CONTAINS
 ! **************************************************************************************************
    SUBROUTINE adqmmmx_vv_first(force_env, dt, output_unit)
       TYPE(force_env_type), POINTER                    :: force_env
-      REAL(dp)                                         :: dt
+      REAL(dp)                                         :: dt,  switch_t
       INTEGER                                          :: output_unit
 
 
       IF (.NOT. ASSOCIATED(force_env%adqmmmx_env) ) RETURN
+                
+      IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
+         CALL section_vals_val_get(adqmmmx_section, "SWITCH_T", r_val=switch_t)
+         !MN This definition only covers a quarter of a transition, multiply by 4!
+         WRITE (1337,*) "UPDATE_FORCE_ENV: First and only calculation of lambda_mass"
+         IF (lam_int_disc) THEN
+            switch_t = 4.0*(switch_t) - dt
+            force_env%adqmmmx_env%lambda_mass = (2*DABS(force_env%adqmmmx_env%dpot)*switch_t**2)/&
+                                                (4*pi**2)
+         ELSE
+            switch_t = 4.0*(switch_t)
+            force_env%adqmmmx_env%lambda_mass = (2*DABS(force_env%adqmmmx_env%dpot)*switch_t**2)/&
+                                                (4*pi**2)
+         END IF
+         WRITE (1337,*) "MASS: ", force_env%adqmmmx_env%lambda_mass, "DPOT: ", force_env%adqmmmx_env%dpot
+         ! Initialize lambda and vlambda
+         WRITE (1337,*) "UPDATE_FORCE_ENV: initializing lambda=0 and vlambda=0"
+         force_env%adqmmmx_env%lambda_adqmmmx=0.d0
+         force_env%adqmmmx_env%lambda_velocity=0.d0
+      END IF
+      
       WRITE (output_unit,*) "Discrete Lambda Propagation (first step)",&
                              force_env%adqmmmx_env%do_discrete,&
                              force_env%adqmmmx_env%energy_add
