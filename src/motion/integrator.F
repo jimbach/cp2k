@@ -507,7 +507,7 @@ CONTAINS
       IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
          ! ADDED 2.03.2026
          IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
-            CALL adqmmmx_calculate_switching_mass(force_eval, 1336)
+            CALL adqmmmx_calculate_switching_mass(force_env, 1336)
          END IF
          CALL adqmmmx_vv_first(force_env, dt, 1336)
       END IF
@@ -1116,7 +1116,7 @@ CONTAINS
       IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
          ! ADDED 2.03.2026
          IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
-            CALL adqmmmx_calculate_switching_mass(force_eval, 1336)
+            CALL adqmmmx_calculate_switching_mass(force_env, 1336)
          END IF
          CALL adqmmmx_vv_first(force_env, dt, 1336)
       END IF
