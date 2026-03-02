@@ -89,7 +89,8 @@ MODULE integrator
                                               dg_of_lambda
    USE adqmmmx_update,                  ONLY: adqmmmx_update_force_env, &
                                               adqmmmx_vv_first, &
-                                              adqmmmx_vv_second
+                                              adqmmmx_vv_second, &
+                                              adqmmmx_calculate_switching_mass
    USE qs_environment_types,            ONLY: get_qs_env
    USE reftraj_types,                   ONLY: REFTRAJ_EVAL_ENERGY_FORCES,&
                                               REFTRAJ_EVAL_NONE,&
@@ -503,7 +504,11 @@ CONTAINS
 
 
       ! JB Lambda first part
-      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+         IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
+         ! ADDED 2.03.2026
+         IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
+            CALL adqmmmx_calculate_switching_mass(force_eval, 1336)
+         END IF
          CALL adqmmmx_vv_first(force_env, dt, 1336)
       END IF
 
@@ -587,7 +592,7 @@ CONTAINS
 
          !JB Propagation of vlambda if discrete
          ! changes 07.2025
-         IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+         IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
             CALL adqmmmx_vv_second(force_env, dt, 1336)
          END IF
 
