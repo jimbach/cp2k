@@ -504,7 +504,7 @@ CONTAINS
 
 
       ! JB Lambda first part
-         IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
+      IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
          ! ADDED 2.03.2026
          IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
             CALL adqmmmx_calculate_switching_mass(force_eval, 1336)
@@ -1096,31 +1096,29 @@ CONTAINS
 
 
       
-      !JB PARTITIONING CHECK
+      !JB ADQMMMX partitioning setup
       IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
          INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
          IF (file_exists) THEN
-            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "old", POSITION ="append", ACTION = "write")
+            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "old", POSITION = "append", ACTION = "write")
          ELSE
-            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION ="write")
+            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION = "write")
          END IF
 
-         WRITE (1336,*) "ASSOCIATION CHECK 2", ASSOCIATED(subsys),ASSOCIATED(atomic_kinds), ASSOCIATED(molecule_kinds)
-         WRITE (1336,*) "CHECKING THE SYSTEM FOR PARITIONING CHANGES"
+         !MN Lambda propagation
+         WRITE (1336,*) "Lambda propagation starts:", force_env%adqmmmx_env%lambda_adqmmmx, dt
          CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
-
-
          output_unit = cp_logger_get_default_io_unit()
       END IF
 
-      ! LAMBDA velocity verlet first part
-      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
-         !JB Lambda propagation
-         WRITE (1336,*) "Lambda propagation starts:",force_env%adqmmmx_env%lambda_adqmmmx, dt
+
+      ! JB Lambda first part
+      IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
+         ! ADDED 2.03.2026
+         IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
+            CALL adqmmmx_calculate_switching_mass(force_eval, 1336)
+         END IF
          CALL adqmmmx_vv_first(force_env, dt, 1336)
-         WRITE (1336,*) "Updated lambda:", force_env%adqmmmx_env%lambda_adqmmmx
-         WRITE (1336,*) "JB adqmmmx force environment update in integrator.F"
-         WRITE (1336,*) "ASSOCIATION CHECK 1", ASSOCIATED(force_env),ASSOCIATED(force_env%adqmmmx_env)
       END IF
 
       ! Velocity Verlet (first part)
@@ -1237,7 +1235,8 @@ CONTAINS
 
 
       !JB Propagation of vlambda if discrete
-      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+      ! changes 07.2025
+      IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
          CALL adqmmmx_vv_second(force_env, dt, 1336)
       END IF
 
