@@ -503,7 +503,7 @@ CONTAINS
 ! **************************************************************************************************
    SUBROUTINE adqmmmx_calculate_switching_mass(force_env, output_unit)
       TYPE(force_env_type), POINTER                    :: force_env
-      REAL(dp)                                         :: dt
+      REAL(dp)                                         :: switch_t
       REAL(KIND=dp), PARAMETER                         :: pi = 3.14159265358979323846264338_dp
       INTEGER                                          :: output_unit
       TYPE(section_vals_type), POINTER                 :: qmmm_section, adqmmmx_section
