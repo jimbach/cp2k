@@ -506,6 +506,9 @@ CONTAINS
       REAL(dp)                                         :: dt
       REAL(KIND=dp), PARAMETER                         :: pi = 3.14159265358979323846264338_dp
       INTEGER                                          :: output_unit
+      TYPE(section_vals_type), POINTER                 :: adqmmmx_section
+      
+      adqmmmx_section => section_vals_get_subs_vals(qmmm_section, "ADAPTIVE_QMMM", can_return_null=.TRUE.) 
       IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
          CALL section_vals_val_get(adqmmmx_section, "SWITCH_T", r_val=switch_t)
          WRITE (output_unit,*) "UPDATE_FORCE_ENV: First and only calculation of lambda_mass"
