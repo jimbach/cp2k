@@ -363,10 +363,10 @@ CONTAINS
             CALL section_vals_remove_values(work_section)
          END IF
 
-         !JB INSERT 27.02.26
-         IF (ASSOCIATED(force_env%adqmmmx_env)) THEN
-            CALL adqmmmx_update_force_env(force_env, force_env%root_section, simpar%dt)
-         END IF
+         !COMMENTED 3.02.2026 JB INSERT 27.02.26
+         !IF (ASSOCIATED(force_env%adqmmmx_env)) THEN
+         !   CALL adqmmmx_update_force_env(force_env, force_env%root_section, simpar%dt)
+         !END IF
 
          IF (ehrenfest_md) THEN
             CALL rt_prop_setup(force_env)
