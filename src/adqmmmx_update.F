@@ -277,7 +277,7 @@ CONTAINS
             CALL adqmmmx_env_release(new_adqmmmx_env)
             RETURN 
          ! JB MOD 23 02 26 
-         ELSE IF (.NOT. force_env%adqmmmx_env%switch_active)
+         ELSE IF (.NOT. force_env%adqmmmx_env%switch_active) THEN
             WRITE (1337,*) "Partitioning changed ==> Starting update routine"
             force_env%adqmmmx_env%lambda_mass     = 0.d0
             force_env%adqmmmx_env%switch_active = .TRUE.    
