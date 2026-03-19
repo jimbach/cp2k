@@ -1097,7 +1097,7 @@ CONTAINS
 
       
       !JB ADQMMMX partitioning setup
-      IF(ASSOCIATED(force_env%adqmmmx_env).AND. (.NOT. force_env%adqmmmx_env%switch_active)) THEN
+      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
          WRITE(*,*) "Performing lambda update check"
          CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
          output_unit = cp_logger_get_default_io_unit()
