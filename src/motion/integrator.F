@@ -1097,16 +1097,8 @@ CONTAINS
 
       
       !JB ADQMMMX partitioning setup
-      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
-         INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
-         IF (file_exists) THEN
-            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "old", POSITION = "append", ACTION = "write")
-         ELSE
-            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION = "write")
-         END IF
-
-         !MN Lambda propagation
-         WRITE (1336,*) "Lambda propagation starts:", force_env%adqmmmx_env%lambda_adqmmmx, dt
+      IF(ASSOCIATED(force_env%adqmmmx_env).AND. (.NOT. force_env%adqmmmx_env%switch_active)) THEN
+         WRITE(*,*) "Performing lambda update check"
          CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
          output_unit = cp_logger_get_default_io_unit()
       END IF
@@ -1114,6 +1106,14 @@ CONTAINS
 
       ! JB Lambda first part
       IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
+         INQUIRE(FILE = "motion_log.out", EXIST=file_exists)
+         IF (file_exists) THEN
+            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "old", POSITION = "append", ACTION = "write")
+         ELSE
+            OPEN (UNIT=1336, FILE = "motion_log.out", STATUS = "new", ACTION = "write")
+         END IF
+         !MN Lambda propagation
+         WRITE (1336,*) "Lambda propagation starts:", force_env%adqmmmx_env%lambda_adqmmmx, dt
          ! ADDED 2.03.2026
          IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
             CALL adqmmmx_calculate_switching_mass(force_env, 1336)
