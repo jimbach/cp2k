@@ -202,6 +202,7 @@ CONTAINS
             force_env%adqmmmx_env%Tot_Elambda     = force_env%adqmmmx_env%Tot_Elambda+&
                                           force_env%adqmmmx_env%Elambda + Lam_Error+&
                                           force_env%adqmmmx_env%Elamcorr
+            WRITE (1337,*) "Total E_l is updated. NEW: ", force_env%adqmmmx_env%Tot_Elambda
             force_env%adqmmmx_env%Elamcorr        = 0.d0
             force_env%adqmmmx_env%Elambda         = 0.d0
             !Added JB 16.04.25
@@ -233,7 +234,7 @@ CONTAINS
 
       IF ( .NOT. force_env%adqmmmx_env%switch_active ) THEN 
          WRITE (1337,*) "Starting label update"
-         labels_changed = .TRUE. !MN Test if logical variable is given to routine correctly
+         labels_changed = .FALSE. !MN Test if logical variable is given to routine correctly
          CALL force_env_get(force_env, subsys=subsys)
          
          !MN Create new_adqmmmx_env
@@ -265,7 +266,7 @@ CONTAINS
             CALL copy_wiener_process(atomic_kinds, local_particles, new_atomic_kinds, new_local_particles)
          ENDIF
 
-         !MN Call update routine
+         !MN Call update routine, this checks if the labels changed
          CALL update_adqmmmx_labels(subsys,qmmm_section,labels_changed=labels_changed,&
             include_nc=force_env%adqmmmx_env%include_nc,c_n_sw=force_env%adqmmmx_env%c_n_sw)
          WRITE (1337,*) "Labels changed?", labels_changed
@@ -278,7 +279,7 @@ CONTAINS
             RETURN 
          ! JB MOD 23 02 26 
          ELSE IF (.NOT. force_env%adqmmmx_env%switch_active) THEN
-            WRITE (1337,*) "Partitioning changed ==> Starting update routine"
+            WRITE (1337,*) "Partitioning changed ==> Activating update routine"
             force_env%adqmmmx_env%lambda_mass     = 0.d0
             force_env%adqmmmx_env%switch_active = .TRUE.    
             force_env%adqmmmx_env%lambda_adqmmmx = 0.d0
@@ -324,7 +325,8 @@ CONTAINS
          CALL adqmmmx_env_release(force_env%adqmmmx_env)
          !force_env%adqmmmx_env => new_adqmmmx_env
          ! JB MOD 28 03
-         force_env%adqmmmx_env = new_adqmmmx_env         
+         force_env%adqmmmx_env = new_adqmmmx_env  
+         force_env%adqmmmx_env%switch_active = .TRUE.       
       END IF
 
       !JB Write lambda propagation output and setup mass
