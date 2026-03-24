@@ -101,7 +101,7 @@ CONTAINS
            force_env%adqmmmx_env%switch_active=.FALSE.
            force_env%adqmmmx_env%lambda_adqmmmx=1.d0
            force_env%adqmmmx_env%lambda_velocity=0.d0
-          RETURN
+!          RETURN
         END IF 
       ELSE IF (.NOT. ASSOCIATED(force_env%adqmmmx_env)) THEN
         RETURN
@@ -264,7 +264,7 @@ CONTAINS
          CALL cp_subsys_get(subsys_new, atomic_kinds=new_atomic_kinds, local_particles=new_local_particles)
          IF (ASSOCIATED(local_particles%local_particle_set)) THEN
             CALL copy_wiener_process(atomic_kinds, local_particles, new_atomic_kinds, new_local_particles)
-         ENDIF
+         END IF
 
          !MN Call update routine, this checks if the labels changed
          CALL update_adqmmmx_labels(subsys,qmmm_section,labels_changed=labels_changed,&
