@@ -1096,12 +1096,7 @@ CONTAINS
 
 
       
-      !JB ADQMMMX partitioning setup
-      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
-         WRITE(*,*) "Performing lambda update check"
-         CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
-         output_unit = cp_logger_get_default_io_unit()
-      END IF
+
 
 
       ! JB Lambda first part
@@ -1120,6 +1115,14 @@ CONTAINS
          END IF
          CALL adqmmmx_vv_first(force_env, dt, 1336)
       END IF
+      
+      !JB ADQMMMX partitioning setup
+      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+         WRITE(*,*) "Performing lambda update check"
+         CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
+         output_unit = cp_logger_get_default_io_unit()
+      END IF      
+
 
       ! Velocity Verlet (first part)
       CALL vv_first(tmp, atomic_kind_set, local_particles, particle_set, &
@@ -1236,7 +1239,7 @@ CONTAINS
 
       !JB Propagation of vlambda if discrete
       ! changes 07.2025
-      IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
+      IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) .AND. force_env%adqmmmx_env%lambda_adqmmmx>0.d0) THEN
          CALL adqmmmx_vv_second(force_env, dt, 1336)
       END IF
 
