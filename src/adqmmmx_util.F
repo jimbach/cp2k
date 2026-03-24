@@ -549,7 +549,7 @@ CONTAINS
          new_adqmmmx_env%Tot_Elambda     = adqmmmx_env%Tot_Elambda
          new_adqmmmx_env%Elamcorr        = adqmmmx_env%Elamcorr
          new_adqmmmx_env%dpot_sgn        = adqmmmx_env%dpot_sgn
-         new_adqmmmx_env%switch_active   = .FALSE.
+         new_adqmmmx_env%switch_active   = .TRUE.
          new_adqmmmx_env%do_discrete    = adqmmmx_env%do_discrete
          new_adqmmmx_env%include_nc      = .FALSE.
 

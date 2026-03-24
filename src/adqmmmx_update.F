@@ -280,10 +280,10 @@ CONTAINS
          ! JB MOD 23 02 26 
          ELSE IF (.NOT. force_env%adqmmmx_env%switch_active) THEN
             WRITE (1337,*) "Partitioning changed ==> Activating update routine"
-            force_env%adqmmmx_env%lambda_mass     = 0.d0
-            force_env%adqmmmx_env%switch_active = .TRUE.    
-            force_env%adqmmmx_env%lambda_adqmmmx = 0.d0
-            force_env%adqmmmx_env%lambda_velocity = 0.d0
+            !force_env%adqmmmx_env%lambda_mass     = 0.d0
+            !force_env%adqmmmx_env%switch_active = .TRUE.    
+            !force_env%adqmmmx_env%lambda_adqmmmx = 0.d0
+            !force_env%adqmmmx_env%lambda_velocity = 0.d0
          END IF
 
          !MN Check if Indices and labels from new_*** are correctly handled
@@ -326,7 +326,7 @@ CONTAINS
          !force_env%adqmmmx_env => new_adqmmmx_env
          ! JB MOD 28 03
          force_env%adqmmmx_env = new_adqmmmx_env  
-         force_env%adqmmmx_env%switch_active = .TRUE.       
+         !force_env%adqmmmx_env%switch_active = .TRUE.       
       END IF
 
       !JB Write lambda propagation output and setup mass
