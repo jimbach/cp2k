@@ -234,7 +234,7 @@ CONTAINS
 
       IF ( .NOT. force_env%adqmmmx_env%switch_active ) THEN 
          WRITE (1337,*) "Starting label update"
-         labels_changed = .FALSE. !MN Test if logical variable is given to routine correctly
+         labels_changed = .TRUE. !MN Test if logical variable is given to routine correctly
          CALL force_env_get(force_env, subsys=subsys)
          
          !MN Create new_adqmmmx_env
