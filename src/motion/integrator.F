@@ -1239,9 +1239,10 @@ CONTAINS
 
       !JB Propagation of vlambda if discrete
       ! changes 07.2025
-      IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) & 
-                                           .AND. (force_env%adqmmmx_env%lambda_adqmmmx .GT. 0) THEN
-         CALL adqmmmx_vv_second(force_env, dt, 1336)
+      IF(ASSOCIATED(force_env%adqmmmx_env) .AND. force_env%adqmmmx_env%switch_active) THEN
+         IF (force_env%adqmmmx_env%lambda_adqmmmx .GT. 0) THEN
+            CALL adqmmmx_vv_second(force_env, dt, 1336)
+         END IF
       END IF
 
       
