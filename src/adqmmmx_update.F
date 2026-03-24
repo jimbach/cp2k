@@ -325,7 +325,7 @@ CONTAINS
          CALL adqmmmx_env_release(force_env%adqmmmx_env)
          !force_env%adqmmmx_env => new_adqmmmx_env
          ! JB MOD 28 03
-         force_env%adqmmmx_env => new_adqmmmx_env  
+         force_env%adqmmmx_env = new_adqmmmx_env  
          force_env%adqmmmx_env%switch_active = .TRUE.       
       END IF
 
