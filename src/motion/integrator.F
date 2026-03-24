@@ -1116,20 +1116,18 @@ CONTAINS
          CALL adqmmmx_vv_first(force_env, dt, 1336)
       END IF
       
-      !JB ADQMMMX partitioning setup
-      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
-         WRITE(*,*) "Performing lambda update check"
-         CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
-         output_unit = cp_logger_get_default_io_unit()
-      END IF      
-
-
+  
       ! Velocity Verlet (first part)
       CALL vv_first(tmp, atomic_kind_set, local_particles, particle_set, &
                     core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt)
 
 
-
+      !JB ADQMMMX partitioning setup
+      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+         WRITE(*,*) "Performing lambda update check"
+         CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
+         output_unit = cp_logger_get_default_io_unit()
+      END IF    
 
 
       IF (simpar%variable_dt) CALL variable_timestep(md_env, tmp, dt, simpar, para_env, atomic_kind_set, &

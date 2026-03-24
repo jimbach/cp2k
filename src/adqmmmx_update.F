@@ -281,7 +281,7 @@ CONTAINS
          ELSE IF (.NOT. force_env%adqmmmx_env%switch_active) THEN
             WRITE (1337,*) "Partitioning changed ==> Activating update routine"
             !force_env%adqmmmx_env%lambda_mass     = 0.d0
-            !force_env%adqmmmx_env%switch_active = .TRUE.    
+            force_env%adqmmmx_env%switch_active = .TRUE.    
             !force_env%adqmmmx_env%lambda_adqmmmx = 0.d0
             !force_env%adqmmmx_env%lambda_velocity = 0.d0
          END IF
