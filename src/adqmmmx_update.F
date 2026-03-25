@@ -310,6 +310,8 @@ CONTAINS
             CPWARN("Lambda > 1+precision, lambda overshot, consider choosing a longer switching time!")
          END IF
          
+         !Added JB 23.3.26
+         WRITE(*,*) "SWITCHING Ekin:", force_env%adqmmmx_env%kin_e
          IF (force_env%adqmmmx_env%energy_add) THEN
             !JB Calculate Error function for total lambda energy only once!
             Lam_Error = force_env%adqmmmx_env%dpot*(lambda - 1.d0)**2
