@@ -1113,6 +1113,7 @@ CONTAINS
          IF ((force_env%adqmmmx_env%lambda_mass == 0.d0)) THEN
             CALL adqmmmx_calculate_switching_mass(force_env, 1336)
          END IF
+         ! HERE IS THE CHECK MISSING IF LAMBDA IS ALREADY CONVERGED! ADD THIS! 24.3.26
          CALL adqmmmx_vv_first(force_env, dt, 1336)
       END IF
       
