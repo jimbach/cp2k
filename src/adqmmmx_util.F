@@ -540,8 +540,9 @@ CONTAINS
          new_adqmmmx_env%omega           = 0.0
          new_adqmmmx_env%dpot            = 0.0
          new_adqmmmx_env%totpot          = 0.0
+         !changed from md_kin_e 25.3.26
          new_adqmmmx_env%kin_e           = adqmmmx_env%kin_e
-         !changed from 0.0
+         !changed from 0.0 25.3.26
          new_adqmmmx_env%md_kin_e        = new_adqmmmx_env%md_kin_e
          new_adqmmmx_env%md_pot_e        = new_adqmmmx_env%md_pot_e
          new_adqmmmx_env%md_corr         = 0.0
