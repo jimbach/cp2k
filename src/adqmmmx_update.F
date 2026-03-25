@@ -236,15 +236,16 @@ CONTAINS
 
          !MN Copy adaptive switching parameters and release old environemnt
          
-         WRITE(1337,*) "Update_force_eval Ekin1:", force_env%adqmmmx_env%kin_e, force_env%new_adqmmmx_env%kin_e
+         !Print edits 25.3.26
+         WRITE(1337,*) "Update_force_eval Ekin1:", force_env%adqmmmx_env%kin_e, new_adqmmmx_env%kin_e
          CALL copy_adqmmmx_env(new_adqmmmx_env, force_env%adqmmmx_env)
-         WRITE(1337,*) "Update_force_eval Ekin2:", force_env%adqmmmx_env%kin_e, force_env%new_adqmmmx_env%kin_e
+         WRITE(1337,*) "Update_force_eval Ekin2:", force_env%adqmmmx_env%kin_e, new_adqmmmx_env%kin_e
          CALL adqmmmx_env_release(force_env%adqmmmx_env)
-         WRITE(1337,*) "Update_force_eval Ekin3:", force_env%adqmmmx_env%kin_e, force_env%new_adqmmmx_env%kin_e
+         WRITE(1337,*) "Update_force_eval Ekin3:", force_env%adqmmmx_env%kin_e, new_adqmmmx_env%kin_e
          !force_env%adqmmmx_env => new_adqmmmx_env
          ! JB MOD 28 03
          force_env%adqmmmx_env = new_adqmmmx_env  
-         WRITE(1337,*) "Update_force_eval Ekin4:", force_env%adqmmmx_env%kin_e, force_env%new_adqmmmx_env%kin_e
+         WRITE(1337,*) "Update_force_eval Ekin4:", force_env%adqmmmx_env%kin_e, new_adqmmmx_env%kin_e
          !force_env%adqmmmx_env%switch_active = .TRUE.       
       END IF
 
