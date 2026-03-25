@@ -299,6 +299,7 @@ CONTAINS
       IF (((1.d0-lambda) <= swprecision .OR. (lambda>1)) .AND. (force_env%adqmmmx_env%switch_active)) THEN
          WRITE (1337,*) "UPDATE_FORCE_ENV: Switching complete, start new update cycle..."
          WRITE (1337,*) "Switch Active:", force_env%adqmmmx_env%switch_active
+         WRITE (1337,*) "Ekin:", force_env%adqmmmx_env%e_kin
          
          IF (lambda>(1+swprecision)) THEN
             CPWARN("Lambda > 1+precision, lambda overshot, consider choosing a longer switching time!")
