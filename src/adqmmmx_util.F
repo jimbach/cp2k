@@ -541,8 +541,9 @@ CONTAINS
          new_adqmmmx_env%dpot            = 0.0
          new_adqmmmx_env%totpot          = 0.0
          new_adqmmmx_env%kin_e           = adqmmmx_env%md_kin_e
-         new_adqmmmx_env%md_kin_e        = 0.0
-         new_adqmmmx_env%md_pot_e        = 0.0
+         !changed from 0.0
+         new_adqmmmx_env%md_kin_e        = new_adqmmmx_env%md_kin_e
+         new_adqmmmx_env%md_pot_e        = new_adqmmmx_env%md_pot_e
          new_adqmmmx_env%md_corr         = 0.0
          new_adqmmmx_env%lambda_force    = 0.0
          new_adqmmmx_env%Elambda         = 0.0
