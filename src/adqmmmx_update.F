@@ -296,10 +296,14 @@ CONTAINS
   !       force_env%adqmmmx_env%lambda_velocity=0.d0
   !    END IF
       
-      IF ((1.d0-lambda) <= swprecision .AND. (force_env%adqmmmx_env%switch_active)) THEN
+      IF (((1.d0-lambda) <= swprecision .OR. (lambda>1)) .AND. (force_env%adqmmmx_env%switch_active)) THEN
          WRITE (1337,*) "UPDATE_FORCE_ENV: Switching complete, start new update cycle..."
          WRITE (1337,*) "Switch Active:", force_env%adqmmmx_env%switch_active
-
+         
+         IF (lambda>(1+swprecision)) THEN
+            CPWARN("Lambda > 1+precision, lambda overshot, consider choosing a longer switching time!")
+         END IF
+         
          IF (force_env%adqmmmx_env%energy_add) THEN
             !JB Calculate Error function for total lambda energy only once!
             Lam_Error = force_env%adqmmmx_env%dpot*(lambda - 1.d0)**2
@@ -321,10 +325,6 @@ CONTAINS
 
             force_env%adqmmmx_env%switch_active   = .FALSE.
          END IF
-
-         !JB add a check for lambda > 1
-      ELSE IF ((lambda > 1)) THEN
-         CPABORT("Lambda > 1 overshot, choose a longer switching time")
       ELSE IF ((lambda < 0) .OR. (lambda .NE. lambda)) THEN
          CPABORT("LAMBDA IS LOWER THAN 0 OR NaN, SOMETHING WENT WRONG!")
       END IF
