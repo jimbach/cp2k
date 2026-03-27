@@ -1122,7 +1122,9 @@ CONTAINS
       CALL vv_first(tmp, atomic_kind_set, local_particles, particle_set, &
                     core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt)
 
-
+      !Added JB 25.3.26
+      WRITE(*,*) "Ekin: ", force_env%adqmmmx_env%kin_e
+      WRITE(*,*) "Switch act.: ", force_env%adqmmmx_env%switch_active
       !JB ADQMMMX partitioning setup
       IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
          WRITE(*,*) "Performing lambda update check"
