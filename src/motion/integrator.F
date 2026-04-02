@@ -1068,7 +1068,8 @@ CONTAINS
       END IF
 
       ! added adqmmmx JB 1.4
-      CALL allocate_tmp(md_env, tmp, tmp_adqmmmx, nparticle, nshell, shell_adiabatic)
+      CALL allocate_tmp(md_env, tmp_adqmmmx, nparticle, nshell, shell_adiabatic)
+      CALL allocate_tmp(md_env, tmp, nparticle, nshell, shell_adiabatic)
 
       ! Apply Thermostat over the full set of particles
       IF (shell_adiabatic) THEN
