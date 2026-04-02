@@ -1012,7 +1012,8 @@ CONTAINS
       TYPE(tmp_variables_type), POINTER                  :: tmp, tmp_adqmmmx
       TYPE(virial_type), POINTER                         :: virial
 
-      NULLIFY (gci, force_env, thermostat_coeff, tmp, &
+      ! added adqmmmx JB 1.4
+      NULLIFY (gci, force_env, thermostat_coeff, tmp, tmp_adqmmmx, &
                thermostat_part, thermostat_shell, cell, shell_particles, &
                shell_particle_set, core_particles, core_particle_set, rand)
       NULLIFY (para_env, subsys, local_molecules, local_particles, molecule_kinds, &
@@ -1066,7 +1067,8 @@ CONTAINS
          END IF
       END IF
 
-      CALL allocate_tmp(md_env, tmp, nparticle, nshell, shell_adiabatic)
+      ! added adqmmmx JB 1.4
+      CALL allocate_tmp(md_env, tmp, tmp_adqmmmx, nparticle, nshell, shell_adiabatic)
 
       ! Apply Thermostat over the full set of particles
       IF (shell_adiabatic) THEN
