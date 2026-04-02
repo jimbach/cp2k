@@ -1008,12 +1008,11 @@ CONTAINS
       TYPE(simpar_type), POINTER                         :: simpar
       TYPE(thermostat_type), POINTER                     :: thermostat_coeff, thermostat_part, &
                                                             thermostat_shell
-                                                            ! added adqmmmx JB 1.4
-      TYPE(tmp_variables_type), POINTER                  :: tmp, tmp_adqmmmx
+      TYPE(tmp_variables_type), POINTER                  :: tmp
       TYPE(virial_type), POINTER                         :: virial
 
       ! added adqmmmx JB 1.4
-      NULLIFY (gci, force_env, thermostat_coeff, tmp, tmp_adqmmmx, &
+      NULLIFY (gci, force_env, thermostat_coeff, tmp, &
                thermostat_part, thermostat_shell, cell, shell_particles, &
                shell_particle_set, core_particles, core_particle_set, rand)
       NULLIFY (para_env, subsys, local_molecules, local_particles, molecule_kinds, &
@@ -1067,8 +1066,6 @@ CONTAINS
          END IF
       END IF
 
-      ! added adqmmmx JB 1.4
-      CALL allocate_tmp(md_env, tmp_adqmmmx, nparticle, nshell, shell_adiabatic)
       CALL allocate_tmp(md_env, tmp, nparticle, nshell, shell_adiabatic)
 
       ! Apply Thermostat over the full set of particles
@@ -1107,7 +1104,7 @@ CONTAINS
          output_unit = cp_logger_get_default_io_unit()
          !first step, update the forces to get force env 2
          IF (force_env%adqmmmx_env%switch_active .AND. force_env%adqmmmx_env%lambda_adqmmmx == 0.d0) THEN
-            tmp_adqmmmx%vel=tmp%vel
+            WRITE(*,*) tmp%vel
             CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
             
             ![ADAPT] update input structure with new coordinates, make new labels
@@ -1145,7 +1142,6 @@ CONTAINS
                core_particle_set => core_particles%els
                END IF
             END IF
-            tmp%vel=tmp_adqmmmx%vel
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
          END IF
       END IF    
