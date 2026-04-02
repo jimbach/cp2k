@@ -1094,8 +1094,18 @@ CONTAINS
          END IF
       END IF
 
-
-      
+      !moved 1.4
+      !JB ADQMMMX partitioning setup
+      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+         WRITE(*,*) "Performing lambda update check"
+         CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
+         output_unit = cp_logger_get_default_io_unit()
+         !first step, update the forces to get force env 2
+         IF (force_env%adqmmmx_env%switch_active .AND. force_env%adqmmmx_env%lambda_adqmmmx == 0.d0) THEN
+            CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
+         END IF
+      END IF    
+     
 
 
 
@@ -1123,14 +1133,14 @@ CONTAINS
                     core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt)
 
       !Added JB 25.3.26
-      WRITE(*,*) "Ekin: ", force_env%adqmmmx_env%kin_e
-      WRITE(*,*) "Switch act.: ", force_env%adqmmmx_env%switch_active
+ !     WRITE(*,*) "Ekin: ", force_env%adqmmmx_env%kin_e
+ !     WRITE(*,*) "Switch act.: ", force_env%adqmmmx_env%switch_active
       !JB ADQMMMX partitioning setup
-      IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
-         WRITE(*,*) "Performing lambda update check"
-         CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
-         output_unit = cp_logger_get_default_io_unit()
-      END IF    
+ !     IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
+ !        WRITE(*,*) "Performing lambda update check"
+ !        CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
+ !        output_unit = cp_logger_get_default_io_unit()
+ !     END IF    
 
 
       IF (simpar%variable_dt) CALL variable_timestep(md_env, tmp, dt, simpar, para_env, atomic_kind_set, &
