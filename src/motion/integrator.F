@@ -1104,7 +1104,9 @@ CONTAINS
          output_unit = cp_logger_get_default_io_unit()
          !first step, update the forces to get force env 2
          IF (force_env%adqmmmx_env%switch_active .AND. force_env%adqmmmx_env%lambda_adqmmmx == 0.d0) THEN
-            WRITE(*,*) tmp%vel
+            
+            
+            
             CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
             
             ![ADAPT] update input structure with new coordinates, make new labels
@@ -1142,6 +1144,7 @@ CONTAINS
                core_particle_set => core_particles%els
                END IF
             END IF
+            CALL allocate_tmp(md_env, tmp, nparticle, nshell, shell_adiabatic)
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
          END IF
       END IF    
