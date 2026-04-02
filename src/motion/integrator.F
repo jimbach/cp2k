@@ -1008,7 +1008,8 @@ CONTAINS
       TYPE(simpar_type), POINTER                         :: simpar
       TYPE(thermostat_type), POINTER                     :: thermostat_coeff, thermostat_part, &
                                                             thermostat_shell
-      TYPE(tmp_variables_type), POINTER                  :: tmp
+                                                            ! added adqmmmx JB 1.4
+      TYPE(tmp_variables_type), POINTER                  :: tmp, tmp_adqmmmx
       TYPE(virial_type), POINTER                         :: virial
 
       NULLIFY (gci, force_env, thermostat_coeff, tmp, &
@@ -1095,6 +1096,7 @@ CONTAINS
       END IF
 
       !moved 1.4
+      ! ADDED ALL THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !JB ADQMMMX partitioning setup
       IF(ASSOCIATED(force_env%adqmmmx_env)) THEN
          WRITE(*,*) "Performing lambda update check"
@@ -1102,6 +1104,7 @@ CONTAINS
          output_unit = cp_logger_get_default_io_unit()
          !first step, update the forces to get force env 2
          IF (force_env%adqmmmx_env%switch_active .AND. force_env%adqmmmx_env%lambda_adqmmmx == 0.d0) THEN
+            tmp_adqmmmx%vel=tmp%vel
             CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
             
             ![ADAPT] update input structure with new coordinates, make new labels
@@ -1139,10 +1142,11 @@ CONTAINS
                core_particle_set => core_particles%els
                END IF
             END IF
+            tmp%vel=tmp_adqmmmx%vel
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
          END IF
       END IF    
-     
+      ! ADDED ALL THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 
