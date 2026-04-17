@@ -1148,7 +1148,7 @@ CONTAINS
       !ADDED      
             ! Broadcast the new particle positions and deallocate pos components of temporary
             CALL update_dealloc_tmp(tmp, particle_set, shell_particle_set, &
-                              core_particle_set, para_env, shell_adiabatic, pos=.TRUE.)
+                              core_particle_set, para_env, shell_adiabatic, vel=.TRUE.,should_deall_vel=.FALSE.)
 
             IF (shell_adiabatic .AND. shell_check_distance) THEN
                CALL optimize_shell_core(force_env, particle_set, &
