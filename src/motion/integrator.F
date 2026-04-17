@@ -1110,7 +1110,7 @@ CONTAINS
             CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
             
             ![ADAPT] update input structure with new coordinates, make new labels
-            CALL qmmmx_update_force_env(force_env, force_env%root_section)
+       !     CALL qmmmx_update_force_env(force_env, force_env%root_section)
 
             ![NB] recreate pointers changed by creation of new subsys in qmmm_update_force_mixing_env
             ![NB] ugly hack, which is why adaptivity isn't implemented in most other ensembles
@@ -1144,24 +1144,16 @@ CONTAINS
                core_particle_set => core_particles%els
                END IF
             END IF
-            
-             ! Apply Thermostat over the full set of particles
-             IF (shell_adiabatic) THEN
-               CALL apply_thermostat_particles(thermostat_part, force_env, molecule_kind_set, molecule_set, &
-                                        particle_set, local_molecules, local_particles, para_env, shell_adiabatic=shell_adiabatic, &
-                                         shell_particle_set=shell_particle_set, core_particle_set=core_particle_set)
+      
+      !ADDED      
+            ! Broadcast the new particle positions and deallocate pos components of temporary
+            CALL update_dealloc_tmp(tmp, particle_set, shell_particle_set, &
+                              core_particle_set, para_env, shell_adiabatic, pos=.TRUE.)
 
-               CALL apply_thermostat_shells(thermostat_shell, atomic_kind_set, particle_set, &
-                                      local_particles, para_env, shell_particle_set=shell_particle_set, &
-                                      core_particle_set=core_particle_set)
-             ELSE
-               CALL apply_thermostat_particles(thermostat_part, force_env, molecule_kind_set, molecule_set, &
-                                         particle_set, local_molecules, local_particles, para_env)
-             END IF
-
-             IF (simpar%constraint) CALL getold(gci, local_molecules, molecule_set, &
-                                         molecule_kind_set, particle_set, cell)
-
+            IF (shell_adiabatic .AND. shell_check_distance) THEN
+               CALL optimize_shell_core(force_env, particle_set, &
+                                  shell_particle_set, core_particle_set, globenv, tmp=tmp, check=.TRUE.)
+            END IF
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
          END IF
       END IF    
