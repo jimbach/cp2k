@@ -1118,8 +1118,8 @@ CONTAINS
        !     CALL force_env_get(force_env=force_env, subsys=subsys, cell=cell)
 
        !     CALL cp_subsys_get(subsys=subsys, atomic_kinds=atomic_kinds, local_particles=local_particles, &
-                         particles=particles, local_molecules=local_molecules, molecules=molecules, &
-                         molecule_kinds=molecule_kinds, gci=gci, virial=virial)
+       !                  particles=particles, local_molecules=local_molecules, molecules=molecules, &
+       !                  molecule_kinds=molecule_kinds, gci=gci, virial=virial)
 
        !     nparticle_kind = atomic_kinds%n_els
        !     atomic_kind_set => atomic_kinds%els
