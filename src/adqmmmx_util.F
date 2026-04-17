@@ -540,6 +540,8 @@ CONTAINS
          new_adqmmmx_env%omega           = 0.0
          new_adqmmmx_env%dpot            = 0.0
          new_adqmmmx_env%totpot          = 0.0
+         new_adqmmmx_env%oldsys%fist_env%subsys%particles%els(:)%v(:)=adqmmmx_env%oldsys%fist_env%subsys%particles%els(:)%v(:)
+         new_adqmmmx_env%newsys%fist_env%subsys%particles%els(:)%v(:)=adqmmmx_env%newsys%fist_env%subsys%particles%els(:)%v(:)
          !changed from md_kin_e 25.3.26
          new_adqmmmx_env%kin_e           = adqmmmx_env%kin_e
          !changed from 0.0 25.3.26

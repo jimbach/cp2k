@@ -1153,9 +1153,7 @@ CONTAINS
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
          END IF
          
-         CALL vv_second(tmp, atomic_kind_set, local_particles, particle_set, &
-                     core_particle_set, shell_particle_set, nparticle_kind, shell_adiabatic, dt=0.d0)
-      END IF    
+       END IF    
       ! ADDED ALL THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
