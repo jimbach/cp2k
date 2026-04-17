@@ -171,12 +171,11 @@ CONTAINS
 
          ! [NB] need to copy wiener process data, since it's not recreated when
          ! fist subsys is recreated by qmmm_env_create
-         CALL qmmm_env_get(force_env%adqmmmx_env%newsys, subsys=subsys)
+         !CORE IS oldsys EXT IS newsys
+         CALL qmmm_env_get(force_env%adqmmmx_env%oldsys, subsys=subsys)
+         CALL cp_subsys_get(subsys, atomic_kinds=atomic_kinds, local_particles=local_particles)
          CALL qmmm_env_get(new_adqmmmx_env%oldsys, subsys=subsys)
          CALL cp_subsys_get(subsys, atomic_kinds=atomic_kinds, local_particles=local_particles)
-         !MN Copy wiener process for oldsys
-         CALL qmmm_env_get(new_adqmmmx_env%oldsys, subsys=subsys_new)
-         CALL cp_subsys_get(subsys_new, atomic_kinds=new_atomic_kinds, local_particles=new_local_particles)
          IF (ASSOCIATED(local_particles%local_particle_set)) THEN
             CALL copy_wiener_process(atomic_kinds, local_particles, new_atomic_kinds, new_local_particles)
          END IF
@@ -210,6 +209,8 @@ CONTAINS
          !MN Create sections for newsys using the new updated indices/labels
 
          CALL setup_adqmmmx_sections(subsys, qmmm_section, qmmm_newsys_section)
+                 
+         
          !JB ADD 4 02 2025
          !DEALLOCATE (new_adqmmmx_env%newsys)
          ALLOCATE (new_adqmmmx_env%newsys)
@@ -223,6 +224,7 @@ CONTAINS
 
          ! [NB] need to copy wiener process data, since it's not recreated when
          ! fist subsys is recreated by qmmm_env_create
+         !CORE IS oldsys EXT IS newsys
          CALL qmmm_env_get(force_env%adqmmmx_env%newsys, subsys=subsys_new)
          CALL cp_subsys_get(subsys, atomic_kinds=atomic_kinds, local_particles=local_particles)
          CALL qmmm_env_get(new_adqmmmx_env%newsys, subsys=subsys_new)
