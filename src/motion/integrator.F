@@ -1103,11 +1103,11 @@ CONTAINS
          CALL adqmmmx_update_force_env(force_env, force_env%root_section, dt)
          output_unit = cp_logger_get_default_io_unit()
          !first step, update the forces to get force env 2
- !        IF (force_env%adqmmmx_env%switch_active .AND. force_env%adqmmmx_env%lambda_adqmmmx == 0.d0) THEN
+         IF (force_env%adqmmmx_env%switch_active .AND. force_env%adqmmmx_env%lambda_adqmmmx == 0.d0) THEN
  !           
  !           
  !           
- !           CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
+            CALL force_env_calc_energy_force(force_env, require_consistent_energy_force=.FALSE.)
  !           
  !           ![ADAPT] update input structure with new coordinates, make new labels
  !      !     CALL qmmmx_update_force_env(force_env, force_env%root_section)
@@ -1151,7 +1151,7 @@ CONTAINS
  !                             core_particle_set, para_env, shell_adiabatic, vel=.TRUE.,should_deall_vel=.FALSE.)
 
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
- !        END IF
+         END IF
          
        END IF    
       ! ADDED ALL THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
