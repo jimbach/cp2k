@@ -147,13 +147,13 @@ CONTAINS
 !>      08.2007 created [tlaino] - Zurich University
 !> \author Teodoro Laino
 ! **************************************************************************************************
-   SUBROUTINE adqmmmx_copy_vel(adqmmmx_env, new_adqmmmx_env, output_unit)
+   SUBROUTINE adqmmmx_copy_vel(adqmmmx_env, new_adqmmmx_env)
       TYPE(adqmmmx_env_type), POINTER, INTENT(INOUT)     :: adqmmmx_env, new_adqmmmx_env
 
       CHARACTER(len=*), PARAMETER :: routineN = 'apply_adqmmmx_translate', &
          routineP = moduleN//':'//routineN
 
-      INTEGER                                            :: ip, output_unit
+      INTEGER                                            :: ip
       TYPE(cp_subsys_type), POINTER                      :: subsys_oldsys, subsys_newsys, &
                                                             new_subsys_oldsys, new_subsys_newsys
       TYPE(particle_type), DIMENSION(:), POINTER         :: particles_oldsys, particles_newsys, &
