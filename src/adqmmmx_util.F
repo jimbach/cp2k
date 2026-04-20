@@ -138,6 +138,61 @@ CONTAINS
    END SUBROUTINE apply_adqmmmx_translate
 
 
+
+! **************************************************************************************************
+!> \brief Apply translation to the full system in order to center the QM
+!>      system into the QM box
+!> \param adqmmmx_env ...
+!> \par History
+!>      08.2007 created [tlaino] - Zurich University
+!> \author Teodoro Laino
+! **************************************************************************************************
+   SUBROUTINE adqmmmx_copy_vel(adqmmmx_env, new_adqmmmx_env, output_unit)
+      TYPE(adqmmmx_env_type), POINTER, INTENT(INOUT)     :: adqmmmx_env, new_adqmmmx_env
+
+      CHARACTER(len=*), PARAMETER :: routineN = 'apply_adqmmmx_translate', &
+         routineP = moduleN//':'//routineN
+
+      INTEGER                                            :: ip, output_unit
+      TYPE(cp_subsys_type), POINTER                      :: subsys_oldsys, subsys_newsys, &
+                                                            new_subsys_oldsys, new_subsys_newsys
+      TYPE(particle_type), DIMENSION(:), POINTER         :: particles_oldsys, particles_newsys &
+                                                            newparticles_oldsys, newparticles_newsys
+                                                            
+      NULLIFY (subsys_oldsys, subsys_newsys, new_subsys_oldsys, new_subsys_newsys)
+      NULLIFY (particles_oldsys, particles_newsys, newparticles_oldsys, newparticles_newsys)
+
+
+      ! get the subsys
+      CALL qmmm_env_get(adqmmmx_env%newsys, subsys=subsys_newsys)
+      CALL cp_subsys_get(subsys_newsys)
+      CALL qmmm_env_get(adqmmmx_env%oldsys, subsys=subsys_oldsys)
+      CALL cp_subsys_get(subsys_oldsys)
+      CALL qmmm_env_get(new_adqmmmx_env%newsys, subsys=new_subsys_newsys)
+      CALL cp_subsys_get(new_subsys_newsys)
+      CALL qmmm_env_get(new_adqmmmx_env%oldsys, subsys=new_subsys_oldsys)
+      CALL cp_subsys_get(new_subsys_oldsys)
+
+      particles_newsys => subsys_newsys%particles%els
+      particles_oldsys => subsys_oldsys%particles%els
+      new_particles_newsys => new_subsys_newsys%particles%els
+      new_particles_oldsys => new_subsys_oldsys%particles%els
+
+      DO ip = 1, SIZE(particles_newsys)
+      !MN Overwrite oldsys coords with newsys coords
+         particles_oldsys(ip)%r = particles_newsys(ip)%r
+         particles_oldsys(ip)%v = particles_newsys(ip)%v
+         new_particles_newsys(ip)%r = particles_newsys(ip)%r
+         new_particles_newsys(ip)%v = particles_newsys(ip)%v
+         new_particles_oldsys(ip)%r = particles_newsys(ip)%r
+         new_particles_oldsys(ip)%v = particles_newsys(ip)%v
+      END DO
+
+   END SUBROUTINE adqmmmx_copy_vel
+
+
+
+
 ! **************************************************************************************************
 !> \brief ...
 !> \param subsys ...

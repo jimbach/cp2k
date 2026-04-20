@@ -245,6 +245,8 @@ CONTAINS
          CALL adqmmmx_env_release(force_env%adqmmmx_env)
          WRITE(1337,*) "Update_force_eval Ekin3:", force_env%adqmmmx_env%kin_e, new_adqmmmx_env%kin_e
          !force_env%adqmmmx_env => new_adqmmmx_env
+         ! copy the velocities
+         adqmmmx_copy_vel(force_env%adqmmmx_env,new_adqmmmx_env)
          ! JB MOD 28 03
          force_env%adqmmmx_env = new_adqmmmx_env  
          WRITE(1337,*) "Update_force_eval Ekin4:", force_env%adqmmmx_env%kin_e, new_adqmmmx_env%kin_e

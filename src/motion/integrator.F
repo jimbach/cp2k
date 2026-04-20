@@ -1128,7 +1128,6 @@ CONTAINS
             nparticle = particles%n_els
             particle_set => particles%els
             molecule_set => molecules%els
-            particle_set(:)%v(:)=tmp%vel(:)
 
             CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, &
             shell_present=shell_present, shell_adiabatic=shell_adiabatic, &
