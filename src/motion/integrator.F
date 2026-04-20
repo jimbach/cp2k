@@ -1115,35 +1115,36 @@ CONTAINS
  !           ![NB] recreate pointers changed by creation of new subsys in qmmm_update_force_mixing_env
  !           ![NB] ugly hack, which is why adaptivity isn't implemented in most other ensembles
  !           !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- !           CALL force_env_get(force_env=force_env, subsys=subsys, cell=cell)!
+            CALL force_env_get(force_env=force_env, subsys=subsys, cell=cell)!
 
- !           CALL cp_subsys_get(subsys=subsys, atomic_kinds=atomic_kinds, local_particles=local_particles, &
- !                        particles=particles, local_molecules=local_molecules, molecules=molecules, &
- !                        molecule_kinds=molecule_kinds, gci=gci, virial=virial)
+            CALL cp_subsys_get(subsys=subsys, atomic_kinds=atomic_kinds, local_particles=local_particles, &
+                         particles=particles, local_molecules=local_molecules, molecules=molecules, &
+                         molecule_kinds=molecule_kinds, gci=gci, virial=virial)
 
- !           nparticle_kind = atomic_kinds%n_els
- !           atomic_kind_set => atomic_kinds%els
- !           molecule_kind_set => molecule_kinds%els
+            nparticle_kind = atomic_kinds%n_els
+            atomic_kind_set => atomic_kinds%els
+            molecule_kind_set => molecule_kinds%els
 
- !           nparticle = particles%n_els
- !           particle_set => particles%els
- !           molecule_set => molecules%els
+            nparticle = particles%n_els
+            particle_set => particles%els
+            molecule_set => molecules%els
+            particle_set(:)%v(:)=tmp%vel(:)
 
- !           CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, &
- !           shell_present=shell_present, shell_adiabatic=shell_adiabatic, &
- !           shell_check_distance=shell_check_distance)
+            CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, &
+            shell_present=shell_present, shell_adiabatic=shell_adiabatic, &
+            shell_check_distance=shell_check_distance)
 
  !           !  Allocate work storage for positions and velocities
- !           IF (shell_present) THEN
- !              CALL cp_subsys_get(subsys=subsys, shell_particles=shell_particles, &
- !                           core_particles=core_particles)
- !              shell_particle_set => shell_particles%els
- !              nshell = SIZE(shell_particles%els)
+            IF (shell_present) THEN
+               CALL cp_subsys_get(subsys=subsys, shell_particles=shell_particles, &
+                            core_particles=core_particles)
+               shell_particle_set => shell_particles%els
+               nshell = SIZE(shell_particles%els)
 
- !           IF (shell_adiabatic) THEN
- !              core_particle_set => core_particles%els
- !              END IF
- !           END IF
+            IF (shell_adiabatic) THEN
+               core_particle_set => core_particles%els
+               END IF
+            END IF
       
       !ADDED      
             ! Broadcast the new particle positions and deallocate pos components of temporary
