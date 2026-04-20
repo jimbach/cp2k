@@ -151,9 +151,7 @@ CONTAINS
       TYPE(adqmmmx_env_type), POINTER           :: adqmmmx_env
       TYPE(adqmmmx_env_type), INTENT(INOUT)     :: new_adqmmmx_env
 
-      WRITE(*,*) "I AM HERE !!! COPY VEL"
-
-      CHARACTER(len=*), PARAMETER :: routineN = 'apply_adqmmmx_translate', &
+      CHARACTER(len=*), PARAMETER :: routineN = 'adqmmmx_copy_vel', &
          routineP = moduleN//':'//routineN
 
       INTEGER                                            :: ip
@@ -165,6 +163,8 @@ CONTAINS
       NULLIFY (subsys_oldsys, subsys_newsys, new_subsys_oldsys, new_subsys_newsys)
       NULLIFY (particles_oldsys, particles_newsys, new_particles_oldsys, new_particles_newsys)
 
+
+      WRITE(*,*) "I AM HERE !!! COPY VEL"
 
       ! get the subsys
       CALL qmmm_env_get(adqmmmx_env%newsys, subsys=subsys_newsys)
