@@ -148,7 +148,8 @@ CONTAINS
 !> \author Teodoro Laino
 ! **************************************************************************************************
    SUBROUTINE adqmmmx_copy_vel(adqmmmx_env, new_adqmmmx_env)
-      TYPE(adqmmmx_env_type), POINTER, INTENT(INOUT)     :: adqmmmx_env, new_adqmmmx_env
+      TYPE(adqmmmx_env_type), POINTER           :: adqmmmx_env
+      TYPE(adqmmmx_env_type), INTENT(INOUT)     :: new_adqmmmx_env
 
       CHARACTER(len=*), PARAMETER :: routineN = 'apply_adqmmmx_translate', &
          routineP = moduleN//':'//routineN
