@@ -235,7 +235,7 @@ CONTAINS
          END IF
 
          ! JB MOD 20.04.26 copy the velocities
-         !CALL adqmmmx_copy_vel(force_env%adqmmmx_env,new_adqmmmx_env)
+         CALL adqmmmx_copy_vel(force_env%adqmmmx_env,new_adqmmmx_env)
 
          CALL section_vals_release(qmmm_oldsys_section)
          CALL section_vals_release(qmmm_newsys_section)
