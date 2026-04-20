@@ -35,7 +35,8 @@ MODULE adqmmmx_update
                                               update_adqmmmx_values,&
 !                                             print_adqmmmx_output,&
                                               copy_adqmmmx_env,&
-                                              g_of_lambda
+                                              g_of_lambda,&
+                                              adqmmmx_copy_vel
                                               !old_update_adqmmmx_labels,&
    USE kinds,                           ONLY: dp
    USE cp_log_handling,                 ONLY: cp_logger_get_default_io_unit
@@ -245,7 +246,7 @@ CONTAINS
          CALL adqmmmx_env_release(force_env%adqmmmx_env)
          WRITE(1337,*) "Update_force_eval Ekin3:", force_env%adqmmmx_env%kin_e, new_adqmmmx_env%kin_e
          !force_env%adqmmmx_env => new_adqmmmx_env
-         ! copy the velocities
+         ! JB MOD 20.04.26 copy the velocities
          adqmmmx_copy_vel(force_env%adqmmmx_env,new_adqmmmx_env)
          ! JB MOD 28 03
          force_env%adqmmmx_env = new_adqmmmx_env  

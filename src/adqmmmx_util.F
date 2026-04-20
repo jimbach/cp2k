@@ -65,7 +65,7 @@ MODULE adqmmmx_util
    PUBLIC :: setup_adqmmmx_sections, update_adqmmmx_labels, &
              apply_adqmmmx_translate, dg_of_lambda, g_of_lambda, &
              get_adqmmmx_values, update_adqmmmx_values, &
-             print_adqmmmx_output, copy_adqmmmx_env
+             print_adqmmmx_output, copy_adqmmmx_env, adqmmmx_copy_vel
              !&,old_update_adqmmmx_labels
 
 CONTAINS
@@ -156,7 +156,7 @@ CONTAINS
       INTEGER                                            :: ip, output_unit
       TYPE(cp_subsys_type), POINTER                      :: subsys_oldsys, subsys_newsys, &
                                                             new_subsys_oldsys, new_subsys_newsys
-      TYPE(particle_type), DIMENSION(:), POINTER         :: particles_oldsys, particles_newsys &
+      TYPE(particle_type), DIMENSION(:), POINTER         :: particles_oldsys, particles_newsys, &
                                                             newparticles_oldsys, newparticles_newsys
                                                             
       NULLIFY (subsys_oldsys, subsys_newsys, new_subsys_oldsys, new_subsys_newsys)
