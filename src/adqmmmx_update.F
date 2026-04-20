@@ -77,6 +77,8 @@ CONTAINS
 !      TYPE(adqmmmx_env_type), POINTER                    :: new_adqmmmx_env
 ! JB MODS 28 03
       TYPE(adqmmmx_env_type)                             :: new_adqmmmx_env
+      ! JB MOD 20.4.26
+      TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
       TYPE(section_vals_type), POINTER                   :: qmmm_oldsys_section, &
                                                             qmmm_newsys_section, &
                                                             adqmmmx_section, qmmm_section, &
@@ -247,7 +249,8 @@ CONTAINS
          WRITE(1337,*) "Update_force_eval Ekin3:", force_env%adqmmmx_env%kin_e, new_adqmmmx_env%kin_e
          !force_env%adqmmmx_env => new_adqmmmx_env
          ! JB MOD 20.04.26 copy the velocities
-         CALL adqmmmx_copy_vel(force_env%adqmmmx_env,new_adqmmmx_env)
+         adqmmmx_env => force_env%adqmmmx_env
+         CALL adqmmmx_copy_vel(adqmmmx_env,new_adqmmmx_env)
          ! JB MOD 28 03
          force_env%adqmmmx_env = new_adqmmmx_env  
          WRITE(1337,*) "Update_force_eval Ekin4:", force_env%adqmmmx_env%kin_e, new_adqmmmx_env%kin_e
