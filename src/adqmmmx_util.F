@@ -157,10 +157,10 @@ CONTAINS
       TYPE(cp_subsys_type), POINTER                      :: subsys_oldsys, subsys_newsys, &
                                                             new_subsys_oldsys, new_subsys_newsys
       TYPE(particle_type), DIMENSION(:), POINTER         :: particles_oldsys, particles_newsys, &
-                                                            newparticles_oldsys, newparticles_newsys
+                                                            new_particles_oldsys, new_particles_newsys
                                                             
       NULLIFY (subsys_oldsys, subsys_newsys, new_subsys_oldsys, new_subsys_newsys)
-      NULLIFY (particles_oldsys, particles_newsys, newparticles_oldsys, newparticles_newsys)
+      NULLIFY (particles_oldsys, particles_newsys, new_particles_oldsys, new_particles_newsys)
 
 
       ! get the subsys
