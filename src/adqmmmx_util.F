@@ -151,6 +151,8 @@ CONTAINS
       TYPE(adqmmmx_env_type), POINTER           :: adqmmmx_env
       TYPE(adqmmmx_env_type), INTENT(INOUT)     :: new_adqmmmx_env
 
+      WRITE(*,*) "I AM HERE !!! COPY VEL"
+
       CHARACTER(len=*), PARAMETER :: routineN = 'apply_adqmmmx_translate', &
          routineP = moduleN//':'//routineN
 
