@@ -194,6 +194,8 @@ CONTAINS
             RETURN 
          ! JB MOD 23 02 26 
          ELSE IF (.NOT. force_env%adqmmmx_env%switch_active) THEN
+            ! 21.4.26 CHECK IF WE ARE SWITCHING ONE WATER IN AND OUT AT SAME TIME, THIS CAUSES INSTABILITY SO WAIT
+            
             WRITE (1337,*) "Partitioning changed ==> Activating update routine"
             !force_env%adqmmmx_env%lambda_mass     = 0.d0
             force_env%adqmmmx_env%switch_active = .TRUE.    

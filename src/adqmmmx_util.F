@@ -432,6 +432,14 @@ CONTAINS
             " N_QM dynamic  ", COUNT(new_labels == adqmmmx_label_QM_dynamics)
       ENDIF
 
+
+      
+      ! Added JB 21.4.26 CHECK IF WE ARE SWITCHING ONE WATER IN AND OUT AT SAME TIME, THIS CAUSES INSTABILITY SO WAIT
+      IF (SIZE(cur_indices)==SIZE(new_indices)) THEN
+            WRITE (1338,*) "SWITCHING ONE WATER IN AND OUT AT SAME TIME, THIS DOES NOT WORK SO WAITING"
+            labels_changed = .FALSE.
+      END IF
+      
 !     CLOSE(1339)
 !     CLOSE(1338)
 
