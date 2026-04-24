@@ -193,14 +193,17 @@ CONTAINS
 ! **************************************************************************************************
    SUBROUTINE lambda_energy_calc(adqmmmx_env)
       TYPE(adqmmmx_env_type), POINTER                    :: adqmmmx_env
-      REAL(dp)                                           :: addElam
+      REAL(dp)                                           :: addElam, Elambdaprev
 
+      Elambdaprev=adqmmmx_env%Elambda
       addElam = 0.5*SIGN(1.d0,adqmmmx_env%dpot)*(adqmmmx_env%lambda_mass)*(adqmmmx_env%lambda_velocity**2)
       adqmmmx_env%Elambda = addElam
       IF (adqmmmx_env%dpot_sgn/=SIGN(1.d0, adqmmmx_env%dpot)) THEN 
-         adqmmmx_env%Elamcorr = adqmmmx_env%Elamcorr - 2*addElam
-         adqmmmx_env%dpot_sgn = SIGN(1.d0, adqmmmx_env%dpot)
-         CPWARN("SIGN CHANGED")
+         IF (abs(Elambdaprev) .NE. 0.d0) THEN ! JB add 24.4.26 skip the first step, else wrong energies
+            adqmmmx_env%Elamcorr = adqmmmx_env%Elamcorr - 2*addElam
+            adqmmmx_env%dpot_sgn = SIGN(1.d0, adqmmmx_env%dpot)
+            CPWARN("SIGN CHANGED")
+         END IF
       END IF
 
    END SUBROUTINE lambda_energy_calc
